@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Exchange — POC</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --ink: #1a1f2e;
+  --ink-secondary: #5a6178;
+  --ink-muted: #8b91a5;
+  --surface: #f7f8fa;
+  --card: #ffffff;
+  --border: #e2e5ec;
+  --border-light: #eef0f4;
+  --accent: #2a5bd7;
+  --accent-soft: rgba(42, 91, 215, 0.08);
+  --accent-hover: #1d4aba;
+  --success: #1a8754;
+  --success-soft: rgba(26, 135, 84, 0.08);
+  --warning: #c47a15;
+  --warning-soft: rgba(196, 122, 21, 0.08);
+  --danger: #c43a31;
+  --danger-soft: rgba(196, 58, 49, 0.08);
+  --info: #5a6178;
+  --info-soft: rgba(90, 97, 120, 0.06);
+  --gold: #b8960f;
+  --gold-soft: rgba(184, 150, 15, 0.12);
+  --gold-glow: rgba(201, 168, 39, 0.40);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+body { font-family: var(--font); background: var(--surface); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* ── Layout ── */
+.app-header {
+  background: var(--ink); color: #fff; padding: 0 24px; height: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; opacity: 0.95; }
+.app-header .subtitle { font-size: 11px; font-weight: 500; opacity: 0.4; margin-left: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.role-switcher { display: flex; gap: 2px; background: rgba(255,255,255,0.08); border-radius: 8px; padding: 3px; }
+.role-btn {
+  font-family: var(--font); font-size: 12px; font-weight: 600; padding: 6px 16px;
+  border: none; border-radius: 6px; cursor: pointer; background: transparent;
+  color: rgba(255,255,255,0.5); transition: all 0.15s;
+}
+.role-btn:hover { color: rgba(255,255,255,0.8); }
+.role-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
+.role-btn[data-role="advisor"].active { background: var(--accent); }
+.role-btn[data-role="client"].active { background: var(--success); }
+.role-btn[data-role="ops"].active { background: #7c5bbf; }
+
+.main { max-width: 960px; margin: 0 auto; padding: 20px 24px; }
+
+/* ── Stats Bar ── */
+.stats-bar { display: flex; gap: 12px; margin-bottom: 16px; }
+.stat-card {
+  flex: 1; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px; text-align: center;
+}
+.stat-value { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-top: 2px; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── Cards ── */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.card + .card { margin-top: 12px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.card-subtitle { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
+
+/* ── Buttons ── */
+.btn {
+  font-family: var(--font); font-size: 13px; font-weight: 600; padding: 8px 18px;
+  border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: transparent; color: var(--ink-secondary); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--info-soft); border-color: var(--ink-muted); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #a83029; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #157347; }
+.btn-sm { font-size: 12px; padding: 5px 12px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+.form-input, .form-select {
+  font-family: var(--font); font-size: 13px; width: 100%; padding: 7px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--ink); transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.check-list { display: flex; flex-direction: column; gap: 4px; }
+.check-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  border: 1px solid var(--border-light); border-radius: var(--radius);
+  cursor: pointer; transition: all 0.12s; font-size: 13px;
+}
+.check-item:hover { background: var(--accent-soft); border-color: var(--accent); }
+.check-item.checked { background: var(--accent-soft); border-color: var(--accent); }
+.check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+/* ── Badges ── */
+.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.badge-initiated { background: var(--info-soft); color: var(--info); } .badge-initiated::before { background: var(--info); }
+.badge-requested { background: var(--accent-soft); color: var(--accent); } .badge-requested::before { background: var(--accent); }
+.badge-received { background: var(--success-soft); color: var(--success); } .badge-received::before { background: var(--success); }
+.badge-review { background: #f0ebff; color: #7c5bbf; } .badge-review::before { background: #7c5bbf; }
+.badge-resubmit { background: var(--warning-soft); color: var(--warning); } .badge-resubmit::before { background: var(--warning); }
+.badge-complete { background: var(--success-soft); color: var(--success); } .badge-complete::before { background: var(--success); }
+.badge-cancelled { background: var(--info-soft); color: var(--ink-muted); } .badge-cancelled::before { background: var(--ink-muted); }
+.badge-doc-pending { background: var(--info-soft); color: var(--info); } .badge-doc-pending::before { background: var(--info); }
+.badge-doc-accepted { background: var(--success-soft); color: var(--success); } .badge-doc-accepted::before { background: var(--success); }
+.badge-doc-rejected { background: var(--danger-soft); color: var(--danger); } .badge-doc-rejected::before { background: var(--danger); }
+
+/* ── Lists & Tables ── */
+.exchange-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border: 1px solid var(--border-light); border-radius: var(--radius); cursor: pointer; transition: all 0.12s; }
+.exchange-row:hover { background: var(--accent-soft); border-color: var(--accent); }
+.exchange-row + .exchange-row { margin-top: 6px; }
+.exchange-meta { display: flex; flex-direction: column; gap: 2px; }
+.exchange-name { font-size: 14px; font-weight: 600; }
+.exchange-info { font-size: 12px; color: var(--ink-muted); }
+.exchange-right { display: flex; align-items: center; gap: 12px; }
+
+.doc-table { width: 100%; border-collapse: collapse; }
+.doc-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.doc-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-light); font-size: 13px; vertical-align: middle; }
+.doc-table tr:last-child td { border-bottom: none; }
+
+/* ── Progress Tracker ── */
+.progress-tracker { display: flex; margin-bottom: 16px; }
+.progress-step { flex: 1; text-align: center; position: relative; padding-top: 24px; }
+.progress-step::before { content: ''; position: absolute; top: 10px; left: 0; right: 0; height: 3px; background: var(--border); }
+.progress-step:first-child::before { left: 50%; }
+.progress-step:last-child::before { right: 50%; }
+.progress-step.done::before, .progress-step.active::before { background: var(--accent); }
+.progress-dot { width: 22px; height: 22px; border-radius: 50%; background: var(--card); border: 3px solid var(--border); position: absolute; top: 1px; left: 50%; transform: translateX(-50%); z-index: 1; transition: all 0.2s; }
+.progress-step.done .progress-dot { background: var(--accent); border-color: var(--accent); }
+.progress-step.active .progress-dot { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.progress-label { font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.progress-step.done .progress-label, .progress-step.active .progress-label { color: var(--accent); }
+
+.empty-state { text-align: center; padding: 32px 24px; color: var(--ink-muted); }
+.empty-state-icon { font-size: 40px; opacity: 0.25; margin-bottom: 12px; }
+.empty-state-text { font-size: 14px; }
+
+.back-link { font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 10px; transition: color 0.12s; }
+.back-link:hover { color: var(--accent); }
+
+.reject-actions { display: flex; align-items: center; gap: 8px; }
+.reject-select { font-family: var(--font); font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+
+.notification { padding: 10px 14px; border-radius: var(--radius); margin-bottom: 12px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; animation: slideIn 0.2s ease-out; }
+.notification-warning { background: var(--warning-soft); color: var(--warning); border: 1px solid rgba(196,122,21,0.2); }
+.notification-success { background: var(--success-soft); color: var(--success); border: 1px solid rgba(26,135,84,0.2); }
+.notification-info { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(42,91,215,0.2); }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.divider { height: 1px; background: var(--border-light); margin: 12px 0; }
+
+.value-callout { background: linear-gradient(135deg, #f0f4ff, #f7f0ff); border: 1px solid #ddd8f0; border-radius: var(--radius); padding: 12px 14px; margin-top: 12px; font-size: 12px; line-height: 1.5; color: #4a4572; }
+.value-callout .value-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #7c5bbf; margin-bottom: 4px; display: block; }
+
+/* ── Per-exchange stats ── */
+.ex-stats { display: flex; gap: 8px; margin-bottom: 14px; }
+.ex-stat {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+  background: var(--info-soft); color: var(--ink-secondary);
+}
+.ex-stat .ex-stat-n { font-weight: 700; }
+
+/* ── Doc preview overlay ── */
+.preview-overlay {
+  position: fixed; inset: 0; z-index: 950;
+  background: rgba(15,18,28,0.6);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.15s;
+}
+.preview-card {
+  background: var(--card); border-radius: var(--radius-lg);
+  width: 560px; max-height: 80vh; overflow: auto;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+  padding: 24px;
+}
+.preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.preview-close {
+  background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-muted);
+  padding: 0 4px; line-height: 1;
+}
+.preview-close:hover { color: var(--ink); }
+.preview-doc {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  font-family: var(--mono); font-size: 12px; line-height: 1.7;
+  color: var(--ink-secondary); min-height: 120px;
+}
+.preview-meta { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.preview-meta-item { font-size: 12px; color: var(--ink-muted); }
+.preview-meta-item strong { color: var(--ink-secondary); }
+
+/* ── AI Check panel ── */
+.ai-check {
+  margin-top: 14px; padding: 14px 16px;
+  background: linear-gradient(135deg, #f8f6ff, #f0f4ff);
+  border: 1px solid #d8d2f0; border-radius: var(--radius);
+}
+.ai-check-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.ai-check-icon {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: linear-gradient(135deg, #7c5bbf, #5b3fa0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #fff;
+}
+.ai-check-title { font-size: 13px; font-weight: 700; color: #4a3a72; }
+.ai-check-list { display: flex; flex-direction: column; gap: 5px; }
+.ai-check-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; line-height: 1.4; color: #4a4040;
+}
+.ai-verdict {
+  flex-shrink: 0; margin-top: 1px; padding: 1px 7px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.ai-verdict-pass { background: var(--success-soft); color: var(--success); }
+.ai-verdict-fail { background: var(--danger-soft); color: var(--danger); }
+.ai-verdict-warn { background: var(--warning-soft); color: var(--warning); }
+.ai-verdict-info { background: var(--info-soft); color: var(--info); }
+.ai-check-btn {
+  font-family: var(--font); font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border: 1px solid #d8d2f0; border-radius: 6px;
+  background: #fff; color: #7c5bbf; cursor: pointer; transition: all 0.12s;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.ai-check-btn:hover { background: #f0ebff; border-color: #7c5bbf; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ═══ TOUR ═══ */
+.tour-dim {
+  position: fixed; inset: 0; z-index: 800;
+  pointer-events: none; opacity: 0; transition: opacity 0.3s;
+}
+.tour-dim.active { opacity: 1; pointer-events: auto; }
+.tour-dim svg { width: 100%; height: 100%; }
+
+.tour-notecard {
+  position: fixed; z-index: 902;
+  background: #fdfbf2;
+  border: 1px solid #ddd3a8;
+  border-radius: 12px;
+  padding: 22px 24px;
+  max-width: 400px; width: 400px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(184,150,15,0.08);
+  opacity: 0; transform: translateY(12px) scale(0.98);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.15, 1);
+  pointer-events: none;
+}
+.tour-notecard.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
+.tour-step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold); color: #fff; font-size: 11px; font-weight: 700;
+  margin-bottom: 10px;
+}
+.tour-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+.tour-body { font-size: 13px; color: #4a4535; line-height: 1.6; }
+.tour-body strong { color: #2a2518; }
+.tour-infra {
+  margin-top: 12px; padding: 10px 12px; border-radius: 8px;
+  background: rgba(184,150,15,0.06); border: 1px solid rgba(184,150,15,0.12);
+  font-size: 11.5px; color: #6b6040; line-height: 1.5;
+}
+.tour-infra strong { color: #4a4020; }
+.tour-footer { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; }
+.tour-btn {
+  font-family: var(--font); font-size: 12px; font-weight: 600;
+  padding: 7px 16px; border: none; border-radius: 7px; cursor: pointer; transition: all 0.15s;
+}
+.tour-btn-gold { background: var(--gold); color: #fff; }
+.tour-btn-gold:hover { background: #9e7f0d; }
+.tour-btn-skip { background: transparent; color: var(--ink-muted); font-size: 12px; }
+.tour-btn-skip:hover { color: var(--ink); }
+.tour-dots { display: flex; gap: 5px; }
+.tour-dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd3a8; transition: all 0.2s; }
+.tour-dot.active { background: var(--gold); width: 18px; border-radius: 4px; }
+.tour-dot.done { background: var(--gold); }
+
+.flex { display: flex; }
+.text-sm { font-size: 13px; }
+.text-muted { color: var(--ink-muted); }
+.font-medium { font-weight: 500; }
+.mt-24 { margin-top: 16px; }
+
+/* ── Action bar ── */
+.action-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+
+/* ── Activity timeline ── */
+.timeline { margin-top: 14px; }
+.timeline-item {
+  display: flex; gap: 10px; padding: 6px 0;
+  font-size: 12px; color: var(--ink-secondary);
+}
+.timeline-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+}
+.timeline-dot-upload { background: var(--accent); }
+.timeline-dot-accept { background: var(--success); }
+.timeline-dot-reject { background: var(--danger); }
+.timeline-dot-resubmit { background: var(--warning); }
+.timeline-dot-system { background: var(--ink-muted); }
+.timeline-time { color: var(--ink-muted); font-size: 11px; white-space: nowrap; min-width: 70px; }
+.timeline-text { line-height: 1.4; }
+
+/* ── Add doc dropdown ── */
+.add-doc-dropdown {
+  position: absolute; top: 100%; left: 0; z-index: 50;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); min-width: 220px; padding: 4px;
+  animation: slideIn 0.12s ease-out;
+}
+.add-doc-option {
+  display: block; width: 100%; text-align: left; padding: 7px 12px;
+  font-family: var(--font); font-size: 13px; border: none; background: none;
+  cursor: pointer; border-radius: 6px; color: var(--ink);
+}
+.add-doc-option:hover { background: var(--accent-soft); }
+.add-doc-option:disabled { color: var(--ink-muted); cursor: default; }
+.add-doc-option:disabled:hover { background: none; }
+
+/* ── Remove button ── */
+.remove-doc-btn {
+  font-family: var(--font); font-size: 11px; color: var(--ink-muted); background: none;
+  border: none; cursor: pointer; padding: 2px 4px; transition: color 0.12s;
+}
+.remove-doc-btn:hover { color: var(--danger); }
+
+/* ── New tag ── */
+.new-tag {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  background: var(--accent-soft); color: var(--accent); padding: 1px 5px;
+  border-radius: 3px; margin-left: 6px;
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="flex" style="align-items:center;">
+    <h1>Document Exchange</h1>
+    <span class="subtitle">POC</span>
+  </div>
+  <div class="role-switcher" id="role-switcher">
+    <button class="role-btn active" data-role="advisor" onclick="switchRole('advisor')">Advisor</button>
+    <button class="role-btn" data-role="client" onclick="switchRole('client')">Client</button>
+    <button class="role-btn" data-role="ops" onclick="switchRole('ops')">Operations</button>
+  </div>
+</header>
+
+<div class="main">
+  <div id="advisor-view" class="view active">
+    <div id="advisor-list"></div>
+    <div id="advisor-detail" style="display:none;"></div>
+  </div>
+  <div id="client-view" class="view">
+    <div id="client-content"></div>
+  </div>
+  <div id="ops-view" class="view">
+    <div id="ops-list"></div>
+    <div id="ops-detail" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- Tour layer -->
+<div class="tour-dim" id="tour-dim"><svg id="tour-svg"></svg></div>
+<div class="tour-notecard" id="tour-notecard">
+  <div class="tour-step-num" id="tour-num"></div>
+  <div class="tour-title" id="tour-title"></div>
+  <div class="tour-body" id="tour-body"></div>
+  <div class="tour-infra" id="tour-infra"></div>
+  <div class="tour-footer">
+    <button class="tour-btn tour-btn-skip" onclick="tourDismiss()">Skip tour</button>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="tour-dots" id="tour-dots"></div>
+      <button class="tour-btn tour-btn-gold" id="tour-next" onclick="tourNext()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// SERVICE LAYER
+// ════════════════════════════════════════════
+
+const DOCUMENT_TYPES = [
+  { key: 'government_id', label: 'Government ID' },
+  { key: 'proof_of_address', label: 'Proof of Address' },
+  { key: 'application_form', label: 'Application Form' },
+  { key: 'beneficiary_form', label: 'Beneficiary Form' },
+  { key: 'financial_statement', label: 'Financial Statement' },
+  { key: 'tax_form', label: 'Tax Form' },
+];
+const REJECTION_REASONS = [
+  { key: 'expired', label: 'Expired' },
+  { key: 'illegible', label: 'Illegible' },
+  { key: 'wrong_document', label: 'Wrong Document' },
+];
+const STATUS_FLOW = {
+  initiated:             { label: 'Initiated',              badge: 'badge-initiated' },
+  documents_requested:   { label: 'Documents Requested',    badge: 'badge-requested' },
+  documents_received:    { label: 'Documents Received',     badge: 'badge-received' },
+  under_review:          { label: 'Under Review',           badge: 'badge-review' },
+  re_submission_required:{ label: 'Re-submission Required',  badge: 'badge-resubmit' },
+  complete:              { label: 'Complete',                badge: 'badge-complete' },
+  cancelled:             { label: 'Cancelled',               badge: 'badge-cancelled' },
+};
+const DOC_STATUS = {
+  pending_review: { label: 'Pending Review', badge: 'badge-doc-pending' },
+  accepted:       { label: 'Accepted',       badge: 'badge-doc-accepted' },
+  rejected:       { label: 'Rejected',       badge: 'badge-doc-rejected' },
+};
+
+let state = { exchanges: [], nextId: 1, currentRole: 'advisor', advisorView: 'list', advisorDetailId: null, opsView: 'list', opsDetailId: null, auditLog: [] };
+
+function logEvent(type, exchangeId, detail) {
+  state.auditLog.push({ type, exchangeId, detail, at: new Date().toISOString() });
+}
+
+function addDocRequirement(exchangeId, docTypeKey) {
+  const ex = getExchange(exchangeId); if (!ex) return;
+  if (ex.documentsRequired.includes(docTypeKey)) return;
+  ex.documentsRequired.push(docTypeKey);
+  const label = DOCUMENT_TYPES.find(t => t.key === docTypeKey)?.label || docTypeKey;
+  logEvent('doc-added', exchangeId, label);
+  recalculateStatus(ex);
+}
+
+function removeDocRequirement(exchangeId, docTypeKey) {
+  const ex = getExchange(exchangeId); if (!ex) return;
+  ex.documentsRequired = ex.documentsRequired.filter(k => k !== docTypeKey);
+  ex.documents = ex.documents.filter(d => d.typeKey !== docTypeKey);
+  const label = DOCUMENT_TYPES.find(t => t.key === docTypeKey)?.label || docTypeKey;
+  logEvent('doc-removed', exchangeId, label);
+  recalculateStatus(ex);
+}
+
+function cancelExchange(exchangeId) {
+  const ex = getExchange(exchangeId); if (!ex) return;
+  ex.status = 'cancelled';
+  logEvent('cancelled', exchangeId, '');
+}
+
+function duplicateExchange(sourceId, newClientName) {
+  const src = getExchange(sourceId); if (!src) return null;
+  const ex = createExchange(newClientName || src.clientName + ' (copy)', src.advisorName, [...src.documentsRequired]);
+  logEvent('duplicated', ex.id, 'from ' + sourceId);
+  return ex;
+}
+
+function resendClientLink(exchangeId) {
+  logEvent('link-resent', exchangeId, '');
+}
+
+function getActivityLog(exchangeId) {
+  return state.auditLog.filter(e => e.exchangeId === exchangeId).sort((a, b) => new Date(b.at) - new Date(a.at));
+}
+
+function getOpsStats() {
+  const allDocs = state.exchanges.flatMap(e => e.documents);
+  return {
+    totalUploads: state.auditLog.filter(e => e.type === 'upload').length,
+    accepted: allDocs.filter(d => d.status === 'accepted').length,
+    rejected: state.auditLog.filter(e => e.type === 'reject').length,
+    resubmissions: state.auditLog.filter(e => e.type === 'resubmit').length,
+    pendingReview: allDocs.filter(d => d.status === 'pending_review').length,
+    exchanges: state.exchanges.length,
+    completed: state.exchanges.filter(e => e.status === 'complete').length,
+  };
+}
+
+function createExchange(clientName, advisorName, requiredDocKeys) {
+  const ex = { id: 'EX-' + String(state.nextId++).padStart(4, '0'), clientName, advisorName, status: 'documents_requested', documentsRequired: requiredDocKeys, documents: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  state.exchanges.push(ex);
+  logEvent('created', ex.id, requiredDocKeys.length + ' docs requested');
+  return ex;
+}
+function getExchange(id) { return state.exchanges.find(e => e.id === id); }
+function uploadDocument(exchangeId, docTypeKey, fileName) {
+  const ex = getExchange(exchangeId); if (!ex) return;
+  ex.documents = ex.documents.filter(d => !(d.typeKey === docTypeKey && d.status === 'rejected'));
+  ex.documents.push({ id: 'DOC-' + Math.random().toString(36).substr(2, 6), typeKey: docTypeKey, typeName: DOCUMENT_TYPES.find(t => t.key === docTypeKey)?.label || docTypeKey, fileName, uploadedAt: new Date().toISOString(), status: 'pending_review', rejectionReason: null });
+  const wasResubmit = ex.status === 're_submission_required';
+  recalculateStatus(ex);
+  logEvent(wasResubmit ? 'resubmit' : 'upload', exchangeId, docTypeKey);
+}
+function reviewDocument(exchangeId, docId, accepted, rejectionKey) {
+  const ex = getExchange(exchangeId); if (!ex) return;
+  const doc = ex.documents.find(d => d.id === docId); if (!doc) return;
+  if (accepted) { doc.status = 'accepted'; doc.rejectionReason = null; logEvent('accept', exchangeId, doc.typeKey); }
+  else { doc.status = 'rejected'; doc.rejectionReason = rejectionKey; logEvent('reject', exchangeId, doc.typeKey + ':' + rejectionKey); }
+  recalculateStatus(ex);
+}
+function recalculateStatus(ex) {
+  if (ex.status === 'cancelled') return;
+  ex.updatedAt = new Date().toISOString();
+  const required = new Set(ex.documentsRequired);
+  const acceptedTypes = new Set();
+  let hasRejected = false, hasPending = false;
+  for (const doc of ex.documents) {
+    if (doc.status === 'accepted') acceptedTypes.add(doc.typeKey);
+    if (doc.status === 'rejected') hasRejected = true;
+    if (doc.status === 'pending_review') hasPending = true;
+  }
+  if ([...required].every(k => acceptedTypes.has(k))) ex.status = 'complete';
+  else if (hasRejected && !hasPending) ex.status = 're_submission_required';
+  else if (hasPending) ex.status = 'under_review';
+  else ex.status = 'documents_requested';
+}
+
+// ════════════════════════════════════════════
+// TOUR
+// ════════════════════════════════════════════
+
+const STEPS = [
+  { id: 'welcome', target: null, title: 'The Rejection Loop', body: 'This demo walks through the one workflow that matters — advisor requests documents, client uploads, ops rejects one, and the client re-uploads <strong>just that document</strong> with full context on what went wrong. No email. No phone tag.', infra: null, action: 'next', nextLabel: 'Start the demo' },
+  { id: 'new-exchange', target: () => document.getElementById('btn-new-exchange'), title: 'Create a document request', body: 'You\'re the financial advisor. You need docs from your client to open an account. <strong>Click "+ New Exchange"</strong> to start.', infra: '<strong>Production:</strong> Creates a Box folder under the advisor\'s branch with an Exchange Metadata template applied.', action: 'await-click' },
+  { id: 'fill-form', target: () => document.getElementById('new-exchange-form'), title: 'Set up the request', body: 'Client name is pre-filled. <strong>Check a few document types and click Create.</strong>', infra: '<strong>Production:</strong> Metadata fields (status, required docs, advisor info) are all queryable via the Box Metadata API.', action: 'await-create' },
+  { id: 'to-client', target: () => document.querySelector('[data-role="client"]'), title: 'Now be the client', body: 'The exchange is live. Your client got a secure link. <strong>Click the Client tab</strong> to see what they see.', infra: '<strong>Production:</strong> A branded page with Box Content Uploader. No Box account needed. No portal login.', action: 'await-role', role: 'client' },
+  { id: 'upload', target: () => document.querySelector('#client-content .doc-table'), title: 'Upload the documents', body: '<strong>Click "Upload" next to each document.</strong> Watch statuses change as each one lands.', infra: '<strong>Production:</strong> Each upload triggers a Relay workflow — updates metadata, checks completeness, notifies the advisor.', action: 'await-all-uploaded' },
+  { id: 'to-ops', target: () => document.querySelector('[data-role="ops"]'), title: 'Now be operations', body: 'All docs auto-routed to the ops queue. <strong>Click the Operations tab.</strong>', infra: '<strong>Production:</strong> Ops gets auto-assigned as collaborators on the folder. No manual handoff.', action: 'await-role', role: 'ops' },
+  { id: 'ops-open', target: () => document.querySelector('#ops-list .exchange-row'), title: 'Open the exchange', body: '<strong>Click into the exchange</strong> to see the documents.', infra: null, action: 'await-ops-detail' },
+  { id: 'review', target: () => document.querySelector('#ops-detail .doc-table'), title: 'Accept some, reject one', body: 'Accept the good ones. For one document, <strong>select a rejection reason from the dropdown and click Reject.</strong>', infra: '<strong>Production:</strong> Each decision updates file-level Box metadata. Rejections trigger a Relay workflow that notifies everyone and fires DocuSign logic if needed.', action: 'await-rejection' },
+  { id: 'to-client-2', target: () => document.querySelector('[data-role="client"]'), title: 'See what the client sees', body: '<strong>Switch to the Client tab.</strong> The client sees exactly which doc was rejected, why, and can re-upload just that one.', infra: 'This replaces the 3-5 emails and phone call that this workflow currently requires.', action: 'await-role', role: 'client' },
+  { id: 'reupload', target: () => document.querySelector('#client-content .btn-ghost'), title: 'Re-upload the rejected document', body: '<strong>Click Upload</strong> on the rejected doc. The replacement routes back to ops automatically.', infra: '<strong>Production:</strong> New file lands in the same Box folder. Relay detects it, updates metadata, re-notifies ops.', action: 'await-reupload' },
+  { id: 'to-ops-2', target: () => document.querySelector('[data-role="ops"]'), title: 'Final review', body: '<strong>Switch to Operations</strong> and accept the replacement to close the loop.', infra: null, action: 'await-role', role: 'ops' },
+  { id: 'done', target: null, title: 'That\'s the whole loop', body: 'Advisor requested → Client uploaded → Ops rejected with a reason → Client re-uploaded just that doc → Ops accepted → Complete.<br><br>Every participant saw exactly what they needed. Status tracked itself. <strong>Zero email.</strong>', infra: '<strong>The infrastructure is commodity</strong> — Box folders, metadata, Relay automations, embedded UI Elements. DocuSign integration, status APIs for external properties, and prospect graduation are all extensions of this same loop.', action: 'next', nextLabel: 'Finish' },
+];
+
+let tour = { active: false, step: 0 };
+
+function clearTourLift() {
+  document.querySelectorAll('[data-tour-lifted]').forEach(el => {
+    el.style.zIndex = el.dataset.tourOrigZ || '';
+    if (el.dataset.tourOrigPos === 'none') el.style.position = '';
+    delete el.dataset.tourLifted;
+    delete el.dataset.tourOrigZ;
+    delete el.dataset.tourOrigPos;
+  });
+}
+
+function liftElement(el) {
+  el.dataset.tourOrigZ = el.style.zIndex || '';
+  el.dataset.tourOrigPos = el.style.position ? '' : 'none';
+  el.dataset.tourLifted = 'true';
+}
+
+function tourStart() { tour.active = true; tour.step = 0; tourRender(); }
+function tourDismiss() {
+  tour.active = false;
+  clearTourLift();
+  document.getElementById('tour-dim').classList.remove('active');
+  document.getElementById('tour-notecard').classList.remove('active');
+}
+function tourNext() {
+  tour.step++;
+  if (tour.step >= STEPS.length) { tourDismiss(); return; }
+  tourRender();
+}
+
+function tourRender() {
+  if (!tour.active) return;
+  const s = STEPS[tour.step]; if (!s) { tourDismiss(); return; }
+  const dim = document.getElementById('tour-dim');
+  const svg = document.getElementById('tour-svg');
+  const nc = document.getElementById('tour-notecard');
+  const nextBtn = document.getElementById('tour-next');
+
+  // Content
+  document.getElementById('tour-num').textContent = tour.step + 1;
+  document.getElementById('tour-title').textContent = s.title;
+  document.getElementById('tour-body').innerHTML = s.body;
+  const infraEl = document.getElementById('tour-infra');
+  infraEl.innerHTML = s.infra || ''; infraEl.style.display = s.infra ? 'block' : 'none';
+  nextBtn.textContent = s.nextLabel || 'Got it';
+  nextBtn.style.display = s.action === 'next' ? 'inline-flex' : 'none';
+
+  // Dots
+  const dotsEl = document.getElementById('tour-dots');
+  dotsEl.innerHTML = STEPS.map((_, i) => {
+    let cls = 'tour-dot';
+    if (i < tour.step) cls += ' done';
+    else if (i === tour.step) cls += ' active';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  // Spotlight via SVG mask
+  const el = s.target ? s.target() : null;
+  dim.classList.add('active');
+
+  if (el) {
+    const r = el.getBoundingClientRect();
+    const pad = 10;
+    const rx = r.left - pad, ry = r.top - pad, rw = r.width + pad * 2, rh = r.height + pad * 2;
+    const br = 10;
+    svg.innerHTML = `
+      <defs>
+        <mask id="tmask">
+          <rect width="100%" height="100%" fill="white"/>
+          <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="${br}" fill="black"/>
+        </mask>
+      </defs>
+      <rect width="100%" height="100%" fill="rgba(15,18,28,0.52)" mask="url(#tmask)"/>
+      <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="${br}" fill="none" stroke="rgba(184,150,15,0.6)" stroke-width="2.5"/>
+      <rect x="${rx - 3}" y="${ry - 3}" width="${rw + 6}" height="${rh + 6}" rx="${br + 2}" fill="none" stroke="rgba(184,150,15,0.2)" stroke-width="1"/>
+    `;
+
+    // Lift target above dim for native click/select interaction
+    clearTourLift();
+    let liftEl = el;
+    let parent = el.parentElement;
+    while (parent && parent !== document.body) {
+      const cs = getComputedStyle(parent);
+      if (cs.zIndex !== 'auto' && cs.position !== 'static') {
+        liftEl = parent;
+      }
+      parent = parent.parentElement;
+    }
+    liftElement(liftEl);
+    liftEl.style.zIndex = '801';
+    if (liftEl !== el) {
+      liftElement(el);
+      el.style.position = el.style.position || 'relative';
+      el.style.zIndex = '5';
+    } else {
+      el.style.position = el.style.position || 'relative';
+    }
+
+    // Reset all positioning
+    nc.style.transform = 'none';
+    nc.style.top = 'auto'; nc.style.bottom = 'auto';
+    nc.style.left = 'auto'; nc.style.right = 'auto';
+    const spaceBelow = window.innerHeight - (ry + rh);
+    const spaceAbove = ry;
+    const spaceRight = window.innerWidth - (rx + rw);
+
+    if (spaceBelow > 300) {
+      nc.style.top = (ry + rh + 14) + 'px';
+      nc.style.bottom = 'auto';
+      nc.style.left = Math.max(16, Math.min(rx, window.innerWidth - 420)) + 'px';
+      nc.style.right = 'auto';
+    } else if (spaceAbove > 300) {
+      nc.style.bottom = (window.innerHeight - ry + 14) + 'px';
+      nc.style.top = 'auto';
+      nc.style.left = Math.max(16, Math.min(rx, window.innerWidth - 420)) + 'px';
+      nc.style.right = 'auto';
+    } else if (spaceRight > 420) {
+      nc.style.top = Math.max(16, ry) + 'px';
+      nc.style.bottom = 'auto';
+      nc.style.left = (rx + rw + 14) + 'px';
+      nc.style.right = 'auto';
+    } else {
+      nc.style.top = Math.max(16, ry) + 'px';
+      nc.style.bottom = 'auto';
+      nc.style.right = (window.innerWidth - rx + 14) + 'px';
+      nc.style.left = 'auto';
+    }
+  } else {
+    // Centered, full dim, no target
+    clearTourLift();
+    svg.innerHTML = `<rect width="100%" height="100%" fill="rgba(15,18,28,0.52)"/>`;
+    nc.style.top = '50%'; nc.style.left = '50%'; nc.style.right = 'auto'; nc.style.bottom = 'auto';
+    nc.style.transform = 'translate(-50%, -50%)';
+  }
+
+  // Animate in
+  nc.classList.remove('active');
+  requestAnimationFrame(() => requestAnimationFrame(() => nc.classList.add('active')));
+}
+
+function tourCheck() {
+  if (!tour.active) return;
+  const s = STEPS[tour.step]; if (!s) return;
+  if (s.action === 'await-role' && state.currentRole === s.role) { tourNext(); return; }
+  if (s.action === 'await-ops-detail' && state.opsView === 'detail') { tourNext(); return; }
+  // Re-render spotlight position after DOM paint
+  requestAnimationFrame(() => requestAnimationFrame(() => { if (tour.active) tourRender(); }));
+}
+
+function tourHook(action) {
+  if (!tour.active) return;
+  const s = STEPS[tour.step]; if (!s) return;
+  if (s.action === 'await-click' && action === 'new-exchange-clicked') tourNext();
+  if (s.action === 'await-create' && action === 'exchange-created') tourNext();
+  if (s.action === 'await-all-uploaded' && action === 'upload' && state.exchanges[0]) {
+    const ex = state.exchanges[0];
+    const got = new Set(ex.documents.filter(d => d.status !== 'rejected').map(d => d.typeKey));
+    if (ex.documentsRequired.every(k => got.has(k))) tourNext();
+  }
+  if (s.action === 'await-rejection' && action === 'review' && state.exchanges[0]?.documents.some(d => d.status === 'rejected')) tourNext();
+  if (s.action === 'await-reupload' && action === 'upload' && state.exchanges[0]?.status === 'under_review') tourNext();
+}
+
+// Allow clicking through the overlay onto highlighted targets
+// Click-through handled by z-index lift on target elements
+
+// ════════════════════════════════════════════
+// RENDERING
+// ════════════════════════════════════════════
+
+function switchRole(role) {
+  state.currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('active', b.dataset.role === role));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(role + '-view').classList.add('active');
+  render();
+}
+function render() {
+  switch (state.currentRole) {
+    case 'advisor': renderAdvisor(); break;
+    case 'client': renderClient(); break;
+    case 'ops': renderOps(); break;
+  }
+  tourCheck();
+}
+
+function statusBadge(k) { const s = STATUS_FLOW[k]; return s ? `<span class="badge ${s.badge}">${s.label}</span>` : ''; }
+function docStatusBadge(k, rr) {
+  const s = DOC_STATUS[k]; if (!s) return '';
+  let x = ''; if (k === 'rejected' && rr) { const r = REJECTION_REASONS.find(v => v.key === rr); x = ` — ${r?.label || rr}`; }
+  return `<span class="badge ${s.badge}">${s.label}${x}</span>`;
+}
+function formatDate(iso) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+function progressTracker(status) {
+  if (status === 'cancelled') return '';
+  const steps = ['documents_requested', 'under_review', 'complete'];
+  const labels = ['Submitted', 'Under Review', 'Complete'];
+  const resub = status === 're_submission_required';
+  let cur = steps.indexOf(status); if (status === 'documents_received') cur = 0; if (resub) cur = 1;
+  return `<div class="progress-tracker">${steps.map((s, i) => {
+    let cls = i < cur ? 'done' : (i === cur ? 'active' : '');
+    let lbl = labels[i]; if (i === 1 && resub) lbl = 'Action Required';
+    return `<div class="progress-step ${cls}"><div class="progress-dot"></div><div class="progress-label">${lbl}</div></div>`;
+  }).join('')}</div>`;
+}
+
+// ── Advisor ──
+function renderAdvisor() {
+  if (state.advisorView === 'detail' && state.advisorDetailId) { renderAdvisorDetail(state.advisorDetailId); return; }
+  const el = document.getElementById('advisor-list');
+  document.getElementById('advisor-detail').style.display = 'none';
+  el.style.display = 'block';
+  const exs = state.exchanges;
+  let h = `<div class="card"><div class="card-header"><div><div class="card-title">Active Exchanges</div><div class="card-subtitle">${exs.length} exchange${exs.length!==1?'s':''}</div></div>
+    <button class="btn btn-primary" id="btn-new-exchange" onclick="showNewExchangeForm(); tourHook('new-exchange-clicked')">+ New Exchange</button></div>`;
+  if (!exs.length) h += `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No exchanges yet.</div></div>`;
+  for (const ex of exs) {
+    const p = ex.documentsRequired.length - ex.documents.filter(d => d.status === 'accepted').length;
+    const isClosed = ex.status === 'complete' || ex.status === 'cancelled';
+    const dimStyle = isClosed ? ' style="opacity:0.55;"' : '';
+    const infoText = isClosed ? ex.id + ' · ' + formatDate(ex.createdAt) : ex.id + ' · ' + formatDate(ex.createdAt) + ' · ' + p + ' remaining';
+    h += `<div class="exchange-row"${dimStyle} onclick="openAdvisorDetail('${ex.id}')"><div class="exchange-meta"><div class="exchange-name">${ex.clientName}</div><div class="exchange-info">${infoText}</div></div><div class="exchange-right">${statusBadge(ex.status)}</div></div>`;
+  }
+  h += `</div>`; el.innerHTML = h;
+}
+function openAdvisorDetail(id) { state.advisorView = 'detail'; state.advisorDetailId = id; render(); }
+function backToAdvisorList() { state.advisorView = 'list'; state.advisorDetailId = null; render(); }
+function renderAdvisorDetail(id) {
+  const ex = getExchange(id); if (!ex) return;
+  document.getElementById('advisor-list').style.display = 'none';
+  const el = document.getElementById('advisor-detail'); el.style.display = 'block';
+
+  const isClosed = ex.status === 'complete' || ex.status === 'cancelled';
+
+  // Notifications
+  let n = '';
+  if (ex.status === 're_submission_required') {
+    const rej = ex.documents.filter(d => d.status === 'rejected');
+    n = `<div class="notification notification-warning">⚠ Ops flagged ${rej.length} doc${rej.length > 1 ? 's' : ''} for re-submission: ${rej.map(d => d.typeName).join(', ')}</div>`;
+  }
+  if (ex.status === 'complete') n = `<div class="notification notification-success">✓ All documents accepted. Exchange complete.</div>`;
+  if (ex.status === 'cancelled') n = `<div class="notification" style="background:var(--info-soft);color:var(--ink-muted);border:1px solid var(--border);">This exchange was cancelled.</div>`;
+
+  // Action bar
+  const availableDocs = DOCUMENT_TYPES.filter(t => !ex.documentsRequired.includes(t.key));
+  let actionBar = '';
+  if (!isClosed) {
+    actionBar = `<div class="action-bar">
+      <div style="position:relative;">
+        <button class="btn btn-sm btn-primary" onclick="toggleAddDocDropdown('${ex.id}')">+ Add Document</button>
+        <div class="add-doc-dropdown" id="add-doc-dropdown" style="display:none;">
+          ${availableDocs.length ? availableDocs.map(t => `<button class="add-doc-option" onclick="doAddDoc('${ex.id}','${t.key}')">${t.label}</button>`).join('') : '<div style="padding:8px 12px;font-size:12px;color:var(--ink-muted);">All document types assigned</div>'}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="doResendLink('${ex.id}')">↗ Resend Link</button>
+      <button class="btn btn-sm btn-ghost" style="color:var(--danger);border-color:var(--danger-soft);" onclick="doCancelExchange('${ex.id}')">Cancel Exchange</button>
+    </div>`;
+  } else {
+    actionBar = `<div class="action-bar">
+      <button class="btn btn-sm btn-primary" onclick="doDuplicateExchange('${ex.id}')">⧉ New Exchange from Template</button>
+    </div>`;
+  }
+
+  // Document table with manage controls
+  let dr = '';
+  for (const tk of ex.documentsRequired) {
+    const tn = DOCUMENT_TYPES.find(t => t.key === tk)?.label || tk;
+    const doc = ex.documents.filter(d => d.typeKey === tk).pop();
+    const hasUpload = !!doc;
+    const isNew = state.auditLog.some(e => e.exchangeId === id && e.type === 'doc-added' && e.detail === tn);
+
+    let fileCell, statusCell;
+    if (doc) {
+      const viewBtn = `<div style="margin-top:3px;"><button class="ai-check-btn" onclick="event.stopPropagation();openPreview('${ex.id}','${doc.id}')">View</button></div>`;
+      fileCell = `<div class="text-sm">${doc.fileName}</div>${viewBtn}`;
+      statusCell = docStatusBadge(doc.status, doc.rejectionReason);
+    } else {
+      fileCell = '<span class="text-muted text-sm">Awaiting upload</span>';
+      statusCell = '<span class="text-muted text-sm">—</span>';
+    }
+
+    let nameExtra = isNew ? '<span class="new-tag">new</span>' : '';
+
+    // Remove button — can remove if not accepted (allow removing pending, rejected, or unuploaded)
+    let removeBtn = '';
+    if (!isClosed && doc?.status !== 'accepted') {
+      removeBtn = `<button class="remove-doc-btn" onclick="doRemoveDoc('${ex.id}','${tk}')" title="Remove requirement">✕</button>`;
+    }
+
+    dr += `<tr>
+      <td><div class="font-medium">${tn}${nameExtra}</div>${removeBtn}</td>
+      <td>${fileCell}</td>
+      <td>${statusCell}</td>
+    </tr>`;
+  }
+  if (!ex.documentsRequired.length) {
+    dr = `<tr><td colspan="3" class="text-muted text-sm" style="text-align:center;padding:20px;">No documents required. Add one above.</td></tr>`;
+  }
+
+  // Activity timeline
+  const log = getActivityLog(id);
+  let timelineHtml = '';
+  if (log.length) {
+    const eventLabels = {
+      'upload': { dot: 'upload', text: (e) => `Client uploaded ${e.detail ? DOCUMENT_TYPES.find(t => t.key === e.detail)?.label || e.detail : 'document'}` },
+      'resubmit': { dot: 'resubmit', text: (e) => `Client re-uploaded ${DOCUMENT_TYPES.find(t => t.key === e.detail)?.label || e.detail}` },
+      'accept': { dot: 'accept', text: (e) => `Ops accepted ${DOCUMENT_TYPES.find(t => t.key === e.detail)?.label || e.detail}` },
+      'reject': { dot: 'reject', text: (e) => { const parts = (e.detail || '').split(':'); return `Ops rejected ${DOCUMENT_TYPES.find(t => t.key === parts[0])?.label || parts[0]} — ${REJECTION_REASONS.find(r => r.key === parts[1])?.label || parts[1]}`; }},
+      'doc-added': { dot: 'system', text: (e) => `Advisor added requirement: ${e.detail}` },
+      'doc-removed': { dot: 'system', text: (e) => `Advisor removed requirement: ${e.detail}` },
+      'link-resent': { dot: 'system', text: () => 'Client link resent' },
+      'cancelled': { dot: 'system', text: () => 'Exchange cancelled' },
+      'duplicated': { dot: 'system', text: (e) => `Exchange created ${e.detail}` },
+      'created': { dot: 'system', text: (e) => `Exchange created — ${e.detail}` },
+    };
+
+    timelineHtml = `<div class="card" style="margin-top:12px;">
+      <div class="card-title" style="font-size:13px;margin-bottom:8px;">Activity</div>
+      <div class="timeline">${log.slice(0, 15).map(e => {
+        const cfg = eventLabels[e.type] || { dot: 'system', text: () => e.type };
+        return `<div class="timeline-item">
+          <div class="timeline-dot timeline-dot-${cfg.dot}"></div>
+          <div class="timeline-time">${new Date(e.at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+          <div class="timeline-text">${cfg.text(e)}</div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }
+
+  let vc = '';
+  if (ex.status === 'complete') vc = `<div class="value-callout"><span class="value-label">Why this matters</span>That entire loop — request, upload, rejection with reason, targeted re-upload, acceptance — happened without a single email or phone call. Every participant saw exactly what they needed. The status tracked itself.</div>`;
+
+  el.innerHTML = `<div class="back-link" onclick="backToAdvisorList()">← Back to exchanges</div>
+    ${n}${actionBar}
+    <div class="card"><div class="card-header"><div><div class="card-title">${ex.clientName}</div><div class="card-subtitle">${ex.id} · Created ${formatDate(ex.createdAt)}</div></div>${statusBadge(ex.status)}</div>
+    <table class="doc-table"><thead><tr><th>Required Document</th><th>File</th><th>Status</th></tr></thead><tbody>${dr}</tbody></table></div>
+    ${timelineHtml}${vc}`;
+}
+
+// ── Advisor actions ──
+let addDocDropdownOpen = false;
+function toggleAddDocDropdown(exId) {
+  const dd = document.getElementById('add-doc-dropdown');
+  if (!dd) return;
+  addDocDropdownOpen = !addDocDropdownOpen;
+  dd.style.display = addDocDropdownOpen ? 'block' : 'none';
+}
+function doAddDoc(exId, typeKey) {
+  addDocDropdownOpen = false;
+  addDocRequirement(exId, typeKey);
+  render();
+}
+function doRemoveDoc(exId, typeKey) {
+  const ex = getExchange(exId);
+  const doc = ex?.documents.find(d => d.typeKey === typeKey);
+  if (doc && doc.status === 'pending_review') {
+    if (!confirm('This document has been uploaded and is pending review. Remove it?')) return;
+  }
+  removeDocRequirement(exId, typeKey);
+  render();
+}
+function doResendLink(exId) {
+  resendClientLink(exId);
+  render();
+  // Flash confirmation
+  const el = document.querySelector('.action-bar');
+  if (el) {
+    const msg = document.createElement('span');
+    msg.style.cssText = 'font-size:12px;color:var(--success);font-weight:600;margin-left:8px;';
+    msg.textContent = '✓ Link resent';
+    el.appendChild(msg);
+    setTimeout(() => msg.remove(), 2000);
+  }
+}
+function doCancelExchange(exId) {
+  if (!confirm('Cancel this exchange? The client will no longer be able to upload documents.')) return;
+  cancelExchange(exId);
+  render();
+}
+function doDuplicateExchange(sourceId) {
+  const name = prompt('Client name for new exchange:', '');
+  if (!name) return;
+  const newEx = duplicateExchange(sourceId, name);
+  if (newEx) {
+    state.advisorView = 'detail';
+    state.advisorDetailId = newEx.id;
+    render();
+  }
+}
+function showNewExchangeForm() {
+  const el = document.getElementById('advisor-list');
+  const ch = DOCUMENT_TYPES.map(t=>`<label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" value="${t.key}"> ${t.label}</label>`).join('');
+  el.innerHTML = `<div class="back-link" onclick="render()">← Cancel</div><div class="card" id="new-exchange-form"><div class="card-title" style="margin-bottom:14px;">New Document Exchange</div><div class="form-group"><label class="form-label">Client / Prospect Name</label><input id="new-client-name" class="form-input" value="Jane Whitfield" /></div><div class="form-group"><label class="form-label">Advisor Name</label><input id="new-advisor-name" class="form-input" value="John Smith" /></div><div class="form-group"><label class="form-label">Required Documents</label><div class="check-list" id="new-doc-checks">${ch}</div></div><div class="mt-24"><button class="btn btn-primary" onclick="submitNewExchange()">Create Exchange & Send to Client</button></div></div>`;
+  requestAnimationFrame(() => tourCheck());
+}
+function submitNewExchange() {
+  const cn = document.getElementById('new-client-name').value.trim();
+  const an = document.getElementById('new-advisor-name').value.trim();
+  if (!cn) return;
+  const cks = [...document.querySelectorAll('#new-doc-checks input[type=checkbox]:checked')].map(c=>c.value);
+  if (!cks.length) return;
+  createExchange(cn, an, cks);
+  state.advisorView = 'list'; render(); tourHook('exchange-created');
+}
+
+// ── Client ──
+function renderClient() {
+  const el = document.getElementById('client-content');
+  const active = state.exchanges.filter(e => e.status !== 'cancelled');
+  if (!active.length) { el.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-state-icon">📬</div><div class="empty-state-text">No document requests yet.</div></div></div>`; return; }
+  let h = ''; for (const ex of active) h += renderClientExchange(ex); el.innerHTML = h;
+}
+function renderClientExchange(ex) {
+  let n = '';
+  if (ex.status === 're_submission_required') { const rc = ex.documents.filter(d=>d.status==='rejected').length; n = `<div class="notification notification-warning">⚠ ${rc} document${rc>1?'s need':' needs'} to be re-uploaded.</div>`; }
+  if (ex.status === 'complete') n = `<div class="notification notification-success">✓ All documents accepted. Thank you!</div>`;
+  if (ex.status === 'under_review') n = `<div class="notification notification-info">Your documents are being reviewed.</div>`;
+
+  // Check for recently added docs
+  const addedDocLabels = state.auditLog.filter(e => e.exchangeId === ex.id && e.type === 'doc-added').map(e => e.detail);
+  if (addedDocLabels.length && ex.status !== 'complete') {
+    n += `<div class="notification notification-info">Your advisor added ${addedDocLabels.length} new document${addedDocLabels.length > 1 ? 's' : ''} to this request.</div>`;
+  }
+
+  let dr = '';
+  for (const tk of ex.documentsRequired) {
+    const tn = DOCUMENT_TYPES.find(t=>t.key===tk)?.label||tk;
+    const doc = ex.documents.filter(d=>d.typeKey===tk).pop();
+    const rej = doc?.status==='rejected'; const acc = doc?.status==='accepted'; const pen = doc?.status==='pending_review';
+    const need = !doc||rej;
+    const isNew = addedDocLabels.includes(tn);
+    const newTag = isNew ? '<span class="new-tag">new</span>' : '';
+
+    let sc = '<span class="text-muted text-sm">Awaiting upload</span>';
+    if (pen) sc = docStatusBadge('pending_review'); if (acc) sc = docStatusBadge('accepted'); if (rej) sc = docStatusBadge('rejected', doc.rejectionReason);
+    let viewBtn = doc && !need ? `<div style="margin-top:3px;"><button class="ai-check-btn" onclick="event.stopPropagation();openPreview('${ex.id}','${doc.id}')">View</button></div>` : '';
+    let ac = ''; if (need && ex.status !== 'complete') ac = `<button class="btn btn-sm btn-ghost" onclick="simulateUpload('${ex.id}','${tk}','${tn}')">Upload</button>`;
+    dr += `<tr><td class="font-medium">${tn}${newTag}</td><td>${sc}${viewBtn}</td><td style="text-align:right;">${ac}</td></tr>`;
+  }
+  return `<div class="card" style="margin-bottom:16px;">${progressTracker(ex.status)}${n}<div class="card-header"><div><div class="card-title">Document Request from ${ex.advisorName}</div><div class="card-subtitle">${ex.id} · ${ex.documentsRequired.length} doc${ex.documentsRequired.length!==1?'s':''} requested</div></div></div><table class="doc-table"><thead><tr><th>Document</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>`;
+}
+function simulateUpload(eid, tk, tn) {
+  const names = { government_id:'drivers_license_2026.pdf', proof_of_address:'utility_bill_feb2026.pdf', application_form:'application_signed.pdf', beneficiary_form:'beneficiary_designation.pdf', financial_statement:'bank_statement_q4.pdf', tax_form:'T4_2025.pdf' };
+  uploadDocument(eid, tk, names[tk]||tn.toLowerCase().replace(/\s+/g,'_')+'.pdf');
+  render(); tourHook('upload');
+}
+
+// ── Ops ──
+function renderOps() {
+  if (state.opsView==='detail'&&state.opsDetailId) { renderOpsDetail(state.opsDetailId); return; }
+  document.getElementById('ops-detail').style.display='none';
+  const el = document.getElementById('ops-list'); el.style.display='block';
+  const rev = state.exchanges.filter(e=>['documents_received','under_review','re_submission_required'].includes(e.status));
+  const done = state.exchanges.filter(e=>e.status==='complete');
+  const canc = state.exchanges.filter(e=>e.status==='cancelled');
+  const stats = getOpsStats();
+
+  let h = '';
+  if (stats.totalUploads > 0) {
+    h += `<div class="stats-bar">
+      <div class="stat-card"><div class="stat-value" style="color:var(--accent)">${stats.totalUploads}</div><div class="stat-label">Uploads</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--success)">${stats.accepted}</div><div class="stat-label">Accepted</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--danger)">${stats.rejected}</div><div class="stat-label">Rejected</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--warning)">${stats.resubmissions}</div><div class="stat-label">Re-uploads</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:#7c5bbf">${stats.pendingReview}</div><div class="stat-label">Pending</div></div>
+    </div>`;
+  }
+
+  h += `<div class="card"><div class="card-header"><div><div class="card-title">Operations Queue</div><div class="card-subtitle">${rev.length} awaiting review</div></div></div>`;
+  if (!rev.length&&!done.length) h += `<div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">No exchanges in queue.</div></div>`;
+  for (const ex of rev) { const p = ex.documents.filter(d=>d.status==='pending_review').length; h += `<div class="exchange-row" onclick="openOpsDetail('${ex.id}')"><div class="exchange-meta"><div class="exchange-name">${ex.clientName} <span class="text-muted text-sm">via ${ex.advisorName}</span></div><div class="exchange-info">${ex.id} · ${p} pending</div></div><div class="exchange-right">${statusBadge(ex.status)}</div></div>`; }
+  if (done.length) { h += `<div class="divider"></div><div class="text-sm text-muted font-medium" style="margin-bottom:8px;">Completed</div>`; for (const ex of done) h += `<div class="exchange-row" onclick="openOpsDetail('${ex.id}')" style="opacity:0.6;"><div class="exchange-meta"><div class="exchange-name">${ex.clientName}</div><div class="exchange-info">${ex.id}</div></div><div class="exchange-right">${statusBadge(ex.status)}</div></div>`; }
+  h += `</div>`; el.innerHTML = h;
+}
+function openOpsDetail(id) { state.opsView='detail'; state.opsDetailId=id; render(); }
+function backToOpsList() { state.opsView='list'; state.opsDetailId=null; render(); }
+// ── AI Pre-Check: Simulated evaluations against document content ──
+const AI_EVALUATIONS = {
+  government_id: {
+    label: 'ID Verification',
+    results: [
+      { verdict: 'pass', finding: 'Expiry date is June 1, 2027 — valid for 15 months.' },
+      { verdict: 'pass', finding: 'Legal name "Jane Elizabeth Whitfield" matches application form exactly.' },
+      { verdict: 'pass', finding: 'Document is an Ontario Driver\'s License (Class G) — accepted government-issued ID type.' },
+      { verdict: 'pass', finding: 'Photo area and signature area detected — document appears complete.' },
+      { verdict: 'info', finding: 'Address on ID (42 Maple Crescent, Toronto) matches proof of address on file.' },
+    ]
+  },
+  proof_of_address: {
+    label: 'Address Verification',
+    results: [
+      { verdict: 'pass', finding: 'Statement dated Feb 14, 2026 — within the required 90-day window.' },
+      { verdict: 'pass', finding: 'Service address "42 Maple Crescent, Toronto ON" matches application.' },
+      { verdict: 'pass', finding: 'Document type is a utility bill (Toronto Hydro) — accepted proof type.' },
+      { verdict: 'pass', finding: 'Customer name "Jane E. Whitfield" matches ID on file.' },
+    ]
+  },
+  proof_of_address_expired: {
+    label: 'Address Verification',
+    results: [
+      { verdict: 'fail', finding: 'Statement dated Aug 12, 2025 — older than 90 days. Document is expired.' },
+      { verdict: 'pass', finding: 'Service address matches application.' },
+      { verdict: 'pass', finding: 'Document type is a utility bill — accepted proof type.' },
+      { verdict: 'warn', finding: 'Customer listed as "J. Whitfield" — abbreviated name, may want to verify against ID.' },
+    ]
+  },
+  application_form: {
+    label: 'Application Completeness',
+    results: [
+      { verdict: 'pass', finding: 'All required fields populated — account type (TFSA), SIN, employer, income range.' },
+      { verdict: 'pass', finding: 'Client signature detected, dated Feb 28, 2026.' },
+      { verdict: 'pass', finding: 'Advisor certification section signed by John Smith (A-28471).' },
+      { verdict: 'pass', finding: 'Beneficiary section references attached designation form.' },
+      { verdict: 'info', finding: 'Risk profile set to "Balanced Growth" — consistent with stated income range.' },
+    ]
+  },
+  beneficiary_form: {
+    label: 'Beneficiary Validation',
+    results: [
+      { verdict: 'pass', finding: 'Primary beneficiary: Michael R. Whitfield (Spouse) — DOB and relationship present.' },
+      { verdict: 'pass', finding: 'Allocation is 100% to primary — no split calculation needed.' },
+      { verdict: 'pass', finding: 'Contingent beneficiary designated: Sarah Whitfield (Daughter), 100%.' },
+      { verdict: 'pass', finding: 'Client signature and date present (Feb 28, 2026).' },
+    ]
+  },
+  financial_statement: {
+    label: 'Financial Review',
+    results: [
+      { verdict: 'pass', finding: 'Statement from TD Canada Trust — recognized Canadian financial institution.' },
+      { verdict: 'pass', finding: 'Period: January 1–31, 2026 — within the 6-month requirement.' },
+      { verdict: 'pass', finding: 'Account holder "Jane E. Whitfield" matches ID and application.' },
+      { verdict: 'pass', finding: 'Closing balance $28,881.88 — figures are legible and consistent with stated income.' },
+      { verdict: 'info', finding: 'Account number partially redacted (****-****-7829) — acceptable per policy.' },
+    ]
+  },
+  tax_form: {
+    label: 'Tax Document Review',
+    results: [
+      { verdict: 'pass', finding: 'Tax year 2025 — current prior year, acceptable.' },
+      { verdict: 'pass', finding: 'Form type is T4 (Statement of Remuneration) — correct form for employment income.' },
+      { verdict: 'pass', finding: 'SIN ending in 482 matches application on file.' },
+      { verdict: 'pass', finding: 'Employment income $112,400 falls within declared range ($95K–$125K).' },
+      { verdict: 'warn', finding: 'Employer "Meridian Design Group Inc." — verify BN 82941-7283 if AML review is triggered.' },
+    ]
+  },
+};
+
+// ── Simulated doc content for preview ──
+const DOC_PREVIEWS = {
+  government_id: 'DRIVER\'S LICENSE — Province of Ontario\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nName:      Jane Elizabeth Whitfield\nDOB:       1988-03-15\nAddress:   42 Maple Crescent, Toronto ON M5V 2T6\nLicense #: W4829-38571-80315\nClass:     G\nIssued:    2022-06-01\nExpires:   2027-06-01\n\n[PHOTO]  [SIGNATURE]',
+  proof_of_address: 'TORONTO HYDRO — Utility Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount: 7291-4482-003\nService Address: 42 Maple Crescent\n                 Toronto ON M5V 2T6\n\nStatement Period: Jan 15 – Feb 14, 2026\nAmount Due: $142.37\nDue Date: March 5, 2026\n\nCustomer: Jane E. Whitfield',
+  proof_of_address_expired: 'TORONTO HYDRO — Utility Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount: 7291-4482-003\nService Address: 42 Maple Crescent\n                 Toronto ON M5V 2T6\n\nStatement Period: Jul 15 – Aug 12, 2025\nAmount Due: $118.94\nDue Date: September 2, 2025\n\nCustomer: J. Whitfield',
+  application_form: 'CANADA LIFE — New Account Application\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount Type:  [x] TFSA  [ ] RRSP  [ ] Non-Reg\nApplicant:     Jane Elizabeth Whitfield\nSIN:           •••-•••-482\nEmployer:      Meridian Design Group\nAnnual Income: $95,000 – $124,999\n\nBeneficiary:   See attached form\nRisk Profile:  Balanced Growth\n\nSignature: [SIGNED]  Date: 2026-02-28\nAdvisor:   John Smith  #A-28471',
+  beneficiary_form: 'BENEFICIARY DESIGNATION FORM\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nPrimary Beneficiary:\n  Name:         Michael R. Whitfield\n  Relationship: Spouse\n  DOB:          1986-11-22\n  Allocation:   100%\n\nContingent Beneficiary:\n  Name:         Sarah Whitfield\n  Relationship: Daughter\n  DOB:          2018-05-03\n  Allocation:   100%\n\nSignature: [SIGNED]  Date: 2026-02-28',
+  financial_statement: 'TD CANADA TRUST — Account Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount: ****-****-7829\nHolder:  Jane E. Whitfield\nPeriod:  January 1 – January 31, 2026\n\nOpening Balance:     $24,812.43\nDeposits:            $7,250.00\nWithdrawals:         $3,180.55\nClosing Balance:     $28,881.88\n\nAvg Daily Balance:   $26,340.12',
+  tax_form: 'T4 — Statement of Remuneration Paid\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nTax Year: 2025\nEmployer: Meridian Design Group Inc.\nBN:       82941-7283-RT0001\n\nEmployee: Jane Elizabeth Whitfield\nSIN:      •••-•••-482\n\nEmployment Income (Box 14):  $112,400.00\nIncome Tax Deducted (Box 22): $28,340.00\nCPP Contributions (Box 16):    $3,867.50\nEI Premiums (Box 18):            $952.74',
+};
+
+let previewOpen = null; // { exchangeId, docId }
+let aiCheckOpen = {}; // { docId: true }
+
+function openPreview(exchangeId, docId) {
+  previewOpen = { exchangeId, docId };
+  renderPreview();
+}
+function closePreview() {
+  previewOpen = null;
+  document.getElementById('preview-layer')?.remove();
+}
+function renderPreview() {
+  if (!previewOpen) return;
+  const ex = getExchange(previewOpen.exchangeId);
+  const doc = ex?.documents.find(d => d.id === previewOpen.docId);
+  if (!doc) return;
+  let contentKey = doc.typeKey;
+  if (doc.typeKey === 'proof_of_address' && docAttempts === 1) contentKey = 'proof_of_address_expired';
+  const content = DOC_PREVIEWS[contentKey] || DOC_PREVIEWS[doc.typeKey] || 'Document content would be rendered here via Box Preview API.';
+  // Dynamic evaluation — first attempt proof_of_address shows expired findings
+  const attemptCountsForPreview = {};
+  for (const e of state.auditLog) {
+    if (e.exchangeId === previewOpen.exchangeId && (e.type === 'upload' || e.type === 'resubmit')) {
+      attemptCountsForPreview[e.detail] = (attemptCountsForPreview[e.detail] || 0) + 1;
+    }
+  }
+  const docAttempts = attemptCountsForPreview[doc.typeKey] || 1;
+  let evalKey = doc.typeKey;
+  if (doc.typeKey === 'proof_of_address' && docAttempts === 1) evalKey = 'proof_of_address_expired';
+  const evaluation = AI_EVALUATIONS[evalKey];
+
+  let aiHtml = '';
+  if (evaluation) {
+    const hasIssues = evaluation.results.some(r => r.verdict === 'fail' || r.verdict === 'warn');
+    const summary = hasIssues
+      ? `<div style="font-size:12px;font-weight:600;color:var(--warning);margin-bottom:8px;">⚠ ${evaluation.results.filter(r=>r.verdict==='fail').length} issue${evaluation.results.filter(r=>r.verdict==='fail').length!==1?'s':''} found, ${evaluation.results.filter(r=>r.verdict==='warn').length} warning${evaluation.results.filter(r=>r.verdict==='warn').length!==1?'s':''}</div>`
+      : `<div style="font-size:12px;font-weight:600;color:var(--success);margin-bottom:8px;">✓ All checks passed</div>`;
+    aiHtml = `<div class="ai-check">
+      <div class="ai-check-header">
+        <div class="ai-check-icon">✦</div>
+        <div class="ai-check-title">${evaluation.label}</div>
+      </div>
+      ${summary}
+      <div class="ai-check-list">
+        ${evaluation.results.map(r => `<div class="ai-check-item"><span class="ai-verdict ai-verdict-${r.verdict}">${r.verdict}</span><div>${r.finding}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Remove existing
+  document.getElementById('preview-layer')?.remove();
+
+  const div = document.createElement('div');
+  div.id = 'preview-layer';
+  div.innerHTML = `<div class="preview-overlay" onclick="if(event.target===this)closePreview()">
+    <div class="preview-card">
+      <div class="preview-header">
+        <div>
+          <div style="font-size:15px;font-weight:700;">${doc.typeName}</div>
+          <div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">${doc.fileName}</div>
+        </div>
+        <button class="preview-close" onclick="closePreview()">×</button>
+      </div>
+      <div class="preview-meta">
+        <div class="preview-meta-item"><strong>Uploaded:</strong> ${formatDate(doc.uploadedAt)}</div>
+        <div class="preview-meta-item"><strong>Status:</strong> ${docStatusBadge(doc.status, doc.rejectionReason)}</div>
+      </div>
+      <div class="preview-doc">${content}</div>
+      ${aiHtml}
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+}
+
+function toggleAiCheck(docId) {
+  aiCheckOpen[docId] = !aiCheckOpen[docId];
+  render();
+}
+
+function getExchangeStats(ex) {
+  const allDocs = ex.documents;
+  const attempts = state.auditLog.filter(e => e.exchangeId === ex.id && (e.type === 'upload' || e.type === 'resubmit')).length;
+  return {
+    uploaded: attempts,
+    accepted: allDocs.filter(d => d.status === 'accepted').length,
+    rejected: state.auditLog.filter(e => e.exchangeId === ex.id && e.type === 'reject').length,
+    resubmissions: state.auditLog.filter(e => e.exchangeId === ex.id && e.type === 'resubmit').length,
+    pending: allDocs.filter(d => d.status === 'pending_review').length,
+    required: ex.documentsRequired.length,
+  };
+}
+
+function renderOpsDetail(id) {
+  const ex = getExchange(id); if (!ex) return;
+  document.getElementById('ops-list').style.display='none';
+  const el = document.getElementById('ops-detail'); el.style.display='block';
+
+  const stats = getExchangeStats(ex);
+  const attemptCounts = {};
+  for (const e of state.auditLog) {
+    if (e.exchangeId === id && (e.type === 'upload' || e.type === 'resubmit')) {
+      attemptCounts[e.detail] = (attemptCounts[e.detail] || 0) + 1;
+    }
+  }
+
+  // Per-exchange stats
+  let statsHtml = '';
+  if (ex.documents.length > 0) {
+    statsHtml = `<div class="ex-stats">
+      <div class="ex-stat"><span class="ex-stat-n">${stats.uploaded}</span> uploads</div>
+      <div class="ex-stat" style="background:var(--success-soft);color:var(--success)"><span class="ex-stat-n">${stats.accepted}</span> accepted</div>
+      ${stats.rejected > 0 ? `<div class="ex-stat" style="background:var(--danger-soft);color:var(--danger)"><span class="ex-stat-n">${stats.rejected}</span> rejected</div>` : ''}
+      ${stats.resubmissions > 0 ? `<div class="ex-stat" style="background:var(--warning-soft);color:var(--warning)"><span class="ex-stat-n">${stats.resubmissions}</span> re-uploads</div>` : ''}
+      <div class="ex-stat" style="background:#f0ebff;color:#7c5bbf"><span class="ex-stat-n">${stats.pending}</span> pending</div>
+    </div>`;
+  }
+
+  let dr = '';
+  for (const doc of ex.documents) {
+    const attempts = attemptCounts[doc.typeKey] || 1;
+    const attemptColor = attempts > 1 ? 'var(--warning)' : 'var(--ink-muted)';
+    const attemptBg = attempts > 1 ? 'var(--warning-soft)' : 'var(--info-soft)';
+    const attemptTag = `<span style="font-size:10px;font-weight:600;color:${attemptColor};background:${attemptBg};padding:1px 6px;border-radius:99px;margin-left:6px;">Attempt ${attempts}</span>`;
+    const timeAgo = formatDate(doc.uploadedAt);
+
+    // AI evaluation
+    let evalKey = doc.typeKey;
+    if (doc.typeKey === 'proof_of_address' && attempts === 1) evalKey = 'proof_of_address_expired';
+    const evaluation = AI_EVALUATIONS[evalKey];
+    let aiPanel = '';
+    if (doc.status === 'pending_review' && evaluation && aiCheckOpen[doc.id]) {
+      const fails = evaluation.results.filter(r => r.verdict === 'fail').length;
+      const warns = evaluation.results.filter(r => r.verdict === 'warn').length;
+      const summaryLine = fails > 0
+        ? `<div style="font-size:11px;font-weight:600;color:var(--danger);margin-bottom:6px;">⚠ Action likely needed — ${fails} issue${fails>1?'s':''} detected</div>`
+        : warns > 0
+        ? `<div style="font-size:11px;font-weight:600;color:var(--warning);margin-bottom:6px;">Review recommended — ${warns} item${warns>1?'s':''} flagged</div>`
+        : `<div style="font-size:11px;font-weight:600;color:var(--success);margin-bottom:6px;">✓ All checks passed — ready for approval</div>`;
+      aiPanel = `<tr><td colspan="4" style="padding:0 12px 10px 12px;border-bottom:1px solid var(--border-light);">
+        <div class="ai-check" style="margin-top:0;">
+          <div class="ai-check-header"><div class="ai-check-icon">✦</div><div class="ai-check-title">${evaluation.label}</div></div>
+          ${summaryLine}
+          <div class="ai-check-list">${evaluation.results.map(r => `<div class="ai-check-item"><span class="ai-verdict ai-verdict-${r.verdict}">${r.verdict}</span><div>${r.finding}</div></div>`).join('')}</div>
+        </div>
+      </td></tr>`;
+    }
+
+    let ac = '';
+    if (doc.status === 'pending_review') {
+      const opts = REJECTION_REASONS.map(r => `<option value="${r.key}">${r.label}</option>`).join('');
+      ac = `<div class="reject-actions"><button class="btn btn-sm btn-success" onclick="doReview('${ex.id}','${doc.id}')">Accept</button><select id="reject-${doc.id}" class="reject-select"><option value="">Reject as…</option>${opts}</select><button class="btn btn-sm btn-danger" onclick="doReject('${ex.id}','${doc.id}')">Reject</button></div>`;
+    }
+
+    // Buttons row — always show View, show AI Check on pending
+    let btns = `<div style="display:flex;gap:6px;margin-top:4px;">
+      <button class="ai-check-btn" onclick="event.stopPropagation();openPreview('${ex.id}','${doc.id}')">View</button>`;
+    if (doc.status === 'pending_review' && evaluation) {
+      const fails = evaluation.results.filter(r => r.verdict === 'fail').length;
+      const warns = evaluation.results.filter(r => r.verdict === 'warn').length;
+      const btnStyle = fails > 0 ? 'color:var(--danger);border-color:var(--danger-soft);' : warns > 0 ? 'color:var(--warning);border-color:var(--warning-soft);' : '';
+      const btnLabel = fails > 0 ? `✦ ${fails} issue${fails>1?'s':''}` : warns > 0 ? `✦ ${warns} note${warns>1?'s':''}` : '✦ AI Check';
+      btns += `<button class="ai-check-btn" style="${btnStyle}" onclick="event.stopPropagation();toggleAiCheck('${doc.id}')">${btnLabel}</button>`;
+    }
+    btns += `</div>`;
+
+    dr += `<tr>
+      <td>
+        <div class="font-medium">${doc.typeName}${attemptTag}</div>
+        <div style="font-size:11px;color:var(--ink-muted);margin-top:1px;">${timeAgo}</div>
+      </td>
+      <td><div class="text-sm">${doc.fileName}</div>${btns}</td>
+      <td>${docStatusBadge(doc.status, doc.rejectionReason)}</td>
+      <td style="text-align:right;">${ac}</td>
+    </tr>${aiPanel}`;
+  }
+  if (!ex.documents.length) dr = `<tr><td colspan="4" class="text-muted text-sm" style="text-align:center;padding:24px;">No documents uploaded yet.</td></tr>`;
+
+  // Activity timeline for ops context
+  const opsLog = getActivityLog(id);
+  let opsTimeline = '';
+  if (opsLog.length) {
+    const eventLabels = {
+      'upload': { dot: 'upload', text: (e) => `Client uploaded ${DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail}` },
+      'resubmit': { dot: 'resubmit', text: (e) => `Client re-uploaded ${DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail}` },
+      'accept': { dot: 'accept', text: (e) => `Accepted ${DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail}` },
+      'reject': { dot: 'reject', text: (e) => { const p=(e.detail||'').split(':'); return `Rejected ${DOCUMENT_TYPES.find(t=>t.key===p[0])?.label||p[0]} — ${REJECTION_REASONS.find(r=>r.key===p[1])?.label||p[1]}`; }},
+      'doc-added': { dot: 'system', text: (e) => `Advisor added: ${e.detail}` },
+      'doc-removed': { dot: 'system', text: (e) => `Advisor removed: ${e.detail}` },
+      'link-resent': { dot: 'system', text: () => 'Client link resent' },
+      'created': { dot: 'system', text: (e) => `Exchange created` },
+    };
+    opsTimeline = `<div class="card" style="margin-top:12px;">
+      <div class="card-title" style="font-size:13px;margin-bottom:8px;">Activity</div>
+      <div class="timeline">${opsLog.slice(0,15).map(e => {
+        const cfg = eventLabels[e.type] || { dot: 'system', text: () => e.type };
+        return `<div class="timeline-item"><div class="timeline-dot timeline-dot-${cfg.dot}"></div><div class="timeline-time">${new Date(e.at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div><div class="timeline-text">${cfg.text(e)}</div></div>`;
+      }).join('')}</div>
+    </div>`;
+  }
+
+  el.innerHTML = `<div class="back-link" onclick="backToOpsList()">← Back to queue</div>
+    ${statsHtml}
+    <div class="card"><div class="card-header"><div><div class="card-title">${ex.clientName}</div><div class="card-subtitle">${ex.id} · Advisor: ${ex.advisorName}</div></div>${statusBadge(ex.status)}</div>
+    <table class="doc-table"><thead><tr><th>Document</th><th>File</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>
+    ${opsTimeline}`;
+}
+function doReview(eid, did) { reviewDocument(eid, did, true, null); render(); tourHook('review'); }
+function doReject(eid, did) { const s = document.getElementById('reject-'+did); if (!s?.value) { s?.focus(); return; } reviewDocument(eid, did, false, s.value); render(); tourHook('review'); }
+
+// ── Init ──
+render();
+tourStart();
+window.addEventListener('resize', () => { if (tour.active) tourRender(); });
+document.addEventListener('click', (e) => {
+  if (addDocDropdownOpen && !e.target.closest('.add-doc-dropdown') && !e.target.closest('[onclick*="toggleAddDocDropdown"]')) {
+    addDocDropdownOpen = false;
+    const dd = document.getElementById('add-doc-dropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
