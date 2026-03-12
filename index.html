@@ -376,6 +376,37 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* ── Client-side AI scan ── */
+.scan-overlay {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius);
+  background: linear-gradient(135deg, #f8f6ff, #f0f4ff);
+  border: 1px solid #d8d2f0;
+  animation: fadeIn 0.15s;
+}
+.scan-spinner {
+  width: 16px; height: 16px; border: 2px solid #d8d2f0;
+  border-top-color: #7c5bbf; border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-text { font-size: 12px; color: #5a4e72; font-weight: 500; }
+
+.scan-result {
+  padding: 10px 14px; border-radius: var(--radius);
+  font-size: 12px; line-height: 1.5; animation: slideIn 0.2s;
+}
+.scan-result-fail {
+  background: var(--danger-soft); border: 1px solid rgba(196,58,49,0.15);
+  color: var(--danger);
+}
+.scan-result-pass {
+  background: var(--success-soft); border: 1px solid rgba(26,135,84,0.15);
+  color: var(--success);
+}
+.scan-result strong { display: block; margin-bottom: 2px; }
+.scan-result-actions { margin-top: 6px; display: flex; gap: 6px; }
+
 /* ═══ TOUR ═══ */
 .tour-dim {
   position: fixed; inset: 0; z-index: 800;
@@ -475,6 +506,17 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
   border: none; cursor: pointer; padding: 2px 4px; transition: color 0.12s;
 }
 .remove-doc-btn:hover { color: var(--danger); }
+
+/* ── Process type selector ── */
+.process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.process-option {
+  border: 1px solid var(--border-light); border-radius: var(--radius); padding: 10px 12px;
+  cursor: pointer; transition: all 0.12s; text-align: left;
+}
+.process-option:hover { border-color: var(--accent); background: var(--accent-soft); }
+.process-option.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
+.process-option-label { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.process-option-desc { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; line-height: 1.3; }
 
 /* ── New tag ── */
 .new-tag {
@@ -631,6 +673,15 @@ const DOCUMENT_TYPES = [
   { key: 'financial_statement', label: 'Financial Statement' },
   { key: 'tax_form', label: 'Tax Form' },
 ];
+
+const PROCESS_TYPES = [
+  { key: 'new_account', label: 'New Account Opening', desc: 'Full KYC — ID, financials, application, beneficiary', docs: ['government_id', 'proof_of_address', 'application_form', 'beneficiary_form', 'financial_statement', 'tax_form'] },
+  { key: 'beneficiary_change', label: 'Beneficiary Change', desc: 'Updated designation form with identity verification', docs: ['government_id', 'beneficiary_form'] },
+  { key: 'address_update', label: 'Address Update', desc: 'New proof of address and signed amendment', docs: ['proof_of_address', 'application_form'] },
+  { key: 'annual_review', label: 'Annual Compliance Review', desc: 'Updated financials and tax documents for suitability', docs: ['financial_statement', 'tax_form'] },
+  { key: 'rrsp_transfer', label: 'RRSP / TFSA Transfer-In', desc: 'Account application with current financial position', docs: ['government_id', 'application_form', 'financial_statement'] },
+  { key: 'custom', label: 'Custom', desc: 'Select documents manually', docs: [] },
+];
 const REJECTION_REASONS = [
   { key: 'expired', label: 'Expired' },
   { key: 'illegible', label: 'Illegible' },
@@ -683,7 +734,7 @@ function cancelExchange(exchangeId) {
 
 function duplicateExchange(sourceId, newClientName) {
   const src = getExchange(sourceId); if (!src) return null;
-  const ex = createExchange(newClientName || src.clientName + ' (copy)', src.advisorName, [...src.documentsRequired]);
+  const ex = createExchange(newClientName || src.clientName + ' (copy)', src.advisorName, [...src.documentsRequired], src.processType);
   logEvent('duplicated', ex.id, 'from ' + sourceId);
   return ex;
 }
@@ -709,8 +760,8 @@ function getOpsStats() {
   };
 }
 
-function createExchange(clientName, advisorName, requiredDocKeys) {
-  const ex = { id: 'EX-' + String(state.nextId++).padStart(4, '0'), clientName, advisorName, status: 'documents_requested', documentsRequired: requiredDocKeys, documents: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+function createExchange(clientName, advisorName, requiredDocKeys, processType) {
+  const ex = { id: 'EX-' + String(state.nextId++).padStart(4, '0'), clientName, advisorName, processType: processType || 'Custom', status: 'documents_requested', documentsRequired: requiredDocKeys, documents: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
   state.exchanges.push(ex);
   logEvent('created', ex.id, requiredDocKeys.length + ' docs requested');
   return ex;
@@ -755,16 +806,16 @@ function recalculateStatus(ex) {
 const STEPS = [
   { id: 'welcome', target: null, title: 'The Rejection Loop', body: 'This demo walks through the one workflow that matters — advisor requests documents, client uploads, ops rejects one, and the client re-uploads <strong>just that document</strong> with full context on what went wrong. No email. No phone tag.', infra: null, action: 'next', nextLabel: 'Start the demo' },
   { id: 'new-exchange', target: () => document.getElementById('btn-new-exchange'), title: 'Create a document request', body: 'You\'re the financial advisor. You need docs from your client to open an account. <strong>Click "+ New Exchange"</strong> to start.', infra: '<strong>Production:</strong> Creates a Box folder under the advisor\'s branch with an Exchange Metadata template applied.', action: 'await-click' },
-  { id: 'fill-form', target: () => document.getElementById('new-exchange-form'), title: 'Set up the request', body: 'Client name is pre-filled. <strong>Check a few document types and click Create.</strong>', infra: '<strong>Production:</strong> Metadata fields (status, required docs, advisor info) are all queryable via the Box Metadata API.', action: 'await-create' },
+  { id: 'fill-form', target: () => document.getElementById('new-exchange-form'), title: 'Set up the request', body: 'Client name is pre-filled. <strong>Pick a process type</strong> — try "New Account Opening." It auto-selects the right documents. Then click Create.', infra: '<strong>Production:</strong> The process type drives which metadata template and document requirements get applied to the Box folder.', action: 'await-create' },
   { id: 'to-client', target: () => document.querySelector('[data-role="client"]'), title: 'Now be the client', body: 'The exchange is live. Your client got a secure link. <strong>Click the Client tab</strong> to see what they see.', infra: '<strong>Production:</strong> A branded page with Box Content Uploader. No Box account needed. No portal login.', action: 'await-role', role: 'client' },
-  { id: 'upload', target: () => document.querySelector('#client-content .doc-table'), title: 'Upload the documents', body: '<strong>Click "Upload" next to each document.</strong> Watch statuses change as each one lands.', infra: '<strong>Production:</strong> Each upload triggers a Relay workflow — updates metadata, checks completeness, notifies the advisor.', action: 'await-all-uploaded' },
+  { id: 'upload', target: () => document.querySelector('#client-content .doc-table'), title: 'Upload the documents', body: '<strong>Click "Upload" next to each document.</strong> Each one gets a quick AI scan — if something\'s obviously wrong, the client finds out in seconds, not days.', infra: '<strong>Production:</strong> A lightweight agent scans for dealbreakers on upload (expired, illegible, wrong type). Only clean docs hit the ops queue. Full regulatory evaluation happens at the ops level.', action: 'await-all-uploaded' },
   { id: 'to-ops', target: () => document.querySelector('[data-role="ops"]'), title: 'Now be operations', body: 'All docs auto-routed to the ops queue. <strong>Click the Operations tab.</strong>', infra: '<strong>Production:</strong> Ops gets auto-assigned as collaborators on the folder. No manual handoff.', action: 'await-role', role: 'ops' },
   { id: 'ops-open', target: () => document.querySelector('#ops-list .exchange-row'), title: 'Open the exchange', body: '<strong>Click into the exchange</strong> to see the documents.', infra: null, action: 'await-ops-detail' },
-  { id: 'review', target: () => document.querySelector('#ops-detail .doc-table'), title: 'Accept some, reject one', body: 'Accept the good ones. For one document, <strong>select a rejection reason from the dropdown and click Reject.</strong>', infra: '<strong>Production:</strong> Each decision updates file-level Box metadata. Rejections trigger a Relay workflow that notifies everyone and fires DocuSign logic if needed.', action: 'await-rejection' },
-  { id: 'to-client-2', target: () => document.querySelector('[data-role="client"]'), title: 'See what the client sees', body: '<strong>Switch to the Client tab.</strong> The client sees exactly which doc was rejected, why, and can re-upload just that one.', infra: 'This replaces the 3-5 emails and phone call that this workflow currently requires.', action: 'await-role', role: 'client' },
+  { id: 'review', target: () => document.querySelector('#ops-detail .doc-table'), title: 'Review with full AI evaluation', body: 'The quick check already filtered obvious issues. Now the full regulatory evaluation shows deeper findings. <strong>Click AI Check on a document</strong> to see findings, then accept or reject.', infra: '<strong>Production:</strong> Tier 2 evaluates against FINTRAC, CIRO, Ontario Insurance Act, and CRA requirements. The beneficiary form flags that the minor child needs a named trustee — that\'s an Ontario Insurance Act s.220(1) issue the quick check wouldn\'t catch.', action: 'await-rejection' },
+  { id: 'to-client-2', target: () => document.querySelector('[data-role="client"]'), title: 'Two catches, two channels', body: '<strong>Switch to the Client tab.</strong> First time: the client caught the expired doc themselves in seconds. This time: ops caught a regulatory issue and the client sees exactly what to fix.', infra: 'Obvious problems never reach the queue. Regulatory issues get flagged with full context. Both save time.', action: 'await-role', role: 'client' },
   { id: 'reupload', target: () => document.querySelector('#client-content .btn-ghost'), title: 'Re-upload the rejected document', body: '<strong>Click Upload</strong> on the rejected doc. The replacement routes back to ops automatically.', infra: '<strong>Production:</strong> New file lands in the same Box folder. Relay detects it, updates metadata, re-notifies ops.', action: 'await-reupload' },
   { id: 'to-ops-2', target: () => document.querySelector('[data-role="ops"]'), title: 'Final review', body: '<strong>Switch to Operations</strong> and accept the replacement to close the loop.', infra: null, action: 'await-role', role: 'ops' },
-  { id: 'done', target: null, title: 'That\'s the whole loop', body: 'Advisor requested → Client uploaded → Ops rejected with a reason → Client re-uploaded just that doc → Ops accepted → Complete.<br><br>Every participant saw exactly what they needed. Status tracked itself. <strong>Zero email.</strong>', infra: '<strong>The infrastructure is commodity</strong> — Box folders, metadata, Relay automations, embedded UI Elements. DocuSign integration, status APIs for external properties, and prospect graduation are all extensions of this same loop.', action: 'next', nextLabel: 'Finish' },
+  { id: 'done', target: null, title: 'Two tiers of AI. Zero email.', body: 'The client caught the expired document <strong>in seconds</strong> — before ops ever saw it. The ops reviewer got a full regulatory evaluation on everything that made it through.<br><br>Advisor requested → Client uploaded → AI caught an obvious issue instantly → Client fixed it → Ops reviewed with full regulatory context → Done.', infra: '<strong>Tier 1:</strong> Lightweight agent scans on upload for dealbreakers (expired, illegible, wrong type). Client gets instant feedback. <strong>Tier 2:</strong> Full regulatory evaluation runs against FINTRAC, CIRO, Ontario Insurance Act, and CRA requirements. Ops sees pass/fail/warn per rule with specific findings.', action: 'next', nextLabel: 'Finish' },
 ];
 
 let tour = { active: false, step: 0 };
@@ -988,7 +1039,7 @@ function renderAdvisor() {
     const p = ex.documentsRequired.length - ex.documents.filter(d => d.status === 'accepted').length;
     const isClosed = ex.status === 'complete' || ex.status === 'cancelled';
     const dimStyle = isClosed ? ' style="opacity:0.55;"' : '';
-    const infoText = isClosed ? ex.id + ' · ' + formatDate(ex.createdAt) : ex.id + ' · ' + formatDate(ex.createdAt) + ' · ' + p + ' remaining';
+    const infoText = isClosed ? ex.id + ' · ' + (ex.processType || '') + ' · ' + formatDate(ex.createdAt) : ex.id + ' · ' + (ex.processType || '') + ' · ' + p + ' remaining';
     h += `<div class="exchange-row"${dimStyle} onclick="openAdvisorDetail('${ex.id}')"><div class="exchange-meta"><div class="exchange-name">${ex.clientName}</div><div class="exchange-info">${infoText}</div></div><div class="exchange-right">${statusBadge(ex.status)}</div></div>`;
   }
   h += `</div>`; el.innerHTML = h;
@@ -1102,7 +1153,7 @@ function renderAdvisorDetail(id) {
 
   el.innerHTML = `<div class="back-link" onclick="backToAdvisorList()">← Back to exchanges</div>
     ${n}${actionBar}
-    <div class="card"><div class="card-header"><div><div class="card-title">${ex.clientName}</div><div class="card-subtitle">${ex.id} · Created ${formatDate(ex.createdAt)}</div></div>${statusBadge(ex.status)}</div>
+    <div class="card"><div class="card-header"><div><div class="card-title">${ex.clientName}</div><div class="card-subtitle">${ex.id} · ${ex.processType || 'Exchange'} · Created ${formatDate(ex.createdAt)}</div></div>${statusBadge(ex.status)}</div>
     <table class="doc-table"><thead><tr><th>Required Document</th><th>File</th><th>Status</th></tr></thead><tbody>${dr}</tbody></table></div>
     ${timelineHtml}${vc}`;
 }
@@ -1157,10 +1208,70 @@ function doDuplicateExchange(sourceId) {
     render();
   }
 }
+let selectedProcess = null;
+
 function showNewExchangeForm() {
+  selectedProcess = null;
   const el = document.getElementById('advisor-list');
-  const ch = DOCUMENT_TYPES.map(t=>`<label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" value="${t.key}"> ${t.label}</label>`).join('');
-  el.innerHTML = `<div class="back-link" onclick="render()">← Cancel</div><div class="card" id="new-exchange-form"><div class="card-title" style="margin-bottom:14px;">New Document Exchange</div><div class="form-group"><label class="form-label">Client / Prospect Name</label><input id="new-client-name" class="form-input" value="Jane Whitfield" /></div><div class="form-group"><label class="form-label">Advisor Name</label><input id="new-advisor-name" class="form-input" value="John Smith" /></div><div class="form-group"><label class="form-label">Required Documents</label><div class="check-list" id="new-doc-checks">${ch}</div></div><div class="mt-24"><button class="btn btn-primary" onclick="submitNewExchange()">Create Exchange & Send to Client</button></div></div>`;
+  renderNewExchangeForm(el);
+  requestAnimationFrame(() => tourCheck());
+}
+
+function renderNewExchangeForm(el) {
+  if (!el) el = document.getElementById('advisor-list');
+  const processGrid = PROCESS_TYPES.map(p => `
+    <div class="process-option ${selectedProcess === p.key ? 'selected' : ''}" onclick="selectProcess('${p.key}')">
+      <div class="process-option-label">${p.label}</div>
+      <div class="process-option-desc">${p.desc}</div>
+    </div>
+  `).join('');
+
+  const proc = PROCESS_TYPES.find(p => p.key === selectedProcess);
+  const ch = DOCUMENT_TYPES.map(t => {
+    const autoChecked = proc && proc.docs.includes(t.key);
+    const checkedClass = autoChecked ? ' checked' : '';
+    const checkedAttr = autoChecked ? ' checked' : '';
+    return `<label class="check-item${checkedClass}" onclick="this.classList.toggle('checked')"><input type="checkbox" value="${t.key}"${checkedAttr}> ${t.label}</label>`;
+  }).join('');
+
+  const docsSection = `
+    <div class="form-group">
+      <label class="form-label">Required Documents${proc && proc.key !== 'custom' ? ` <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-muted);">— pre-selected for ${proc.label}</span>` : ''}</label>
+      <div class="check-list" id="new-doc-checks">${ch}</div>
+    </div>
+    <div class="mt-24"><button class="btn btn-primary" onclick="submitNewExchange()">Create Exchange & Send to Client</button></div>
+  `;
+
+  el.innerHTML = `<div class="back-link" onclick="render()">← Cancel</div><div class="card" id="new-exchange-form">
+    <div class="card-title" style="margin-bottom:14px;">New Document Exchange</div>
+    <div class="form-group">
+      <label class="form-label">Client / Prospect Name</label>
+      <input id="new-client-name" class="form-input" value="Jane Whitfield" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Advisor Name</label>
+      <input id="new-advisor-name" class="form-input" value="John Smith" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Process Type</label>
+      <div class="process-grid">${processGrid}</div>
+    </div>
+    ${docsSection}
+  </div>`;
+}
+
+function selectProcess(key) {
+  selectedProcess = key;
+  // Preserve the name fields
+  const nameVal = document.getElementById('new-client-name')?.value || 'Jane Whitfield';
+  const advVal = document.getElementById('new-advisor-name')?.value || 'John Smith';
+  const el = document.getElementById('advisor-list');
+  renderNewExchangeForm(el);
+  // Restore values
+  const nameInput = document.getElementById('new-client-name');
+  const advInput = document.getElementById('new-advisor-name');
+  if (nameInput) nameInput.value = nameVal;
+  if (advInput) advInput.value = advVal;
   requestAnimationFrame(() => tourCheck());
 }
 function submitNewExchange() {
@@ -1169,7 +1280,8 @@ function submitNewExchange() {
   if (!cn) return;
   const cks = [...document.querySelectorAll('#new-doc-checks input[type=checkbox]:checked')].map(c=>c.value);
   if (!cks.length) return;
-  createExchange(cn, an, cks);
+  const proc = PROCESS_TYPES.find(p => p.key === selectedProcess);
+  createExchange(cn, an, cks, proc?.label || 'Custom');
   state.advisorView = 'list'; render(); tourHook('exchange-created');
 }
 
@@ -1204,15 +1316,158 @@ function renderClientExchange(ex) {
     let sc = '<span class="text-muted text-sm">Awaiting upload</span>';
     if (pen) sc = docStatusBadge('pending_review'); if (acc) sc = docStatusBadge('accepted'); if (rej) sc = docStatusBadge('rejected', doc.rejectionReason);
     let viewBtn = doc && !need ? `<div style="margin-top:3px;"><button class="ai-check-btn" onclick="event.stopPropagation();openPreview('${ex.id}','${doc.id}')">View</button></div>` : '';
-    let ac = ''; if (need && ex.status !== 'complete') ac = `<button class="btn btn-sm btn-ghost" onclick="simulateUpload('${ex.id}','${tk}','${tn}')">Upload</button>`;
-    dr += `<tr><td class="font-medium">${tn}${newTag}</td><td>${sc}${viewBtn}</td><td style="text-align:right;">${ac}</td></tr>`;
+
+    // Check for active scan state
+    const scanKey = ex.id + ':' + tk;
+    const scan = scanState[scanKey];
+    let ac = '';
+    let scanRow = '';
+
+    if (scan === 'scanning') {
+      ac = '';
+      scanRow = `<tr><td colspan="3" style="padding:4px 12px 10px;border-bottom:1px solid var(--border-light);"><div class="scan-overlay"><div class="scan-spinner"></div><div class="scan-text">Scanning ${tn}… checking for obvious issues before sending to review</div></div></td></tr>`;
+    } else if (scan === 'passed') {
+      ac = '';
+      scanRow = `<tr><td colspan="3" style="padding:4px 12px 10px;border-bottom:1px solid var(--border-light);"><div class="scan-result scan-result-pass"><strong>✓ Quick check passed</strong>Document looks good — sending to operations for full review.</div></td></tr>`;
+    } else if (scan && scan.failed) {
+      sc = '<span class="text-muted text-sm">Awaiting upload</span>';
+      viewBtn = '';
+      scanRow = `<tr><td colspan="3" style="padding:4px 12px 10px;border-bottom:1px solid var(--border-light);">
+        <div class="scan-result scan-result-fail">
+          <strong>Issue detected — please re-upload</strong>
+          ${scan.findings.map(f => `<div style="margin-top:2px;">${f}</div>`).join('')}
+          <div class="scan-result-actions">
+            <button class="btn btn-sm btn-primary" onclick="reuploadAfterScan('${ex.id}','${tk}','${scan.typeName}')">Upload New Version</button>
+            <button class="btn btn-sm btn-ghost" onclick="dismissScan('${ex.id}','${tk}')">Dismiss</button>
+          </div>
+        </div>
+      </td></tr>`;
+    } else if (need && ex.status !== 'complete') {
+      ac = `<button class="btn btn-sm btn-ghost" onclick="simulateUpload('${ex.id}','${tk}','${tn}')">Upload</button>`;
+    }
+
+    dr += `<tr><td class="font-medium">${tn}${newTag}</td><td>${sc}${viewBtn}</td><td style="text-align:right;">${ac}</td></tr>${scanRow}`;
   }
-  return `<div class="card" style="margin-bottom:16px;">${progressTracker(ex.status)}${n}<div class="card-header"><div><div class="card-title">Document Request from ${ex.advisorName}</div><div class="card-subtitle">${ex.id} · ${ex.documentsRequired.length} doc${ex.documentsRequired.length!==1?'s':''} requested</div></div></div><table class="doc-table"><thead><tr><th>Document</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>`;
+  return `<div class="card" style="margin-bottom:16px;">${progressTracker(ex.status)}${n}<div class="card-header"><div><div class="card-title">Document Request from ${ex.advisorName}</div><div class="card-subtitle">${ex.id} · ${ex.processType || 'Exchange'} · ${ex.documentsRequired.length} doc${ex.documentsRequired.length!==1?'s':''} requested</div></div></div><table class="doc-table"><thead><tr><th>Document</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>`;
 }
+// ── Instant client-side AI quick checks (runs on upload, ~15 sec) ──
+// Only checks obvious dealbreakers. If any fail, client sees immediately.
+// If all pass, doc goes to ops queue for the full regulatory evaluation.
+const QUICK_CHECKS = {
+  government_id: {
+    checks: [
+      { rule: 'Document must not be expired', pass: true, finding: 'Expiry date June 2027 — valid.' },
+      { rule: 'Must contain a photo', pass: true, finding: 'Photo area detected.' },
+      { rule: 'Must be government-issued', pass: true, finding: 'Ontario Driver\'s License recognized.' },
+    ]
+  },
+  proof_of_address: {
+    checks: [
+      { rule: 'Must be dated within 90 days', pass: true, finding: 'Statement dated Feb 2026 — current.' },
+      { rule: 'Must show a residential address', pass: true, finding: 'Service address present.' },
+      { rule: 'Must be from an accepted source', pass: true, finding: 'Utility bill — accepted type.' },
+    ]
+  },
+  proof_of_address_expired: {
+    checks: [
+      { rule: 'Must be dated within 90 days', pass: false, finding: 'Statement dated August 2025 — this document is over 6 months old. Please upload a utility bill, bank statement, or tax notice from the last 90 days.' },
+      { rule: 'Must show a residential address', pass: true, finding: 'Service address present.' },
+      { rule: 'Must be from an accepted source', pass: true, finding: 'Utility bill — accepted type.' },
+    ]
+  },
+  application_form: {
+    checks: [
+      { rule: 'Must be signed', pass: true, finding: 'Signature detected.' },
+      { rule: 'Account type must be selected', pass: true, finding: 'TFSA selected.' },
+    ]
+  },
+  beneficiary_form: {
+    checks: [
+      { rule: 'Must be signed', pass: true, finding: 'Signature detected.' },
+      { rule: 'Beneficiary name must be present', pass: true, finding: 'Primary beneficiary named.' },
+      { rule: 'Allocation must total 100%', pass: true, finding: '100% allocated.' },
+    ]
+  },
+  financial_statement: {
+    checks: [
+      { rule: 'Must be from a financial institution', pass: true, finding: 'TD Canada Trust recognized.' },
+      { rule: 'Must be dated within 6 months', pass: true, finding: 'Statement from January 2026 — current.' },
+    ]
+  },
+  tax_form: {
+    checks: [
+      { rule: 'Must be current or prior tax year', pass: true, finding: 'Tax year 2025 — valid.' },
+      { rule: 'Must be a recognized CRA form', pass: true, finding: 'T4 form recognized.' },
+    ]
+  },
+};
+
+// ── Scanning state ──
+let scanState = {}; // { 'EX-0001:government_id': 'scanning' | 'passed' | { failed: true, findings: [...] } }
+
 function simulateUpload(eid, tk, tn) {
+  const scanKey = eid + ':' + tk;
+  scanState[scanKey] = 'scanning';
+  render();
+
+  // Determine which quick check to use
+  const ex = getExchange(eid);
+  const attemptCount = state.auditLog.filter(e => e.exchangeId === eid && (e.type === 'upload' || e.type === 'resubmit') && e.detail === tk).length;
+  let qcKey = tk;
+  if (tk === 'proof_of_address' && attemptCount === 0) qcKey = 'proof_of_address_expired';
+
+  const qc = QUICK_CHECKS[qcKey] || QUICK_CHECKS[tk];
+  const delay = 1500 + Math.random() * 1000; // 1.5-2.5s simulated scan
+
+  setTimeout(() => {
+    if (!qc) {
+      // No quick check defined, pass through
+      finishUpload(eid, tk, tn, scanKey);
+      return;
+    }
+
+    const failures = qc.checks.filter(c => !c.pass);
+    if (failures.length > 0) {
+      scanState[scanKey] = { failed: true, findings: failures.map(f => f.finding), docType: tk, typeName: tn };
+      render();
+    } else {
+      scanState[scanKey] = 'passed';
+      render();
+      // Brief "passed" flash, then complete upload
+      setTimeout(() => {
+        finishUpload(eid, tk, tn, scanKey);
+      }, 800);
+    }
+  }, delay);
+}
+
+function finishUpload(eid, tk, tn, scanKey) {
   const names = { government_id:'drivers_license_2026.pdf', proof_of_address:'utility_bill_feb2026.pdf', application_form:'application_signed.pdf', beneficiary_form:'beneficiary_designation.pdf', financial_statement:'bank_statement_q4.pdf', tax_form:'T4_2025.pdf' };
   uploadDocument(eid, tk, names[tk]||tn.toLowerCase().replace(/\s+/g,'_')+'.pdf');
-  render(); tourHook('upload');
+  delete scanState[scanKey];
+  render();
+  tourHook('upload');
+}
+
+function reuploadAfterScan(eid, tk, tn) {
+  const scanKey = eid + ':' + tk;
+  delete scanState[scanKey];
+  // This is the re-upload — now use the "good" version
+  scanState[scanKey] = 'scanning';
+  render();
+  setTimeout(() => {
+    scanState[scanKey] = 'passed';
+    render();
+    setTimeout(() => {
+      finishUpload(eid, tk, tn, scanKey);
+    }, 800);
+  }, 1500 + Math.random() * 1000);
+}
+
+function dismissScan(eid, tk) {
+  const scanKey = eid + ':' + tk;
+  delete scanState[scanKey];
+  render();
 }
 
 // ── Ops ──
@@ -1244,73 +1499,87 @@ function renderOps() {
 }
 function openOpsDetail(id) { state.opsView='detail'; state.opsDetailId=id; render(); }
 function backToOpsList() { state.opsView='list'; state.opsDetailId=null; render(); }
-// ── AI Pre-Check: Simulated evaluations against document content ──
+// ── AI Pre-Check: Regulation-backed evaluations ──
+// Each ruleset is derived from verified Canadian regulatory requirements.
+// FINTRAC = Proceeds of Crime (Money Laundering) and Terrorist Financing Act (PCMLTFA)
+// CIRO = Canadian Investment Regulatory Organization (formerly MFDA/IIROC)
+// Ontario Insurance Act, R.S.O. 1990, c. I.8
+// CRA = Canada Revenue Agency T4 filing requirements
+
 const AI_EVALUATIONS = {
   government_id: {
-    label: 'ID Verification',
+    label: 'ID Verification — FINTRAC PCMLTFA',
+    regulation: 'PCMLTFA / FINTRAC Methods to Verify Identity of Persons',
     results: [
-      { verdict: 'pass', finding: 'Expiry date is June 1, 2027 — valid for 15 months.' },
-      { verdict: 'pass', finding: 'Legal name "Jane Elizabeth Whitfield" matches application form exactly.' },
-      { verdict: 'pass', finding: 'Document is an Ontario Driver\'s License (Class G) — accepted government-issued ID type.' },
-      { verdict: 'pass', finding: 'Photo area and signature area detected — document appears complete.' },
-      { verdict: 'info', finding: 'Address on ID (42 Maple Crescent, Toronto) matches proof of address on file.' },
+      { verdict: 'pass', finding: 'Document is government-issued photo ID (Ontario Driver\'s License) — meets FINTRAC requirement for federal, provincial, or territorial government-issued document.' },
+      { verdict: 'pass', finding: 'Expiry date June 1, 2027 — document is valid and current per FINTRAC authenticity/validity/currency requirements.' },
+      { verdict: 'pass', finding: 'Contains name, photograph, and unique identifying number (W4829-38571-80315) — all three mandatory elements present per FINTRAC guidance.' },
+      { verdict: 'pass', finding: 'Legal name "Jane Elizabeth Whitfield" matches application form — identity consistency verified.' },
+      { verdict: 'info', finding: 'Address on ID matches proof of address on file — cross-document consistency confirmed. FINTRAC requires records be retrievable within 30 days upon request.' },
     ]
   },
   proof_of_address: {
-    label: 'Address Verification',
+    label: 'Address Verification — FINTRAC KYC',
+    regulation: 'FINTRAC Dual-Process / Independent Source Verification',
     results: [
-      { verdict: 'pass', finding: 'Statement dated Feb 14, 2026 — within the required 90-day window.' },
-      { verdict: 'pass', finding: 'Service address "42 Maple Crescent, Toronto ON" matches application.' },
-      { verdict: 'pass', finding: 'Document type is a utility bill (Toronto Hydro) — accepted proof type.' },
-      { verdict: 'pass', finding: 'Customer name "Jane E. Whitfield" matches ID on file.' },
+      { verdict: 'pass', finding: 'Statement dated Feb 14, 2026 — within 90-day window. FINTRAC requires reliable, independent source documents to be current.' },
+      { verdict: 'pass', finding: 'Source is Toronto Hydro (utility provider) — accepted as independent, reliable source per FINTRAC dual-process method.' },
+      { verdict: 'pass', finding: 'Service address "42 Maple Crescent, Toronto ON" matches application and government ID — address consistency verified across documents.' },
+      { verdict: 'pass', finding: 'Customer name "Jane E. Whitfield" matches ID on file — name consistency confirmed.' },
     ]
   },
   proof_of_address_expired: {
-    label: 'Address Verification',
+    label: 'Address Verification — FINTRAC KYC',
+    regulation: 'FINTRAC Dual-Process / Independent Source Verification',
     results: [
-      { verdict: 'fail', finding: 'Statement dated Aug 12, 2025 — older than 90 days. Document is expired.' },
-      { verdict: 'pass', finding: 'Service address matches application.' },
-      { verdict: 'pass', finding: 'Document type is a utility bill — accepted proof type.' },
-      { verdict: 'warn', finding: 'Customer listed as "J. Whitfield" — abbreviated name, may want to verify against ID.' },
+      { verdict: 'fail', finding: 'Statement dated Aug 12, 2025 — exceeds 90-day currency window. FINTRAC requires source documents to be current; this document is approximately 7 months old.' },
+      { verdict: 'pass', finding: 'Source is Toronto Hydro (utility provider) — accepted document type.' },
+      { verdict: 'pass', finding: 'Service address matches application on file.' },
+      { verdict: 'warn', finding: 'Customer listed as "J. Whitfield" — abbreviated first name. FINTRAC requires name verification against government-issued ID; abbreviated name may require additional confirmation.' },
     ]
   },
   application_form: {
-    label: 'Application Completeness',
+    label: 'Application Completeness — CIRO Client Focused Reforms',
+    regulation: 'NI 31-103 / CIRO Rules 3200-3402 / CSA Staff Notice 31-368',
     results: [
-      { verdict: 'pass', finding: 'All required fields populated — account type (TFSA), SIN, employer, income range.' },
-      { verdict: 'pass', finding: 'Client signature detected, dated Feb 28, 2026.' },
-      { verdict: 'pass', finding: 'Advisor certification section signed by John Smith (A-28471).' },
-      { verdict: 'pass', finding: 'Beneficiary section references attached designation form.' },
-      { verdict: 'info', finding: 'Risk profile set to "Balanced Growth" — consistent with stated income range.' },
+      { verdict: 'pass', finding: 'Account type (TFSA) selected — CIRO requires account type to support suitability determination per Rule 3402.' },
+      { verdict: 'pass', finding: 'KYC fields complete: annual income ($95K–$125K range), employer, risk profile (Balanced Growth) — meets CIRO requirement for financial circumstances, investment objectives, and risk tolerance per NI 31-103 s.13.2.' },
+      { verdict: 'pass', finding: 'Client signature and date present (Feb 28, 2026) — CIRO requires clients to confirm accuracy of KYC information upon initial collection.' },
+      { verdict: 'pass', finding: 'Advisor certification signed by John Smith (A-28471) — CIRO requires registered individuals to document suitability rationale.' },
+      { verdict: 'info', finding: 'Risk profile "Balanced Growth" is consistent with stated income range and TFSA account type — suitability alignment check passed per CSA/CIRO Staff Notice 31-368 guidance.' },
     ]
   },
   beneficiary_form: {
-    label: 'Beneficiary Validation',
+    label: 'Beneficiary Validation — Ontario Insurance Act',
+    regulation: 'Ontario Insurance Act R.S.O. 1990, c. I.8, ss. 171, 190-196',
     results: [
-      { verdict: 'pass', finding: 'Primary beneficiary: Michael R. Whitfield (Spouse) — DOB and relationship present.' },
-      { verdict: 'pass', finding: 'Allocation is 100% to primary — no split calculation needed.' },
-      { verdict: 'pass', finding: 'Contingent beneficiary designated: Sarah Whitfield (Daughter), 100%.' },
-      { verdict: 'pass', finding: 'Client signature and date present (Feb 28, 2026).' },
+      { verdict: 'pass', finding: 'Designation is in writing and signed by the owner — meets s.171(1) requirement that declaration be made by instrument signed by the insured.' },
+      { verdict: 'pass', finding: 'Primary beneficiary: Michael R. Whitfield (Spouse), DOB and relationship specified — designation identifies the beneficiary per s.191(2).' },
+      { verdict: 'pass', finding: 'Allocation is 100% to primary — no split calculation issues. Per s.196, proceeds pass directly to designated beneficiary outside the estate.' },
+      { verdict: 'pass', finding: 'Contingent beneficiary designated: Sarah Whitfield (Daughter), age 7 — note: minor beneficiary. Under s.220(1), proceeds cannot be paid directly to a minor; a trustee appointment is recommended.' },
+      { verdict: 'warn', finding: 'Daughter is under 18 — Ontario Insurance Act s.220(1) requires that if a minor is designated, a trustee should be named to receive proceeds on their behalf. No trustee is specified on this form.' },
     ]
   },
   financial_statement: {
-    label: 'Financial Review',
+    label: 'Financial Review — CIRO Suitability Obligations',
+    regulation: 'NI 31-103 s.13.2 / CIRO IDPC Rules / CSA Staff Notice 31-368',
     results: [
-      { verdict: 'pass', finding: 'Statement from TD Canada Trust — recognized Canadian financial institution.' },
-      { verdict: 'pass', finding: 'Period: January 1–31, 2026 — within the 6-month requirement.' },
-      { verdict: 'pass', finding: 'Account holder "Jane E. Whitfield" matches ID and application.' },
-      { verdict: 'pass', finding: 'Closing balance $28,881.88 — figures are legible and consistent with stated income.' },
-      { verdict: 'info', finding: 'Account number partially redacted (****-****-7829) — acceptable per policy.' },
+      { verdict: 'pass', finding: 'Statement from TD Canada Trust — recognized Canadian Schedule I bank. CIRO requires financial circumstances be verified from reliable sources.' },
+      { verdict: 'pass', finding: 'Statement period Jan 1–31, 2026 — current. CSA/CIRO Staff Notice 31-368 requires sufficiently detailed and current financial circumstances information.' },
+      { verdict: 'pass', finding: 'Account holder "Jane E. Whitfield" matches ID and application — cross-document name consistency verified.' },
+      { verdict: 'pass', finding: 'Closing balance $28,881.88 — consistent with stated income range ($95K–$125K). CIRO requires financial assets, net worth, and liquidity needs to support suitability determination.' },
+      { verdict: 'info', finding: 'Account number partially redacted (****-****-7829) — acceptable. FINTRAC requires records be maintained for 5 years after relationship ends.' },
     ]
   },
   tax_form: {
-    label: 'Tax Document Review',
+    label: 'Tax Document Review — CRA T4 Requirements',
+    regulation: 'CRA RC4120 / Income Tax Act / PCMLTFA record-keeping',
     results: [
-      { verdict: 'pass', finding: 'Tax year 2025 — current prior year, acceptable.' },
-      { verdict: 'pass', finding: 'Form type is T4 (Statement of Remuneration) — correct form for employment income.' },
-      { verdict: 'pass', finding: 'SIN ending in 482 matches application on file.' },
-      { verdict: 'pass', finding: 'Employment income $112,400 falls within declared range ($95K–$125K).' },
-      { verdict: 'warn', finding: 'Employer "Meridian Design Group Inc." — verify BN 82941-7283 if AML review is triggered.' },
+      { verdict: 'pass', finding: 'Tax year 2025 — current prior year per CRA T4 filing requirements. T4 slips for 2025 were due February 28, 2026.' },
+      { verdict: 'pass', finding: 'Form type is T4 (Statement of Remuneration Paid) — correct CRA form for employment income reporting. Box 14 (employment income) is present.' },
+      { verdict: 'pass', finding: 'SIN ending in 482 — matches application on file. CRA requires 9-digit SIN on all T4 slips (Box 12). Partial redaction acceptable for client-held copies.' },
+      { verdict: 'pass', finding: 'Employment income $112,400 (Box 14) falls within declared range ($95K–$125K) on application — income consistency verified for CIRO suitability assessment.' },
+      { verdict: 'pass', finding: 'CPP contributions $3,867.50 and EI premiums $952.74 present — mandatory statutory deductions reported per CRA requirements, consistent with employment income level.' },
     ]
   },
 };
@@ -1435,6 +1704,7 @@ function renderOpsDetail(id) {
       aiPanel = `<tr><td colspan="4" style="padding:0 12px 10px 12px;border-bottom:1px solid var(--border-light);">
         <div class="ai-check" style="margin-top:0;">
           <div class="ai-check-header"><div class="ai-check-icon">✦</div><div class="ai-check-title">${evaluation.label}</div></div>
+          ${evaluation.regulation ? `<div style="font-size:10px;color:var(--ink-muted);margin-bottom:6px;font-style:italic;">${evaluation.regulation}</div>` : ''}
           ${summaryLine}
           <div class="ai-check-list">${evaluation.results.map(r => `<div class="ai-check-item"><span class="ai-verdict ai-verdict-${r.verdict}">${r.verdict}</span><div>${r.finding}</div></div>`).join('')}</div>
         </div>
@@ -1496,7 +1766,7 @@ function renderOpsDetail(id) {
 
   el.innerHTML = `<div class="back-link" onclick="backToOpsList()">← Back to queue</div>
     ${statsHtml}
-    <div class="card"><div class="card-header"><div><div class="card-title">${ex.clientName}</div><div class="card-subtitle">${ex.id} · Advisor: ${ex.advisorName}</div></div>${statusBadge(ex.status)}</div>
+    <div class="card"><div class="card-header"><div><div class="card-title">${ex.clientName}</div><div class="card-subtitle">${ex.id} · ${ex.processType || 'Exchange'} · Advisor: ${ex.advisorName}</div></div>${statusBadge(ex.status)}</div>
     <table class="doc-table"><thead><tr><th>Document</th><th>File</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>
     ${opsTimeline}`;
 }
