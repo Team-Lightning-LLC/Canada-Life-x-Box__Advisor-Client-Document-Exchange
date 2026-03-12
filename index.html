@@ -377,86 +377,35 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── Client-side AI scan ── */
-.scan-overlay {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-radius: var(--radius);
-  background: linear-gradient(135deg, #f8f6ff, #f0f4ff);
-  border: 1px solid #d8d2f0;
-  animation: fadeIn 0.15s;
+.scan-inline {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; color: #7c5bbf; font-weight: 500;
 }
-.scan-spinner {
-  width: 16px; height: 16px; border: 2px solid #d8d2f0;
+.scan-dot {
+  width: 14px; height: 14px; border: 2px solid #d8d2f0;
   border-top-color: #7c5bbf; border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.scan-text { font-size: 12px; color: #5a4e72; font-weight: 500; }
 
-.scan-result {
+.scan-pass-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--success); color: #fff; font-size: 10px; font-weight: 700;
+  animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+.scan-result-fail {
   padding: 10px 14px; border-radius: var(--radius);
   font-size: 12px; line-height: 1.5; animation: slideIn 0.2s;
-}
-.scan-result-fail {
   background: var(--danger-soft); border: 1px solid rgba(196,58,49,0.15);
   color: var(--danger);
 }
-.scan-result-pass {
-  background: var(--success-soft); border: 1px solid rgba(26,135,84,0.15);
-  color: var(--success);
-}
-.scan-result strong { display: block; margin-bottom: 2px; }
+.scan-result-fail strong { display: block; margin-bottom: 2px; }
 .scan-result-actions { margin-top: 6px; display: flex; gap: 6px; }
 
-/* ═══ TOUR ═══ */
-.tour-dim {
-  position: fixed; inset: 0; z-index: 800;
-  pointer-events: none; opacity: 0; transition: opacity 0.3s;
-}
-.tour-dim.active { opacity: 1; pointer-events: auto; }
-.tour-dim svg { width: 100%; height: 100%; }
-
-.tour-notecard {
-  position: fixed; z-index: 902;
-  background: #fdfbf2;
-  border: 1px solid #ddd3a8;
-  border-radius: 12px;
-  padding: 22px 24px;
-  max-width: 400px; width: 400px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(184,150,15,0.08);
-  opacity: 0; transform: translateY(12px) scale(0.98);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.15, 1);
-  pointer-events: none;
-}
-.tour-notecard.active { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-.tour-step-num {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px; border-radius: 50%;
-  background: var(--gold); color: #fff; font-size: 11px; font-weight: 700;
-  margin-bottom: 10px;
-}
-.tour-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
-.tour-body { font-size: 13px; color: #4a4535; line-height: 1.6; }
-.tour-body strong { color: #2a2518; }
-.tour-infra {
-  margin-top: 12px; padding: 10px 12px; border-radius: 8px;
-  background: rgba(184,150,15,0.06); border: 1px solid rgba(184,150,15,0.12);
-  font-size: 11.5px; color: #6b6040; line-height: 1.5;
-}
-.tour-infra strong { color: #4a4020; }
-.tour-footer { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; }
-.tour-btn {
-  font-family: var(--font); font-size: 12px; font-weight: 600;
-  padding: 7px 16px; border: none; border-radius: 7px; cursor: pointer; transition: all 0.15s;
-}
-.tour-btn-gold { background: var(--gold); color: #fff; }
-.tour-btn-gold:hover { background: #9e7f0d; }
-.tour-btn-skip { background: transparent; color: var(--ink-muted); font-size: 12px; }
-.tour-btn-skip:hover { color: var(--ink); }
-.tour-dots { display: flex; gap: 5px; }
-.tour-dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd3a8; transition: all 0.2s; }
-.tour-dot.active { background: var(--gold); width: 18px; border-radius: 4px; }
-.tour-dot.done { background: var(--gold); }
+/* ═══ TOUR (removed) ═══ */
 
 .flex { display: flex; }
 .text-sm { font-size: 13px; }
@@ -642,21 +591,6 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
   </div>
 </div>
 
-<!-- Tour layer -->
-<div class="tour-dim" id="tour-dim"><svg id="tour-svg"></svg></div>
-<div class="tour-notecard" id="tour-notecard">
-  <div class="tour-step-num" id="tour-num"></div>
-  <div class="tour-title" id="tour-title"></div>
-  <div class="tour-body" id="tour-body"></div>
-  <div class="tour-infra" id="tour-infra"></div>
-  <div class="tour-footer">
-    <button class="tour-btn tour-btn-skip" onclick="tourDismiss()">Skip tour</button>
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div class="tour-dots" id="tour-dots"></div>
-      <button class="tour-btn tour-btn-gold" id="tour-next" onclick="tourNext()">Got it</button>
-    </div>
-  </div>
-</div>
 
 </div><!-- /demo-view -->
 
@@ -803,187 +737,6 @@ function recalculateStatus(ex) {
 // TOUR
 // ════════════════════════════════════════════
 
-const STEPS = [
-  { id: 'welcome', target: null, title: 'The Rejection Loop', body: 'This demo walks through the one workflow that matters — advisor requests documents, client uploads, ops rejects one, and the client re-uploads <strong>just that document</strong> with full context on what went wrong. No email. No phone tag.', infra: null, action: 'next', nextLabel: 'Start the demo' },
-  { id: 'new-exchange', target: () => document.getElementById('btn-new-exchange'), title: 'Create a document request', body: 'You\'re the financial advisor. You need docs from your client to open an account. <strong>Click "+ New Exchange"</strong> to start.', infra: '<strong>Production:</strong> Creates a Box folder under the advisor\'s branch with an Exchange Metadata template applied.', action: 'await-click' },
-  { id: 'fill-form', target: () => document.getElementById('new-exchange-form'), title: 'Set up the request', body: 'Client name is pre-filled. <strong>Pick a process type</strong> — try "New Account Opening." It auto-selects the right documents. Then click Create.', infra: '<strong>Production:</strong> The process type drives which metadata template and document requirements get applied to the Box folder.', action: 'await-create' },
-  { id: 'to-client', target: () => document.querySelector('[data-role="client"]'), title: 'Now be the client', body: 'The exchange is live. Your client got a secure link. <strong>Click the Client tab</strong> to see what they see.', infra: '<strong>Production:</strong> A branded page with Box Content Uploader. No Box account needed. No portal login.', action: 'await-role', role: 'client' },
-  { id: 'upload', target: () => document.querySelector('#client-content .doc-table'), title: 'Upload the documents', body: '<strong>Click "Upload" next to each document.</strong> Each one gets a quick AI scan — if something\'s obviously wrong, the client finds out in seconds, not days.', infra: '<strong>Production:</strong> A lightweight agent scans for dealbreakers on upload (expired, illegible, wrong type). Only clean docs hit the ops queue. Full regulatory evaluation happens at the ops level.', action: 'await-all-uploaded' },
-  { id: 'to-ops', target: () => document.querySelector('[data-role="ops"]'), title: 'Now be operations', body: 'All docs auto-routed to the ops queue. <strong>Click the Operations tab.</strong>', infra: '<strong>Production:</strong> Ops gets auto-assigned as collaborators on the folder. No manual handoff.', action: 'await-role', role: 'ops' },
-  { id: 'ops-open', target: () => document.querySelector('#ops-list .exchange-row'), title: 'Open the exchange', body: '<strong>Click into the exchange</strong> to see the documents.', infra: null, action: 'await-ops-detail' },
-  { id: 'review', target: () => document.querySelector('#ops-detail .doc-table'), title: 'Review with full AI evaluation', body: 'The quick check already filtered obvious issues. Now the full regulatory evaluation shows deeper findings. <strong>Click AI Check on a document</strong> to see findings, then accept or reject.', infra: '<strong>Production:</strong> Tier 2 evaluates against FINTRAC, CIRO, Ontario Insurance Act, and CRA requirements. The beneficiary form flags that the minor child needs a named trustee — that\'s an Ontario Insurance Act s.220(1) issue the quick check wouldn\'t catch.', action: 'await-rejection' },
-  { id: 'to-client-2', target: () => document.querySelector('[data-role="client"]'), title: 'Two catches, two channels', body: '<strong>Switch to the Client tab.</strong> First time: the client caught the expired doc themselves in seconds. This time: ops caught a regulatory issue and the client sees exactly what to fix.', infra: 'Obvious problems never reach the queue. Regulatory issues get flagged with full context. Both save time.', action: 'await-role', role: 'client' },
-  { id: 'reupload', target: () => document.querySelector('#client-content .btn-ghost'), title: 'Re-upload the rejected document', body: '<strong>Click Upload</strong> on the rejected doc. The replacement routes back to ops automatically.', infra: '<strong>Production:</strong> New file lands in the same Box folder. Relay detects it, updates metadata, re-notifies ops.', action: 'await-reupload' },
-  { id: 'to-ops-2', target: () => document.querySelector('[data-role="ops"]'), title: 'Final review', body: '<strong>Switch to Operations</strong> and accept the replacement to close the loop.', infra: null, action: 'await-role', role: 'ops' },
-  { id: 'done', target: null, title: 'Two tiers of AI. Zero email.', body: 'The client caught the expired document <strong>in seconds</strong> — before ops ever saw it. The ops reviewer got a full regulatory evaluation on everything that made it through.<br><br>Advisor requested → Client uploaded → AI caught an obvious issue instantly → Client fixed it → Ops reviewed with full regulatory context → Done.', infra: '<strong>Tier 1:</strong> Lightweight agent scans on upload for dealbreakers (expired, illegible, wrong type). Client gets instant feedback. <strong>Tier 2:</strong> Full regulatory evaluation runs against FINTRAC, CIRO, Ontario Insurance Act, and CRA requirements. Ops sees pass/fail/warn per rule with specific findings.', action: 'next', nextLabel: 'Finish' },
-];
-
-let tour = { active: false, step: 0 };
-
-function clearTourLift() {
-  document.querySelectorAll('[data-tour-lifted]').forEach(el => {
-    el.style.zIndex = el.dataset.tourOrigZ || '';
-    if (el.dataset.tourOrigPos === 'none') el.style.position = '';
-    delete el.dataset.tourLifted;
-    delete el.dataset.tourOrigZ;
-    delete el.dataset.tourOrigPos;
-  });
-}
-
-function liftElement(el) {
-  el.dataset.tourOrigZ = el.style.zIndex || '';
-  el.dataset.tourOrigPos = el.style.position ? '' : 'none';
-  el.dataset.tourLifted = 'true';
-}
-
-function tourStart() { tour.active = true; tour.step = 0; tourRender(); }
-function tourDismiss() {
-  tour.active = false;
-  clearTourLift();
-  document.getElementById('tour-dim').classList.remove('active');
-  document.getElementById('tour-notecard').classList.remove('active');
-}
-function tourNext() {
-  tour.step++;
-  if (tour.step >= STEPS.length) { tourDismiss(); return; }
-  tourRender();
-}
-
-function tourRender() {
-  if (!tour.active) return;
-  const s = STEPS[tour.step]; if (!s) { tourDismiss(); return; }
-  const dim = document.getElementById('tour-dim');
-  const svg = document.getElementById('tour-svg');
-  const nc = document.getElementById('tour-notecard');
-  const nextBtn = document.getElementById('tour-next');
-
-  // Content
-  document.getElementById('tour-num').textContent = tour.step + 1;
-  document.getElementById('tour-title').textContent = s.title;
-  document.getElementById('tour-body').innerHTML = s.body;
-  const infraEl = document.getElementById('tour-infra');
-  infraEl.innerHTML = s.infra || ''; infraEl.style.display = s.infra ? 'block' : 'none';
-  nextBtn.textContent = s.nextLabel || 'Got it';
-  nextBtn.style.display = s.action === 'next' ? 'inline-flex' : 'none';
-
-  // Dots
-  const dotsEl = document.getElementById('tour-dots');
-  dotsEl.innerHTML = STEPS.map((_, i) => {
-    let cls = 'tour-dot';
-    if (i < tour.step) cls += ' done';
-    else if (i === tour.step) cls += ' active';
-    return `<div class="${cls}"></div>`;
-  }).join('');
-
-  // Spotlight via SVG mask
-  const el = s.target ? s.target() : null;
-  dim.classList.add('active');
-
-  if (el) {
-    const r = el.getBoundingClientRect();
-    const pad = 10;
-    const rx = r.left - pad, ry = r.top - pad, rw = r.width + pad * 2, rh = r.height + pad * 2;
-    const br = 10;
-    svg.innerHTML = `
-      <defs>
-        <mask id="tmask">
-          <rect width="100%" height="100%" fill="white"/>
-          <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="${br}" fill="black"/>
-        </mask>
-      </defs>
-      <rect width="100%" height="100%" fill="rgba(15,18,28,0.52)" mask="url(#tmask)"/>
-      <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="${br}" fill="none" stroke="rgba(184,150,15,0.6)" stroke-width="2.5"/>
-      <rect x="${rx - 3}" y="${ry - 3}" width="${rw + 6}" height="${rh + 6}" rx="${br + 2}" fill="none" stroke="rgba(184,150,15,0.2)" stroke-width="1"/>
-    `;
-
-    // Lift target above dim for native click/select interaction
-    clearTourLift();
-    let liftEl = el;
-    let parent = el.parentElement;
-    while (parent && parent !== document.body) {
-      const cs = getComputedStyle(parent);
-      if (cs.zIndex !== 'auto' && cs.position !== 'static') {
-        liftEl = parent;
-      }
-      parent = parent.parentElement;
-    }
-    liftElement(liftEl);
-    liftEl.style.zIndex = '801';
-    if (liftEl !== el) {
-      liftElement(el);
-      el.style.position = el.style.position || 'relative';
-      el.style.zIndex = '5';
-    } else {
-      el.style.position = el.style.position || 'relative';
-    }
-
-    // Reset all positioning
-    nc.style.transform = 'none';
-    nc.style.top = 'auto'; nc.style.bottom = 'auto';
-    nc.style.left = 'auto'; nc.style.right = 'auto';
-    const spaceBelow = window.innerHeight - (ry + rh);
-    const spaceAbove = ry;
-    const spaceRight = window.innerWidth - (rx + rw);
-
-    if (spaceBelow > 300) {
-      nc.style.top = (ry + rh + 14) + 'px';
-      nc.style.bottom = 'auto';
-      nc.style.left = Math.max(16, Math.min(rx, window.innerWidth - 420)) + 'px';
-      nc.style.right = 'auto';
-    } else if (spaceAbove > 300) {
-      nc.style.bottom = (window.innerHeight - ry + 14) + 'px';
-      nc.style.top = 'auto';
-      nc.style.left = Math.max(16, Math.min(rx, window.innerWidth - 420)) + 'px';
-      nc.style.right = 'auto';
-    } else if (spaceRight > 420) {
-      nc.style.top = Math.max(16, ry) + 'px';
-      nc.style.bottom = 'auto';
-      nc.style.left = (rx + rw + 14) + 'px';
-      nc.style.right = 'auto';
-    } else {
-      nc.style.top = Math.max(16, ry) + 'px';
-      nc.style.bottom = 'auto';
-      nc.style.right = (window.innerWidth - rx + 14) + 'px';
-      nc.style.left = 'auto';
-    }
-  } else {
-    // Centered, full dim, no target
-    clearTourLift();
-    svg.innerHTML = `<rect width="100%" height="100%" fill="rgba(15,18,28,0.52)"/>`;
-    nc.style.top = '50%'; nc.style.left = '50%'; nc.style.right = 'auto'; nc.style.bottom = 'auto';
-    nc.style.transform = 'translate(-50%, -50%)';
-  }
-
-  // Animate in
-  nc.classList.remove('active');
-  requestAnimationFrame(() => requestAnimationFrame(() => nc.classList.add('active')));
-}
-
-function tourCheck() {
-  if (!tour.active) return;
-  const s = STEPS[tour.step]; if (!s) return;
-  if (s.action === 'await-role' && state.currentRole === s.role) { tourNext(); return; }
-  if (s.action === 'await-ops-detail' && state.opsView === 'detail') { tourNext(); return; }
-  // Re-render spotlight position after DOM paint
-  requestAnimationFrame(() => requestAnimationFrame(() => { if (tour.active) tourRender(); }));
-}
-
-function tourHook(action) {
-  if (!tour.active) return;
-  const s = STEPS[tour.step]; if (!s) return;
-  if (s.action === 'await-click' && action === 'new-exchange-clicked') tourNext();
-  if (s.action === 'await-create' && action === 'exchange-created') tourNext();
-  if (s.action === 'await-all-uploaded' && action === 'upload' && state.exchanges[0]) {
-    const ex = state.exchanges[0];
-    const got = new Set(ex.documents.filter(d => d.status !== 'rejected').map(d => d.typeKey));
-    if (ex.documentsRequired.every(k => got.has(k))) tourNext();
-  }
-  if (s.action === 'await-rejection' && action === 'review' && state.exchanges[0]?.documents.some(d => d.status === 'rejected')) tourNext();
-  if (s.action === 'await-reupload' && action === 'upload' && state.exchanges[0]?.status === 'under_review') tourNext();
-}
-
-// Allow clicking through the overlay onto highlighted targets
-// Click-through handled by z-index lift on target elements
 
 // ════════════════════════════════════════════
 // RENDERING
@@ -1002,7 +755,6 @@ function render() {
     case 'client': renderClient(); break;
     case 'ops': renderOps(); break;
   }
-  tourCheck();
 }
 
 function statusBadge(k) { const s = STATUS_FLOW[k]; return s ? `<span class="badge ${s.badge}">${s.label}</span>` : ''; }
@@ -1033,7 +785,7 @@ function renderAdvisor() {
   el.style.display = 'block';
   const exs = state.exchanges;
   let h = `<div class="card"><div class="card-header"><div><div class="card-title">Active Exchanges</div><div class="card-subtitle">${exs.length} exchange${exs.length!==1?'s':''}</div></div>
-    <button class="btn btn-primary" id="btn-new-exchange" onclick="showNewExchangeForm(); tourHook('new-exchange-clicked')">+ New Exchange</button></div>`;
+    <button class="btn btn-primary" id="btn-new-exchange" onclick="showNewExchangeForm();">+ New Exchange</button></div>`;
   if (!exs.length) h += `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No exchanges yet.</div></div>`;
   for (const ex of exs) {
     const p = ex.documentsRequired.length - ex.documents.filter(d => d.status === 'accepted').length;
@@ -1214,7 +966,6 @@ function showNewExchangeForm() {
   selectedProcess = null;
   const el = document.getElementById('advisor-list');
   renderNewExchangeForm(el);
-  requestAnimationFrame(() => tourCheck());
 }
 
 function renderNewExchangeForm(el) {
@@ -1272,7 +1023,6 @@ function selectProcess(key) {
   const advInput = document.getElementById('new-advisor-name');
   if (nameInput) nameInput.value = nameVal;
   if (advInput) advInput.value = advVal;
-  requestAnimationFrame(() => tourCheck());
 }
 function submitNewExchange() {
   const cn = document.getElementById('new-client-name').value.trim();
@@ -1282,7 +1032,7 @@ function submitNewExchange() {
   if (!cks.length) return;
   const proc = PROCESS_TYPES.find(p => p.key === selectedProcess);
   createExchange(cn, an, cks, proc?.label || 'Custom');
-  state.advisorView = 'list'; render(); tourHook('exchange-created');
+  state.advisorView = 'list'; render();
 }
 
 // ── Client ──
@@ -1296,7 +1046,6 @@ function renderClientExchange(ex) {
   let n = '';
   if (ex.status === 're_submission_required') { const rc = ex.documents.filter(d=>d.status==='rejected').length; n = `<div class="notification notification-warning">⚠ ${rc} document${rc>1?'s need':' needs'} to be re-uploaded.</div>`; }
   if (ex.status === 'complete') n = `<div class="notification notification-success">✓ All documents accepted. Thank you!</div>`;
-  if (ex.status === 'under_review') n = `<div class="notification notification-info">Your documents are being reviewed.</div>`;
 
   // Check for recently added docs
   const addedDocLabels = state.auditLog.filter(e => e.exchangeId === ex.id && e.type === 'doc-added').map(e => e.detail);
@@ -1314,39 +1063,70 @@ function renderClientExchange(ex) {
     const newTag = isNew ? '<span class="new-tag">new</span>' : '';
 
     let sc = '<span class="text-muted text-sm">Awaiting upload</span>';
-    if (pen) sc = docStatusBadge('pending_review'); if (acc) sc = docStatusBadge('accepted'); if (rej) sc = docStatusBadge('rejected', doc.rejectionReason);
-    let viewBtn = doc && !need ? `<div style="margin-top:3px;"><button class="ai-check-btn" onclick="event.stopPropagation();openPreview('${ex.id}','${doc.id}')">View</button></div>` : '';
+    if (pen) sc = docStatusBadge('pending_review'); if (acc) sc = docStatusBadge('accepted'); if (rej) sc = '<span class="text-sm" style="color:var(--warning);">Awaiting re-upload</span>';
+
+    // Human-readable ops rejection explanation for the client
+    let opsRejectionNote = '';
+    if (rej && doc.rejectionReason) {
+      const rejExplanations = {
+        'government_id:expired': 'Your ID has expired. Please upload a current, valid government-issued photo ID.',
+        'government_id:illegible': 'The image of your ID is not clear enough to verify. Please upload a higher quality scan or photo.',
+        'government_id:wrong_document': 'The document uploaded is not an accepted form of government ID. Please upload a passport, driver\'s license, or provincial ID card.',
+        'proof_of_address:expired': 'This document is more than 90 days old. Please upload a recent utility bill, bank statement, or tax notice.',
+        'proof_of_address:illegible': 'The document is not legible. Please upload a clearer version.',
+        'proof_of_address:wrong_document': 'This is not an accepted proof of address. Please upload a utility bill, bank statement, or government notice showing your current address.',
+        'application_form:expired': 'This application form needs to be re-signed with the current date.',
+        'application_form:illegible': 'Parts of the application are not legible. Please complete and upload a new copy.',
+        'application_form:wrong_document': 'The wrong form was submitted. Please use the correct application form provided by your advisor.',
+        'beneficiary_form:expired': 'This beneficiary form needs to be updated and re-signed.',
+        'beneficiary_form:illegible': 'The beneficiary form is not legible. Please upload a clearer version.',
+        'beneficiary_form:wrong_document': 'Beneficiaries that are minors require a named trustee. Please update the form to designate a trustee for any beneficiary under 18.',
+        'financial_statement:expired': 'This statement is more than 6 months old. Please upload a recent statement.',
+        'financial_statement:illegible': 'The statement is not legible. Please upload a clearer version.',
+        'financial_statement:wrong_document': 'This is not a recognized financial statement. Please upload a bank or investment account statement.',
+        'tax_form:expired': 'This tax form is not from the current or prior tax year. Please upload an up-to-date form.',
+        'tax_form:illegible': 'The tax form is not legible. Please upload a clearer version.',
+        'tax_form:wrong_document': 'The wrong form type was submitted. Please upload the correct CRA tax slip (T4, T4A, T5, etc.).',
+      };
+      const key = doc.typeKey + ':' + doc.rejectionReason;
+      const explanation = rejExplanations[key];
+      if (explanation) {
+        opsRejectionNote = `<div style="margin-top:3px;font-size:10.5px;color:var(--danger);line-height:1.3;">${explanation}</div>`;
+      }
+    }
 
     // Check for active scan state
     const scanKey = ex.id + ':' + tk;
     const scan = scanState[scanKey];
-    let ac = '';
-    let scanRow = '';
+    let actionCell = '';
+    let verifyLine = '';
+    let viewInline = '';
 
     if (scan === 'scanning') {
-      ac = '';
-      scanRow = `<tr><td colspan="3" style="padding:4px 12px 10px;border-bottom:1px solid var(--border-light);"><div class="scan-overlay"><div class="scan-spinner"></div><div class="scan-text">Scanning ${tn}… checking for obvious issues before sending to review</div></div></td></tr>`;
+      verifyLine = `<div style="margin-top:3px;"><span class="scan-inline"><span class="scan-dot"></span>Scanning</span></div>`;
     } else if (scan === 'passed') {
-      ac = '';
-      scanRow = `<tr><td colspan="3" style="padding:4px 12px 10px;border-bottom:1px solid var(--border-light);"><div class="scan-result scan-result-pass"><strong>✓ Quick check passed</strong>Document looks good — sending to operations for full review.</div></td></tr>`;
+      verifyLine = `<div style="margin-top:3px;"><span class="scan-inline"><span class="scan-pass-icon">✓</span><span style="color:var(--success);">Passed</span></span></div>`;
     } else if (scan && scan.failed) {
-      sc = '<span class="text-muted text-sm">Awaiting upload</span>';
-      viewBtn = '';
-      scanRow = `<tr><td colspan="3" style="padding:4px 12px 10px;border-bottom:1px solid var(--border-light);">
-        <div class="scan-result scan-result-fail">
-          <strong>Issue detected — please re-upload</strong>
-          ${scan.findings.map(f => `<div style="margin-top:2px;">${f}</div>`).join('')}
-          <div class="scan-result-actions">
-            <button class="btn btn-sm btn-primary" onclick="reuploadAfterScan('${ex.id}','${tk}','${scan.typeName}')">Upload New Version</button>
-            <button class="btn btn-sm btn-ghost" onclick="dismissScan('${ex.id}','${tk}')">Dismiss</button>
-          </div>
-        </div>
-      </td></tr>`;
-    } else if (need && ex.status !== 'complete') {
-      ac = `<button class="btn btn-sm btn-ghost" onclick="simulateUpload('${ex.id}','${tk}','${tn}')">Upload</button>`;
+      verifyLine = `<div style="margin-top:3px;font-size:10.5px;color:var(--danger);line-height:1.3;">${scan.findings[0]}</div>`;
+      sc = '<span class="text-sm" style="color:var(--warning);">Awaiting re-upload</span>';
+      actionCell = `<button class="btn btn-sm btn-primary" onclick="reuploadAfterScan('${ex.id}','${tk}','${scan.typeName}')">Re-upload</button>`;
+    } else if (doc && (pen || acc)) {
+      verifyLine = `<div style="margin-top:3px;"><span class="scan-inline"><span class="scan-pass-icon">✓</span><span style="color:var(--success);">Passed</span></span></div>`;
     }
 
-    dr += `<tr><td class="font-medium">${tn}${newTag}</td><td>${sc}${viewBtn}</td><td style="text-align:right;">${ac}</td></tr>${scanRow}`;
+    if (doc && !(scan && scan.failed)) {
+      viewInline = ` <button class="ai-check-btn" onclick="event.stopPropagation();openPreview('${ex.id}','${doc.id}')" style="font-size:10px;padding:1px 6px;margin-left:6px;">View</button>`;
+    }
+
+    if (!actionCell && need && !scan && ex.status !== 'complete') {
+      actionCell = `<button class="btn btn-sm btn-ghost" onclick="simulateUpload('${ex.id}','${tk}','${tn}')">Upload</button>`;
+    }
+
+    dr += `<tr>
+      <td><div class="font-medium">${tn}${newTag}${viewInline}</div>${verifyLine}${!scan ? opsRejectionNote : ''}</td>
+      <td>${sc}</td>
+      <td style="text-align:right;">${actionCell}</td>
+    </tr>`;
   }
   return `<div class="card" style="margin-bottom:16px;">${progressTracker(ex.status)}${n}<div class="card-header"><div><div class="card-title">Document Request from ${ex.advisorName}</div><div class="card-subtitle">${ex.id} · ${ex.processType || 'Exchange'} · ${ex.documentsRequired.length} doc${ex.documentsRequired.length!==1?'s':''} requested</div></div></div><table class="doc-table"><thead><tr><th>Document</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>`;
 }
@@ -1356,48 +1136,48 @@ function renderClientExchange(ex) {
 const QUICK_CHECKS = {
   government_id: {
     checks: [
-      { rule: 'Document must not be expired', pass: true, finding: 'Expiry date June 2027 — valid.' },
-      { rule: 'Must contain a photo', pass: true, finding: 'Photo area detected.' },
-      { rule: 'Must be government-issued', pass: true, finding: 'Ontario Driver\'s License recognized.' },
+      { rule: 'expiry', pass: true, finding: 'Valid — expires June 2027' },
+      { rule: 'photo', pass: true, finding: 'Photo detected' },
+      { rule: 'issuer', pass: true, finding: 'Government-issued' },
     ]
   },
   proof_of_address: {
     checks: [
-      { rule: 'Must be dated within 90 days', pass: true, finding: 'Statement dated Feb 2026 — current.' },
-      { rule: 'Must show a residential address', pass: true, finding: 'Service address present.' },
-      { rule: 'Must be from an accepted source', pass: true, finding: 'Utility bill — accepted type.' },
+      { rule: 'date', pass: true, finding: 'Current — Feb 2026' },
+      { rule: 'address', pass: true, finding: 'Address present' },
+      { rule: 'source', pass: true, finding: 'Utility bill — accepted' },
     ]
   },
   proof_of_address_expired: {
     checks: [
-      { rule: 'Must be dated within 90 days', pass: false, finding: 'Statement dated August 2025 — this document is over 6 months old. Please upload a utility bill, bank statement, or tax notice from the last 90 days.' },
-      { rule: 'Must show a residential address', pass: true, finding: 'Service address present.' },
-      { rule: 'Must be from an accepted source', pass: true, finding: 'Utility bill — accepted type.' },
+      { rule: 'date', pass: false, finding: 'Expired — dated August 2025. Upload a document from the last 90 days.' },
+      { rule: 'address', pass: true, finding: 'Address present' },
+      { rule: 'source', pass: true, finding: 'Utility bill — accepted' },
     ]
   },
   application_form: {
     checks: [
-      { rule: 'Must be signed', pass: true, finding: 'Signature detected.' },
-      { rule: 'Account type must be selected', pass: true, finding: 'TFSA selected.' },
+      { rule: 'signature', pass: true, finding: 'Signed' },
+      { rule: 'account', pass: true, finding: 'Account type selected' },
     ]
   },
   beneficiary_form: {
     checks: [
-      { rule: 'Must be signed', pass: true, finding: 'Signature detected.' },
-      { rule: 'Beneficiary name must be present', pass: true, finding: 'Primary beneficiary named.' },
-      { rule: 'Allocation must total 100%', pass: true, finding: '100% allocated.' },
+      { rule: 'signature', pass: true, finding: 'Signed' },
+      { rule: 'beneficiary', pass: true, finding: 'Beneficiary named' },
+      { rule: 'allocation', pass: true, finding: '100% allocated' },
     ]
   },
   financial_statement: {
     checks: [
-      { rule: 'Must be from a financial institution', pass: true, finding: 'TD Canada Trust recognized.' },
-      { rule: 'Must be dated within 6 months', pass: true, finding: 'Statement from January 2026 — current.' },
+      { rule: 'institution', pass: true, finding: 'Recognized institution' },
+      { rule: 'date', pass: true, finding: 'Current — Jan 2026' },
     ]
   },
   tax_form: {
     checks: [
-      { rule: 'Must be current or prior tax year', pass: true, finding: 'Tax year 2025 — valid.' },
-      { rule: 'Must be a recognized CRA form', pass: true, finding: 'T4 form recognized.' },
+      { rule: 'year', pass: true, finding: 'Tax year 2025 — valid' },
+      { rule: 'form', pass: true, finding: 'T4 recognized' },
     ]
   },
 };
@@ -1446,7 +1226,7 @@ function finishUpload(eid, tk, tn, scanKey) {
   uploadDocument(eid, tk, names[tk]||tn.toLowerCase().replace(/\s+/g,'_')+'.pdf');
   delete scanState[scanKey];
   render();
-  tourHook('upload');
+ 
 }
 
 function reuploadAfterScan(eid, tk, tn) {
@@ -1560,6 +1340,17 @@ const AI_EVALUATIONS = {
       { verdict: 'warn', finding: 'Daughter is under 18 — Ontario Insurance Act s.220(1) requires that if a minor is designated, a trustee should be named to receive proceeds on their behalf. No trustee is specified on this form.' },
     ]
   },
+  beneficiary_form_fixed: {
+    label: 'Beneficiary Validation — Ontario Insurance Act',
+    regulation: 'Ontario Insurance Act R.S.O. 1990, c. I.8, ss. 171, 190-196',
+    results: [
+      { verdict: 'pass', finding: 'Designation is in writing and signed by the owner — meets s.171(1).' },
+      { verdict: 'pass', finding: 'Primary beneficiary: Michael R. Whitfield (Spouse), DOB and relationship specified.' },
+      { verdict: 'pass', finding: 'Allocation is 100% to primary — no split calculation issues.' },
+      { verdict: 'pass', finding: 'Contingent beneficiary: Sarah Whitfield (Daughter), age 7 — minor beneficiary.' },
+      { verdict: 'pass', finding: 'Trustee designated: Michael R. Whitfield named as trustee for minor beneficiary per s.220(1). Compliant.' },
+    ]
+  },
   financial_statement: {
     label: 'Financial Review — CIRO Suitability Obligations',
     regulation: 'NI 31-103 s.13.2 / CIRO IDPC Rules / CSA Staff Notice 31-368',
@@ -1591,6 +1382,7 @@ const DOC_PREVIEWS = {
   proof_of_address_expired: 'TORONTO HYDRO — Utility Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount: 7291-4482-003\nService Address: 42 Maple Crescent\n                 Toronto ON M5V 2T6\n\nStatement Period: Jul 15 – Aug 12, 2025\nAmount Due: $118.94\nDue Date: September 2, 2025\n\nCustomer: J. Whitfield',
   application_form: 'CANADA LIFE — New Account Application\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount Type:  [x] TFSA  [ ] RRSP  [ ] Non-Reg\nApplicant:     Jane Elizabeth Whitfield\nSIN:           •••-•••-482\nEmployer:      Meridian Design Group\nAnnual Income: $95,000 – $124,999\n\nBeneficiary:   See attached form\nRisk Profile:  Balanced Growth\n\nSignature: [SIGNED]  Date: 2026-02-28\nAdvisor:   John Smith  #A-28471',
   beneficiary_form: 'BENEFICIARY DESIGNATION FORM\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nPrimary Beneficiary:\n  Name:         Michael R. Whitfield\n  Relationship: Spouse\n  DOB:          1986-11-22\n  Allocation:   100%\n\nContingent Beneficiary:\n  Name:         Sarah Whitfield\n  Relationship: Daughter\n  DOB:          2018-05-03\n  Allocation:   100%\n\nSignature: [SIGNED]  Date: 2026-02-28',
+  beneficiary_form_fixed: 'BENEFICIARY DESIGNATION FORM (Amended)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nPrimary Beneficiary:\n  Name:         Michael R. Whitfield\n  Relationship: Spouse\n  DOB:          1986-11-22\n  Allocation:   100%\n\nContingent Beneficiary:\n  Name:         Sarah Whitfield\n  Relationship: Daughter\n  DOB:          2018-05-03\n  Allocation:   100%\n  Trustee:      Michael R. Whitfield\n\nSignature: [SIGNED]  Date: 2026-03-12',
   financial_statement: 'TD CANADA TRUST — Account Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount: ****-****-7829\nHolder:  Jane E. Whitfield\nPeriod:  January 1 – January 31, 2026\n\nOpening Balance:     $24,812.43\nDeposits:            $7,250.00\nWithdrawals:         $3,180.55\nClosing Balance:     $28,881.88\n\nAvg Daily Balance:   $26,340.12',
   tax_form: 'T4 — Statement of Remuneration Paid\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nTax Year: 2025\nEmployer: Meridian Design Group Inc.\nBN:       82941-7283-RT0001\n\nEmployee: Jane Elizabeth Whitfield\nSIN:      •••-•••-482\n\nEmployment Income (Box 14):  $112,400.00\nIncome Tax Deducted (Box 22): $28,340.00\nCPP Contributions (Box 16):    $3,867.50\nEI Premiums (Box 18):            $952.74',
 };
@@ -1611,7 +1403,18 @@ function renderPreview() {
   const ex = getExchange(previewOpen.exchangeId);
   const doc = ex?.documents.find(d => d.id === previewOpen.docId);
   if (!doc) return;
-  const content = DOC_PREVIEWS[doc.typeKey] || 'Document content would be rendered here via Box Preview API.';
+
+  // Dynamic content based on attempt count
+  const ac = {};
+  for (const e of state.auditLog) {
+    if (e.exchangeId === previewOpen.exchangeId && (e.type === 'upload' || e.type === 'resubmit')) {
+      ac[e.detail] = (ac[e.detail] || 0) + 1;
+    }
+  }
+  const att = ac[doc.typeKey] || 1;
+  let contentKey = doc.typeKey;
+  if (doc.typeKey === 'beneficiary_form' && att > 1) contentKey = 'beneficiary_form_fixed';
+  const content = DOC_PREVIEWS[contentKey] || DOC_PREVIEWS[doc.typeKey] || 'Document content would be rendered here via Box Preview API.';
 
   // Remove existing
   document.getElementById('preview-layer')?.remove();
@@ -1691,6 +1494,7 @@ function renderOpsDetail(id) {
     // AI evaluation
     let evalKey = doc.typeKey;
     if (doc.typeKey === 'proof_of_address' && attempts === 1) evalKey = 'proof_of_address_expired';
+    if (doc.typeKey === 'beneficiary_form' && attempts > 1) evalKey = 'beneficiary_form_fixed';
     const evaluation = AI_EVALUATIONS[evalKey];
     let aiPanel = '';
     if (doc.status === 'pending_review' && evaluation && aiCheckOpen[doc.id]) {
@@ -1770,25 +1574,22 @@ function renderOpsDetail(id) {
     <table class="doc-table"><thead><tr><th>Document</th><th>File</th><th>Status</th><th></th></tr></thead><tbody>${dr}</tbody></table></div>
     ${opsTimeline}`;
 }
-function doReview(eid, did) { reviewDocument(eid, did, true, null); render(); tourHook('review'); }
-function doReject(eid, did) { const s = document.getElementById('reject-'+did); if (!s?.value) { s?.focus(); return; } reviewDocument(eid, did, false, s.value); render(); tourHook('review'); }
+function doReview(eid, did) { reviewDocument(eid, did, true, null); render(); }
+function doReject(eid, did) { const s = document.getElementById('reject-'+did); if (!s?.value) { s?.focus(); return; } reviewDocument(eid, did, false, s.value); render(); }
 
 // ── Hub Navigation ──
 function launchDemo() {
   document.body.classList.remove('hub-active');
   document.body.classList.add('demo-active');
   render();
-  tourStart();
 }
 function backToHub() {
-  tourDismiss();
   document.body.classList.remove('demo-active');
   document.body.classList.add('hub-active');
 }
 
 // ── Init ──
 render();
-window.addEventListener('resize', () => { if (tour.active) tourRender(); });
 document.addEventListener('click', (e) => {
   if (addDocDropdownOpen && !e.target.closest('.add-doc-dropdown') && !e.target.closest('[onclick*="toggleAddDocDropdown"]')) {
     addDocDropdownOpen = false;
