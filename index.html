@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Document Exchange — POC</title>
+<title>Canada Life — Secure Document Exchange Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,9 +37,127 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+  --uc1: #2a7dd7;
+  --uc1-soft: rgba(42, 125, 215, 0.08);
+  --uc2: #2a5bd7;
+  --uc2-soft: rgba(42, 91, 215, 0.08);
+  --uc3: #7c5bbf;
+  --uc3-soft: rgba(124, 91, 191, 0.08);
 }
 
 body { font-family: var(--font); background: var(--surface); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+/* ═══ HUB ═══ */
+#hub-view { display: block; }
+#demo-view { display: none; }
+.hub-active #hub-view { display: block; }
+.hub-active #demo-view { display: none; }
+.demo-active #hub-view { display: none; }
+.demo-active #demo-view { display: block; }
+
+.hub-header {
+  background: var(--ink); padding: 0 24px; height: 48px;
+  display: flex; align-items: center;
+}
+.hub-header h1 { color: #fff; font-size: 14px; font-weight: 600; opacity: 0.95; }
+.hub-header .hub-tag {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);
+  padding: 2px 7px; border-radius: 4px; margin-left: 10px;
+}
+
+.hub-container { max-width: 1080px; margin: 0 auto; padding: 28px 28px 20px; }
+
+.hub-intro { text-align: center; margin-bottom: 24px; }
+.hub-intro h2 {
+  font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em;
+  margin-bottom: 6px; line-height: 1.2;
+}
+.hub-intro p { font-size: 13px; color: var(--ink-secondary); max-width: 540px; margin: 0 auto; line-height: 1.5; }
+
+.hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+.hub-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 18px 14px; position: relative; overflow: hidden;
+  transition: all 0.2s ease; cursor: pointer;
+  display: flex; flex-direction: column;
+}
+.hub-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.hub-card:hover { border-color: var(--ink-muted); box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.hub-card.disabled { cursor: default; opacity: 0.7; }
+.hub-card.disabled:hover { border-color: var(--border); box-shadow: none; transform: none; }
+
+.hub-card[data-uc="1"]::before { background: var(--uc1); }
+.hub-card[data-uc="2"]::before { background: var(--uc2); }
+.hub-card[data-uc="3"]::before { background: var(--uc3); }
+
+.hub-card-num {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px;
+}
+.hub-card[data-uc="1"] .hub-card-num { background: var(--uc1); }
+.hub-card[data-uc="2"] .hub-card-num { background: var(--uc2); }
+.hub-card[data-uc="3"] .hub-card-num { background: var(--uc3); }
+
+.hub-card-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+.hub-card-desc { font-size: 11.5px; color: var(--ink-secondary); line-height: 1.45; margin-bottom: 10px; flex: 1; }
+
+.hub-card-parties {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.hub-party {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 99px; background: var(--info-soft); color: var(--ink-secondary);
+}
+.hub-card[data-uc="1"] .hub-party { background: var(--uc1-soft); color: var(--uc1); }
+.hub-card[data-uc="2"] .hub-party { background: var(--uc2-soft); color: var(--uc2); }
+.hub-card[data-uc="3"] .hub-party { background: var(--uc3-soft); color: var(--uc3); }
+
+.hub-card-infra {
+  padding-top: 10px; border-top: 1px solid var(--border-light);
+  display: flex; flex-direction: column; gap: 3px;
+}
+.hub-infra-item {
+  font-size: 10.5px; color: var(--ink-muted); display: flex; align-items: center; gap: 5px;
+}
+.hub-infra-dot {
+  width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
+}
+.hub-card[data-uc="1"] .hub-infra-dot { background: var(--uc1); }
+.hub-card[data-uc="2"] .hub-infra-dot { background: var(--uc2); }
+.hub-card[data-uc="3"] .hub-infra-dot { background: var(--uc3); }
+
+.hub-card-footer {
+  margin-top: 12px; display: flex; align-items: center; justify-content: space-between;
+}
+.hub-card-action {
+  font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 6px;
+  border: none; cursor: pointer; transition: all 0.15s; font-family: var(--font);
+}
+.hub-card[data-uc="1"] .hub-card-action { background: var(--uc1); color: #fff; }
+.hub-card[data-uc="2"] .hub-card-action { background: var(--uc2); color: #fff; }
+.hub-card[data-uc="3"] .hub-card-action { background: var(--uc3); color: #fff; }
+.hub-card-action:hover { opacity: 0.85; }
+.hub-card-action.coming {
+  background: var(--info-soft); color: var(--ink-muted); cursor: default;
+}
+.hub-card-action.coming:hover { opacity: 1; }
+
+.hub-card-status {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.hub-status-live { color: var(--success); }
+.hub-status-coming { color: var(--ink-muted); }
+
+.hub-footer {
+  text-align: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-light);
+}
+.hub-footer p { font-size: 11px; color: var(--ink-muted); line-height: 1.5; max-width: 580px; margin: 0 auto; }
+.hub-footer strong { color: var(--ink-secondary); }
 
 /* ── Layout ── */
 .app-header {
@@ -366,10 +484,98 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
 }
 </style>
 </head>
-<body>
+<body class="hub-active">
+
+<!-- ═══ HUB ═══ -->
+<div id="hub-view">
+  <div class="hub-header">
+    <h1>Canada Life</h1>
+    <span class="hub-tag">Secure Document Exchange — POC</span>
+  </div>
+  <div class="hub-container">
+    <div class="hub-intro">
+      <h2>Three workflows. One platform.</h2>
+      <p>Every use case follows the same pattern — someone needs a document, someone uploads it, someone reviews it, and the status tracks itself. Box is the engine. These are the workflows.</p>
+    </div>
+
+    <div class="hub-grid">
+      <!-- UC1 -->
+      <div class="hub-card disabled" data-uc="1">
+        <div class="hub-card-num">1</div>
+        <div class="hub-card-title">Claims — Additional Documentation</div>
+        <div class="hub-card-desc">A claims examiner pauses a claim needing additional documents. The member uploads securely, the submission ties back to the original case, and Appian workflow resumes automatically.</div>
+        <div class="hub-card-parties">
+          <span class="hub-party">Member</span>
+          <span class="hub-party">Claims Examiner</span>
+          <span class="hub-party">Appian</span>
+        </div>
+        <div class="hub-card-infra">
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Claim folder per case with metadata</div>
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Relay → Appian webhook on upload</div>
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Box AI extraction for medical docs</div>
+        </div>
+        <div class="hub-card-footer">
+          <span class="hub-card-status hub-status-coming">Coming Soon</span>
+          <button class="hub-card-action coming">Same Pattern</button>
+        </div>
+      </div>
+
+      <!-- UC2 -->
+      <div class="hub-card" data-uc="2" onclick="launchDemo()">
+        <div class="hub-card-num">2</div>
+        <div class="hub-card-title">Advisor — Client Document Exchange</div>
+        <div class="hub-card-desc">Advisor collects docs from a client. Ops reviews, rejects with reasons, client re-uploads the specific document. DocuSign fires when needed. Status visible everywhere.</div>
+        <div class="hub-card-parties">
+          <span class="hub-party">Advisor</span>
+          <span class="hub-party">Client</span>
+          <span class="hub-party">Operations</span>
+          <span class="hub-party">DocuSign</span>
+        </div>
+        <div class="hub-card-infra">
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Rejection → re-submission loop</div>
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>AI pre-check evaluates before ops reviews</div>
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Prospect graduation to onboarding</div>
+        </div>
+        <div class="hub-card-footer">
+          <span class="hub-card-status hub-status-live">● Live Demo</span>
+          <button class="hub-card-action">Launch Demo →</button>
+        </div>
+      </div>
+
+      <!-- UC3 -->
+      <div class="hub-card disabled" data-uc="3">
+        <div class="hub-card-num">3</div>
+        <div class="hub-card-title">Third-Party Secure Upload</div>
+        <div class="hub-card-desc">System sends a request to an external party — a doctor, lab, or legal firm. They upload securely without credentials. Access is scoped, time-limited, and auto-expires.</div>
+        <div class="hub-card-parties">
+          <span class="hub-party">System</span>
+          <span class="hub-party">External Party</span>
+          <span class="hub-party">Reviewer</span>
+        </div>
+        <div class="hub-card-infra">
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Tiered auth: File Request → Collab → Scoped Token</div>
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Auto-expiring access with audit trail</div>
+          <div class="hub-infra-item"><div class="hub-infra-dot"></div>Box AI auto-classifies incoming docs</div>
+        </div>
+        <div class="hub-card-footer">
+          <span class="hub-card-status hub-status-coming">Coming Soon</span>
+          <button class="hub-card-action coming">Same Pattern</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hub-footer">
+      <p><strong>One architecture serves all three.</strong> Box folders are the data model. Metadata templates are the schema. Relay is the workflow engine. UI Elements are the frontend. The variables are who initiates, who uploads, and which system gets notified. The pattern is identical.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DEMO (UC2) ═══ -->
+<div id="demo-view">
 
 <header class="app-header">
   <div class="flex" style="align-items:center;">
+    <button onclick="backToHub()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;margin-right:12px;padding:4px;">←</button>
     <h1>Document Exchange</h1>
     <span class="subtitle">POC</span>
   </div>
@@ -409,6 +615,8 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
     </div>
   </div>
 </div>
+
+</div><!-- /demo-view -->
 
 <script>
 // ════════════════════════════════════════════
@@ -1134,38 +1342,7 @@ function renderPreview() {
   const ex = getExchange(previewOpen.exchangeId);
   const doc = ex?.documents.find(d => d.id === previewOpen.docId);
   if (!doc) return;
-  let contentKey = doc.typeKey;
-  if (doc.typeKey === 'proof_of_address' && docAttempts === 1) contentKey = 'proof_of_address_expired';
-  const content = DOC_PREVIEWS[contentKey] || DOC_PREVIEWS[doc.typeKey] || 'Document content would be rendered here via Box Preview API.';
-  // Dynamic evaluation — first attempt proof_of_address shows expired findings
-  const attemptCountsForPreview = {};
-  for (const e of state.auditLog) {
-    if (e.exchangeId === previewOpen.exchangeId && (e.type === 'upload' || e.type === 'resubmit')) {
-      attemptCountsForPreview[e.detail] = (attemptCountsForPreview[e.detail] || 0) + 1;
-    }
-  }
-  const docAttempts = attemptCountsForPreview[doc.typeKey] || 1;
-  let evalKey = doc.typeKey;
-  if (doc.typeKey === 'proof_of_address' && docAttempts === 1) evalKey = 'proof_of_address_expired';
-  const evaluation = AI_EVALUATIONS[evalKey];
-
-  let aiHtml = '';
-  if (evaluation) {
-    const hasIssues = evaluation.results.some(r => r.verdict === 'fail' || r.verdict === 'warn');
-    const summary = hasIssues
-      ? `<div style="font-size:12px;font-weight:600;color:var(--warning);margin-bottom:8px;">⚠ ${evaluation.results.filter(r=>r.verdict==='fail').length} issue${evaluation.results.filter(r=>r.verdict==='fail').length!==1?'s':''} found, ${evaluation.results.filter(r=>r.verdict==='warn').length} warning${evaluation.results.filter(r=>r.verdict==='warn').length!==1?'s':''}</div>`
-      : `<div style="font-size:12px;font-weight:600;color:var(--success);margin-bottom:8px;">✓ All checks passed</div>`;
-    aiHtml = `<div class="ai-check">
-      <div class="ai-check-header">
-        <div class="ai-check-icon">✦</div>
-        <div class="ai-check-title">${evaluation.label}</div>
-      </div>
-      ${summary}
-      <div class="ai-check-list">
-        ${evaluation.results.map(r => `<div class="ai-check-item"><span class="ai-verdict ai-verdict-${r.verdict}">${r.verdict}</span><div>${r.finding}</div></div>`).join('')}
-      </div>
-    </div>`;
-  }
+  const content = DOC_PREVIEWS[doc.typeKey] || 'Document content would be rendered here via Box Preview API.';
 
   // Remove existing
   document.getElementById('preview-layer')?.remove();
@@ -1186,7 +1363,6 @@ function renderPreview() {
         <div class="preview-meta-item"><strong>Status:</strong> ${docStatusBadge(doc.status, doc.rejectionReason)}</div>
       </div>
       <div class="preview-doc">${content}</div>
-      ${aiHtml}
     </div>
   </div>`;
   document.body.appendChild(div);
@@ -1327,9 +1503,21 @@ function renderOpsDetail(id) {
 function doReview(eid, did) { reviewDocument(eid, did, true, null); render(); tourHook('review'); }
 function doReject(eid, did) { const s = document.getElementById('reject-'+did); if (!s?.value) { s?.focus(); return; } reviewDocument(eid, did, false, s.value); render(); tourHook('review'); }
 
+// ── Hub Navigation ──
+function launchDemo() {
+  document.body.classList.remove('hub-active');
+  document.body.classList.add('demo-active');
+  render();
+  tourStart();
+}
+function backToHub() {
+  tourDismiss();
+  document.body.classList.remove('demo-active');
+  document.body.classList.add('hub-active');
+}
+
 // ── Init ──
 render();
-tourStart();
 window.addEventListener('resize', () => { if (tour.active) tourRender(); });
 document.addEventListener('click', (e) => {
   if (addDocDropdownOpen && !e.target.closest('.add-doc-dropdown') && !e.target.closest('[onclick*="toggleAddDocDropdown"]')) {
