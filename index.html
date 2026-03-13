@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Canada Life — Secure Document Exchange Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn01.boxcdn.net/platform/elements/21.0.0/en-US/preview.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -181,6 +182,61 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
 .process-option-label { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; } .process-option-desc { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; line-height: 1.3; }
 .new-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--accent-soft); color: var(--accent); padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
 .box-folder-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: #0061d5; background: rgba(0,97,213,0.06); padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
+
+/* ── Box Preview Modal ── */
+.box-preview-overlay {
+  position: fixed; inset: 0; z-index: 960;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.15s;
+}
+.box-preview-modal {
+  width: 85vw; height: 85vh; max-width: 1100px;
+  background: #fff; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+  display: flex; flex-direction: column;
+}
+.box-preview-header {
+  background: #0061d5; padding: 0 20px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.box-preview-header-left {
+  display: flex; align-items: center; gap: 12px;
+}
+.box-preview-logo {
+  width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+}
+.box-preview-logo svg { width: 18px; height: 18px; }
+.box-preview-filename {
+  font-family: var(--font); font-size: 14px; font-weight: 600; color: #fff;
+}
+.box-preview-meta-bar {
+  font-family: var(--font); font-size: 11px; color: rgba(255,255,255,0.6);
+}
+.box-preview-close {
+  background: rgba(255,255,255,0.12); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.box-preview-close:hover { background: rgba(255,255,255,0.25); }
+.box-preview-body {
+  flex: 1; overflow: hidden; position: relative; background: #f4f4f4;
+}
+.box-preview-body .bp-container { width: 100% !important; height: 100% !important; }
+.box-preview-footer {
+  background: #fafafa; border-top: 1px solid #e8e8e8;
+  padding: 8px 20px; display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.box-preview-footer-left { font-size: 11px; color: #666; display: flex; align-items: center; gap: 8px; }
+.box-preview-footer-right { font-size: 11px; color: #999; }
+.box-preview-powered {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; color: #0061d5; letter-spacing: 0.02em;
+}
 </style>
 </head>
 <body class="hub-active">
@@ -608,8 +664,53 @@ const DOC_PREVIEWS={government_id:'DRIVER\'S LICENSE — Province of Ontario\n�
 let previewOpen=null,aiCheckOpen={};
 function openPreview(eid,did){
   const ex=getExchange(eid); const doc=ex?.documents.find(d=>d.id===did);
-  if(doc&&doc.boxFileId){ window.open('https://app.box.com/file/'+doc.boxFileId,'_blank'); return; }
-  previewOpen={exchangeId:eid,docId:did};renderPreview();
+  if(doc&&doc.boxFileId&&boxToken){
+    openBoxPreview(doc);
+  } else {
+    previewOpen={exchangeId:eid,docId:did};renderPreview();
+  }
+}
+function openBoxPreview(doc) {
+  document.getElementById('preview-layer')?.remove();
+  const div = document.createElement('div');
+  div.id = 'preview-layer';
+  const boxLogo = '<svg viewBox="0 0 24 24" fill="white"><path d="M4.21 10.735l3.942 2.478 3.58-2.478-3.58-2.478zm11.58 0l-3.58 2.478 3.942 2.478 3.58-2.478zm-7.638 5.17l3.58 2.478 3.58-2.478-3.58-2.478zM7.79 5.565L4.21 8.043l3.58 2.478 3.58-2.478zm8.42 0l-3.58 2.478 3.58 2.478 3.58-2.478z"/></svg>';
+  div.innerHTML = `<div class="box-preview-overlay" onclick="if(event.target===this)closePreview()">
+    <div class="box-preview-modal">
+      <div class="box-preview-header">
+        <div class="box-preview-header-left">
+          <div class="box-preview-logo">${boxLogo}</div>
+          <div>
+            <div class="box-preview-filename">${doc.fileName}</div>
+            <div class="box-preview-meta-bar">${doc.typeName} · Uploaded ${formatDate(doc.uploadedAt)}</div>
+          </div>
+        </div>
+        <button class="box-preview-close" onclick="closePreview()">×</button>
+      </div>
+      <div class="box-preview-body" id="box-preview-container"></div>
+      <div class="box-preview-footer">
+        <div class="box-preview-footer-left">
+          <span class="box-preview-powered">${boxLogo.replace('width="24" height="24"','')} Powered by Box</span>
+          <span>File ID: ${doc.boxFileId}</span>
+        </div>
+        <div class="box-preview-footer-right">Secure document preview</div>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+  // Initialize Box Content Preview
+  try {
+    const preview = new Box.Preview();
+    preview.show(doc.boxFileId, boxToken, {
+      container: '#box-preview-container',
+      showDownload: false,
+      showAnnotations: false,
+      header: 'none'
+    });
+  } catch(e) {
+    console.error('Box Preview failed:', e);
+    document.getElementById('box-preview-container').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-family:var(--font);font-size:14px;">Preview loading failed. <a href="https://app.box.com/file/' + doc.boxFileId + '" target="_blank" style="color:#0061d5;margin-left:6px;">Open in Box →</a></div>';
+  }
 }
 function closePreview(){previewOpen=null;document.getElementById('preview-layer')?.remove();}
 function renderPreview(){if(!previewOpen)return;const ex=getExchange(previewOpen.exchangeId);const doc=ex?.documents.find(d=>d.id===previewOpen.docId);if(!doc)return;const ac={};for(const e of state.auditLog){if(e.exchangeId===previewOpen.exchangeId&&(e.type==='upload'||e.type==='resubmit'))ac[e.detail]=(ac[e.detail]||0)+1;}const att=ac[doc.typeKey]||1;let ck=doc.typeKey;if(doc.typeKey==='beneficiary_form'&&att>1)ck='beneficiary_form_fixed';const content=DOC_PREVIEWS[ck]||DOC_PREVIEWS[doc.typeKey]||'Box Preview API would render here.';document.getElementById('preview-layer')?.remove();const div=document.createElement('div');div.id='preview-layer';div.innerHTML='<div class="preview-overlay" onclick="if(event.target===this)closePreview()"><div class="preview-card"><div class="preview-header"><div><div style="font-size:15px;font-weight:700;">'+doc.typeName+'</div><div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">'+doc.fileName+'</div></div><button class="preview-close" onclick="closePreview()">×</button></div><div class="preview-meta"><div class="preview-meta-item"><strong>Uploaded:</strong> '+formatDate(doc.uploadedAt)+'</div><div class="preview-meta-item"><strong>Status:</strong> '+docStatusBadge(doc.status,doc.rejectionReason)+'</div></div><div class="preview-doc">'+content+'</div></div></div>';document.body.appendChild(div);}
@@ -642,5 +743,6 @@ render();
 document.addEventListener('click',e=>{if(addDocDropdownOpen&&!e.target.closest('.add-doc-dropdown')&&!e.target.closest('[onclick*="toggleAddDocDropdown"]')){addDocDropdownOpen=false;const dd=document.getElementById('add-doc-dropdown');if(dd)dd.style.display='none';}});
 document.getElementById('box-token-input').addEventListener('keydown',e=>{if(e.key==='Enter')testBoxConnection();});
 </script>
+<script src="https://cdn01.boxcdn.net/platform/elements/21.0.0/en-US/preview.js"></script>
 </body>
 </html>
