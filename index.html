@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Canada Life — Secure Document Exchange Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn01.boxcdn.net/platform/elements/21.0.0/en-US/preview.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -225,7 +224,6 @@ body { font-family: var(--font); background: var(--surface); color: var(--ink); 
 .box-preview-body {
   flex: 1; overflow: hidden; position: relative; background: #f4f4f4;
 }
-.box-preview-body .bp-container { width: 100% !important; height: 100% !important; }
 .box-preview-footer {
   background: #fafafa; border-top: 1px solid #e8e8e8;
   padding: 8px 20px; display: flex; align-items: center; justify-content: space-between;
@@ -670,11 +668,12 @@ function openPreview(eid,did){
     previewOpen={exchangeId:eid,docId:did};renderPreview();
   }
 }
-function openBoxPreview(doc) {
+async function openBoxPreview(doc) {
   document.getElementById('preview-layer')?.remove();
   const div = document.createElement('div');
   div.id = 'preview-layer';
   const boxLogo = '<svg viewBox="0 0 24 24" fill="white"><path d="M4.21 10.735l3.942 2.478 3.58-2.478-3.58-2.478zm11.58 0l-3.58 2.478 3.942 2.478 3.58-2.478zm-7.638 5.17l3.58 2.478 3.58-2.478-3.58-2.478zM7.79 5.565L4.21 8.043l3.58 2.478 3.58-2.478zm8.42 0l-3.58 2.478 3.58 2.478 3.58-2.478z"/></svg>';
+  const boxLogoBlue = boxLogo.replace('fill="white"','fill="#0061d5"');
   div.innerHTML = `<div class="box-preview-overlay" onclick="if(event.target===this)closePreview()">
     <div class="box-preview-modal">
       <div class="box-preview-header">
@@ -687,10 +686,14 @@ function openBoxPreview(doc) {
         </div>
         <button class="box-preview-close" onclick="closePreview()">×</button>
       </div>
-      <div class="box-preview-body" id="box-preview-container"></div>
+      <div class="box-preview-body" id="box-preview-container">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:13px;gap:8px;">
+          <span class="scan-dot" style="border-color:#ccc;border-top-color:#0061d5;"></span> Loading preview...
+        </div>
+      </div>
       <div class="box-preview-footer">
         <div class="box-preview-footer-left">
-          <span class="box-preview-powered">${boxLogo.replace('width="24" height="24"','')} Powered by Box</span>
+          <span class="box-preview-powered">${boxLogoBlue} Powered by Box</span>
           <span>File ID: ${doc.boxFileId}</span>
         </div>
         <div class="box-preview-footer-right">Secure document preview</div>
@@ -698,18 +701,22 @@ function openBoxPreview(doc) {
     </div>
   </div>`;
   document.body.appendChild(div);
-  // Initialize Box Content Preview
+  // Fetch embed link from Box API
   try {
-    const preview = new Box.Preview();
-    preview.show(doc.boxFileId, boxToken, {
-      container: '#box-preview-container',
-      showDownload: false,
-      showAnnotations: false,
-      header: 'none'
-    });
+    const fileData = await boxFetch('/files/' + doc.boxFileId + '?fields=expiring_embed_link,name,size');
+    if (fileData.expiring_embed_link?.url) {
+      document.getElementById('box-preview-container').innerHTML =
+        '<iframe src="' + fileData.expiring_embed_link.url + '" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>';
+    } else {
+      throw new Error('No embed link returned');
+    }
   } catch(e) {
-    console.error('Box Preview failed:', e);
-    document.getElementById('box-preview-container').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-family:var(--font);font-size:14px;">Preview loading failed. <a href="https://app.box.com/file/' + doc.boxFileId + '" target="_blank" style="color:#0061d5;margin-left:6px;">Open in Box →</a></div>';
+    console.error('Box embed failed:', e);
+    document.getElementById('box-preview-container').innerHTML =
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:#666;font-family:var(--font);">' +
+        '<div style="font-size:14px;">Preview unavailable</div>' +
+        '<a href="https://app.box.com/file/' + doc.boxFileId + '" target="_blank" style="color:#0061d5;font-size:13px;font-weight:600;text-decoration:none;">Open in Box →</a>' +
+      '</div>';
   }
 }
 function closePreview(){previewOpen=null;document.getElementById('preview-layer')?.remove();}
@@ -743,6 +750,5 @@ render();
 document.addEventListener('click',e=>{if(addDocDropdownOpen&&!e.target.closest('.add-doc-dropdown')&&!e.target.closest('[onclick*="toggleAddDocDropdown"]')){addDocDropdownOpen=false;const dd=document.getElementById('add-doc-dropdown');if(dd)dd.style.display='none';}});
 document.getElementById('box-token-input').addEventListener('keydown',e=>{if(e.key==='Enter')testBoxConnection();});
 </script>
-<script src="https://cdn01.boxcdn.net/platform/elements/21.0.0/en-US/preview.js"></script>
 </body>
 </html>
