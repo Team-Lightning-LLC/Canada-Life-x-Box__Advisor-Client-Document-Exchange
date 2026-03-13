@@ -275,11 +275,12 @@ async function findOrCreateFolder(parentId, name) {
   return folder.id;
 }
 
-async function createBoxExchangeFolder(clientName, processType, exchangeId) {
+async function createBoxExchangeFolder(clientName, advisorName, processType, exchangeId) {
   if (!boxConnected || !boxRootFolderId) return null;
   try {
-    const folderName = clientName + ' — ' + processType + ' ' + new Date().toISOString().slice(0, 7);
-    const folderId = await findOrCreateFolder(boxRootFolderId, folderName);
+    const advisorFolderId = await findOrCreateFolder(boxRootFolderId, advisorName);
+    const folderName = clientName + ' - ' + processType + ' ' + new Date().toISOString().slice(0, 7);
+    const folderId = await findOrCreateFolder(advisorFolderId, folderName);
     try {
       await boxFetch('/folders/' + folderId + '/metadata/global/properties', {
         method: 'POST', body: JSON.stringify({ exchange_id: exchangeId, process_type: processType, client_name: clientName, status: 'documents_requested' })
@@ -323,7 +324,7 @@ function createExchange(clientName, advisorName, requiredDocKeys, processType) {
   state.exchanges.push(ex);
   logEvent('created', ex.id, requiredDocKeys.length+' docs requested');
   if (boxConnected) {
-    createBoxExchangeFolder(clientName, processType||'Custom', ex.id).then(fid => {
+    createBoxExchangeFolder(clientName, advisorName, processType||'Custom', ex.id).then(fid => {
       if (fid) { ex.boxFolderId = fid; logEvent('box-folder', ex.id, 'Folder '+fid); render(); }
     });
   }
