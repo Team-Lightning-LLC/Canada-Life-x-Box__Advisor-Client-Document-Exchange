@@ -3,752 +3,748 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Canada Life — Secure Document Exchange Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Keystone · Commercial Liability</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Crimson+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
-  --ink: #1a1f2e; --ink-secondary: #5a6178; --ink-muted: #8b91a5;
-  --surface: #f7f8fa; --card: #ffffff; --border: #e2e5ec; --border-light: #eef0f4;
-  --accent: #2a5bd7; --accent-soft: rgba(42,91,215,0.08); --accent-hover: #1d4aba;
-  --success: #1a8754; --success-soft: rgba(26,135,84,0.08);
-  --warning: #c47a15; --warning-soft: rgba(196,122,21,0.08);
-  --danger: #c43a31; --danger-soft: rgba(196,58,49,0.08);
-  --info: #5a6178; --info-soft: rgba(90,97,120,0.06);
-  --radius: 8px; --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04); --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
-  --uc1: #2a7dd7; --uc1-soft: rgba(42,125,215,0.08);
-  --uc2: #2a5bd7; --uc2-soft: rgba(42,91,215,0.08);
-  --uc3: #7c5bbf; --uc3-soft: rgba(124,91,191,0.08);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --display:'Chakra Petch',sans-serif;--body:'Manrope',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --bg:#f8f6f1;--bg2:#f0ede6;--bg3:#e8e4dc;--card:#ffffff;
+  --b1:#e2ddd4;--b2:#d4cfc4;--b3:#c5bfb3;
+  --t1:#1a1816;--t2:#4a4640;--t3:#8a857a;--t4:#b5b0a4;
+  --ac:#7c3aed;--ac2:#6d28d9;--ac-s:rgba(124,58,237,0.06);--ac-b:rgba(124,58,237,0.16);
+  --red:#dc2626;--amber:#f59e0b;--green:#16a34a;
+  --topbar:#1e1b2e;--topbar-b:rgba(255,255,255,0.1);
+  --r:6px;
+  --fs-brand:14px;--fs-title:14px;--fs-body:13px;--fs-label:12px;--fs-meta:11px;--fs-micro:10px;
 }
-body { font-family: var(--font); background: var(--surface); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
-#hub-view { display: block; } #demo-view { display: none; }
-.hub-active #hub-view { display: block; } .hub-active #demo-view { display: none; }
-.demo-active #hub-view { display: none; } .demo-active #demo-view { display: block; }
-.hub-header { background: var(--ink); padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; }
-.hub-header h1 { color: #fff; font-size: 14px; font-weight: 600; opacity: 0.95; }
-.hub-header .hub-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); padding: 2px 7px; border-radius: 4px; margin-left: 10px; }
-.box-bar { background: #1e2333; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 8px 24px; display: flex; align-items: center; gap: 10px; }
-.box-bar label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
-.box-bar input { font-family: var(--mono); font-size: 12px; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; flex: 1; max-width: 380px; transition: border-color 0.15s; }
-.box-bar input:focus { outline: none; border-color: var(--accent); background: rgba(42,91,215,0.08); }
-.box-bar input::placeholder { color: rgba(255,255,255,0.2); }
-.box-bar .box-status { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-.box-bar .box-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.box-bar .box-connect-btn { font-family: var(--font); font-size: 11px; font-weight: 600; padding: 5px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; background: transparent; color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.15s; }
-.box-bar .box-connect-btn:hover { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.3); }
-.box-bar .box-connect-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.box-bar .box-connect-btn.connected { border-color: var(--success); color: var(--success); }
-.hub-container { max-width: 1080px; margin: 0 auto; padding: 28px 28px 20px; }
-.hub-intro { text-align: center; margin-bottom: 24px; }
-.hub-intro h2 { font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 6px; line-height: 1.2; }
-.hub-intro p { font-size: 13px; color: var(--ink-secondary); max-width: 540px; margin: 0 auto; line-height: 1.5; }
-.hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.hub-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 14px; position: relative; overflow: hidden; transition: all 0.2s ease; cursor: pointer; display: flex; flex-direction: column; }
-.hub-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-.hub-card:hover { border-color: var(--ink-muted); box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
-.hub-card.disabled { cursor: default; opacity: 0.7; } .hub-card.disabled:hover { border-color: var(--border); box-shadow: none; transform: none; }
-.hub-card[data-uc="1"]::before { background: var(--uc1); } .hub-card[data-uc="2"]::before { background: var(--uc2); } .hub-card[data-uc="3"]::before { background: var(--uc3); }
-.hub-card-num { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px; }
-.hub-card[data-uc="1"] .hub-card-num { background: var(--uc1); } .hub-card[data-uc="2"] .hub-card-num { background: var(--uc2); } .hub-card[data-uc="3"] .hub-card-num { background: var(--uc3); }
-.hub-card-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
-.hub-card-desc { font-size: 11.5px; color: var(--ink-secondary); line-height: 1.45; margin-bottom: 10px; flex: 1; }
-.hub-card-parties { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
-.hub-party { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--info-soft); color: var(--ink-secondary); }
-.hub-card[data-uc="1"] .hub-party { background: var(--uc1-soft); color: var(--uc1); } .hub-card[data-uc="2"] .hub-party { background: var(--uc2-soft); color: var(--uc2); } .hub-card[data-uc="3"] .hub-party { background: var(--uc3-soft); color: var(--uc3); }
-.hub-card-infra { padding-top: 10px; border-top: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 3px; }
-.hub-infra-item { font-size: 10.5px; color: var(--ink-muted); display: flex; align-items: center; gap: 5px; }
-.hub-infra-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
-.hub-card[data-uc="1"] .hub-infra-dot { background: var(--uc1); } .hub-card[data-uc="2"] .hub-infra-dot { background: var(--uc2); } .hub-card[data-uc="3"] .hub-infra-dot { background: var(--uc3); }
-.hub-card-footer { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; }
-.hub-card-action { font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 6px; border: none; cursor: pointer; transition: all 0.15s; font-family: var(--font); }
-.hub-card[data-uc="1"] .hub-card-action { background: var(--uc1); color: #fff; } .hub-card[data-uc="2"] .hub-card-action { background: var(--uc2); color: #fff; } .hub-card[data-uc="3"] .hub-card-action { background: var(--uc3); color: #fff; }
-.hub-card-action:hover { opacity: 0.85; } .hub-card-action.coming { background: var(--info-soft); color: var(--ink-muted); cursor: default; } .hub-card-action.coming:hover { opacity: 1; }
-.hub-card-status { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-.hub-status-live { color: var(--success); } .hub-status-coming { color: var(--ink-muted); }
-.hub-footer { text-align: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-light); }
-.hub-footer p { font-size: 11px; color: var(--ink-muted); line-height: 1.5; max-width: 580px; margin: 0 auto; } .hub-footer strong { color: var(--ink-secondary); }
-.app-header { background: var(--ink); color: #fff; padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-.app-header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; opacity: 0.95; }
-.app-header .subtitle { font-size: 11px; font-weight: 500; opacity: 0.4; margin-left: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
-.role-switcher { display: flex; gap: 2px; background: rgba(255,255,255,0.08); border-radius: 8px; padding: 3px; }
-.role-btn { font-family: var(--font); font-size: 12px; font-weight: 600; padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; background: transparent; color: rgba(255,255,255,0.5); transition: all 0.15s; }
-.role-btn:hover { color: rgba(255,255,255,0.8); } .role-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
-.role-btn[data-role="advisor"].active { background: var(--accent); } .role-btn[data-role="client"].active { background: var(--success); } .role-btn[data-role="ops"].active { background: #7c5bbf; }
-.main { max-width: 960px; margin: 0 auto; padding: 20px 24px; }
-.stats-bar { display: flex; gap: 12px; margin-bottom: 16px; }
-.stat-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; text-align: center; }
-.stat-value { font-size: 22px; font-weight: 700; line-height: 1.2; } .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); margin-top: 2px; }
-.view { display: none; } .view.active { display: block; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); } .card + .card { margin-top: 12px; }
-.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.card-title { font-size: 15px; font-weight: 600; color: var(--ink); } .card-subtitle { font-size: 13px; color: var(--ink-muted); margin-top: 2px; }
-.btn { font-family: var(--font); font-size: 13px; font-weight: 600; padding: 8px 18px; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
-.btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover { background: var(--accent-hover); }
-.btn-ghost { background: transparent; color: var(--ink-secondary); border: 1px solid var(--border); } .btn-ghost:hover { background: var(--info-soft); border-color: var(--ink-muted); }
-.btn-danger { background: var(--danger); color: #fff; } .btn-danger:hover { background: #a83029; }
-.btn-success { background: var(--success); color: #fff; } .btn-success:hover { background: #157347; }
-.btn-sm { font-size: 12px; padding: 5px 12px; } .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.form-group { margin-bottom: 12px; } .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
-.form-input, .form-select { font-family: var(--font); font-size: 13px; width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--ink); transition: border-color 0.15s; }
-.form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.check-list { display: flex; flex-direction: column; gap: 4px; }
-.check-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border-light); border-radius: var(--radius); cursor: pointer; transition: all 0.12s; font-size: 13px; }
-.check-item:hover { background: var(--accent-soft); border-color: var(--accent); } .check-item.checked { background: var(--accent-soft); border-color: var(--accent); }
-.check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
-.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
-.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.badge-initiated { background: var(--info-soft); color: var(--info); } .badge-initiated::before { background: var(--info); }
-.badge-requested { background: var(--accent-soft); color: var(--accent); } .badge-requested::before { background: var(--accent); }
-.badge-received { background: var(--success-soft); color: var(--success); } .badge-received::before { background: var(--success); }
-.badge-review { background: #f0ebff; color: #7c5bbf; } .badge-review::before { background: #7c5bbf; }
-.badge-resubmit { background: var(--warning-soft); color: var(--warning); } .badge-resubmit::before { background: var(--warning); }
-.badge-complete { background: var(--success-soft); color: var(--success); } .badge-complete::before { background: var(--success); }
-.badge-cancelled { background: var(--info-soft); color: var(--ink-muted); } .badge-cancelled::before { background: var(--ink-muted); }
-.badge-doc-pending { background: var(--info-soft); color: var(--info); } .badge-doc-pending::before { background: var(--info); }
-.badge-doc-accepted { background: var(--success-soft); color: var(--success); } .badge-doc-accepted::before { background: var(--success); }
-.badge-doc-rejected { background: var(--danger-soft); color: var(--danger); } .badge-doc-rejected::before { background: var(--danger); }
-.exchange-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; border: 1px solid var(--border-light); border-radius: var(--radius); cursor: pointer; transition: all 0.12s; }
-.exchange-row:hover { background: var(--accent-soft); border-color: var(--accent); } .exchange-row + .exchange-row { margin-top: 6px; }
-.exchange-meta { display: flex; flex-direction: column; gap: 2px; } .exchange-name { font-size: 14px; font-weight: 600; } .exchange-info { font-size: 12px; color: var(--ink-muted); }
-.exchange-right { display: flex; align-items: center; gap: 12px; }
-.doc-table { width: 100%; border-collapse: collapse; }
-.doc-table th { text-align: left; font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-.doc-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-light); font-size: 13px; vertical-align: middle; } .doc-table tr:last-child td { border-bottom: none; }
-.progress-tracker { display: flex; margin-bottom: 16px; }
-.progress-step { flex: 1; text-align: center; position: relative; padding-top: 24px; }
-.progress-step::before { content: ''; position: absolute; top: 10px; left: 0; right: 0; height: 3px; background: var(--border); }
-.progress-step:first-child::before { left: 50%; } .progress-step:last-child::before { right: 50%; }
-.progress-step.done::before, .progress-step.active::before { background: var(--accent); }
-.progress-dot { width: 22px; height: 22px; border-radius: 50%; background: var(--card); border: 3px solid var(--border); position: absolute; top: 1px; left: 50%; transform: translateX(-50%); z-index: 1; transition: all 0.2s; }
-.progress-step.done .progress-dot { background: var(--accent); border-color: var(--accent); }
-.progress-step.active .progress-dot { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-.progress-label { font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.03em; }
-.progress-step.done .progress-label, .progress-step.active .progress-label { color: var(--accent); }
-.empty-state { text-align: center; padding: 32px 24px; color: var(--ink-muted); } .empty-state-icon { font-size: 40px; opacity: 0.25; margin-bottom: 12px; } .empty-state-text { font-size: 14px; }
-.back-link { font-size: 13px; font-weight: 500; color: var(--ink-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 10px; transition: color 0.12s; } .back-link:hover { color: var(--accent); }
-.reject-actions { display: flex; align-items: center; gap: 8px; }
-.reject-select { font-family: var(--font); font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
-.notification { padding: 10px 14px; border-radius: var(--radius); margin-bottom: 12px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; animation: slideIn 0.2s ease-out; }
-.notification-warning { background: var(--warning-soft); color: var(--warning); border: 1px solid rgba(196,122,21,0.2); }
-.notification-success { background: var(--success-soft); color: var(--success); border: 1px solid rgba(26,135,84,0.2); }
-.notification-info { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(42,91,215,0.2); }
-@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-.divider { height: 1px; background: var(--border-light); margin: 12px 0; }
-.value-callout { background: linear-gradient(135deg, #f0f4ff, #f7f0ff); border: 1px solid #ddd8f0; border-radius: var(--radius); padding: 12px 14px; margin-top: 12px; font-size: 12px; line-height: 1.5; color: #4a4572; }
-.value-callout .value-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #7c5bbf; margin-bottom: 4px; display: block; }
-.ex-stats { display: flex; gap: 8px; margin-bottom: 14px; }
-.ex-stat { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--info-soft); color: var(--ink-secondary); }
-.ex-stat .ex-stat-n { font-weight: 700; }
-.preview-overlay { position: fixed; inset: 0; z-index: 950; background: rgba(15,18,28,0.6); display: flex; align-items: center; justify-content: center; animation: fadeIn 0.15s; }
-.preview-card { background: var(--card); border-radius: var(--radius-lg); width: 560px; max-height: 80vh; overflow: auto; box-shadow: 0 16px 48px rgba(0,0,0,0.2); padding: 24px; }
-.preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-.preview-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-muted); padding: 0 4px; line-height: 1; } .preview-close:hover { color: var(--ink); }
-.preview-doc { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--ink-secondary); min-height: 120px; }
-.preview-meta { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
-.preview-meta-item { font-size: 12px; color: var(--ink-muted); } .preview-meta-item strong { color: var(--ink-secondary); }
-.ai-check { margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, #f8f6ff, #f0f4ff); border: 1px solid #d8d2f0; border-radius: var(--radius); }
-.ai-check-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.ai-check-icon { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, #7c5bbf, #5b3fa0); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; }
-.ai-check-title { font-size: 13px; font-weight: 700; color: #4a3a72; }
-.ai-check-list { display: flex; flex-direction: column; gap: 5px; }
-.ai-check-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.4; color: #4a4040; }
-.ai-verdict { flex-shrink: 0; margin-top: 1px; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
-.ai-verdict-pass { background: var(--success-soft); color: var(--success); } .ai-verdict-fail { background: var(--danger-soft); color: var(--danger); } .ai-verdict-warn { background: var(--warning-soft); color: var(--warning); } .ai-verdict-info { background: var(--info-soft); color: var(--info); }
-.ai-check-btn { font-family: var(--font); font-size: 11px; font-weight: 600; padding: 4px 10px; border: 1px solid #d8d2f0; border-radius: 6px; background: #fff; color: #7c5bbf; cursor: pointer; transition: all 0.12s; display: inline-flex; align-items: center; gap: 4px; }
-.ai-check-btn:hover { background: #f0ebff; border-color: #7c5bbf; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.scan-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #7c5bbf; font-weight: 500; }
-.scan-dot { width: 14px; height: 14px; border: 2px solid #d8d2f0; border-top-color: #7c5bbf; border-radius: 50%; animation: spin 0.6s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.scan-pass-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--success); color: #fff; font-size: 10px; font-weight: 700; animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-@keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-.flex { display: flex; } .text-sm { font-size: 13px; } .text-muted { color: var(--ink-muted); } .font-medium { font-weight: 500; } .mt-24 { margin-top: 16px; }
-.action-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-.timeline { margin-top: 14px; } .timeline-item { display: flex; gap: 10px; padding: 6px 0; font-size: 12px; color: var(--ink-secondary); }
-.timeline-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-.timeline-dot-upload { background: var(--accent); } .timeline-dot-accept { background: var(--success); } .timeline-dot-reject { background: var(--danger); } .timeline-dot-resubmit { background: var(--warning); } .timeline-dot-system { background: var(--ink-muted); }
-.timeline-time { color: var(--ink-muted); font-size: 11px; white-space: nowrap; min-width: 70px; } .timeline-text { line-height: 1.4; }
-.add-doc-dropdown { position: absolute; top: 100%; left: 0; z-index: 50; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); min-width: 220px; padding: 4px; animation: slideIn 0.12s ease-out; }
-.add-doc-option { display: block; width: 100%; text-align: left; padding: 7px 12px; font-family: var(--font); font-size: 13px; border: none; background: none; cursor: pointer; border-radius: 6px; color: var(--ink); }
-.add-doc-option:hover { background: var(--accent-soft); }
-.remove-doc-btn { font-family: var(--font); font-size: 11px; color: var(--ink-muted); background: none; border: none; cursor: pointer; padding: 2px 4px; transition: color 0.12s; } .remove-doc-btn:hover { color: var(--danger); }
-.process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.process-option { border: 1px solid var(--border-light); border-radius: var(--radius); padding: 10px 12px; cursor: pointer; transition: all 0.12s; text-align: left; }
-.process-option:hover { border-color: var(--accent); background: var(--accent-soft); }
-.process-option.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
-.process-option-label { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; } .process-option-desc { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; line-height: 1.3; }
-.new-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--accent-soft); color: var(--accent); padding: 1px 5px; border-radius: 3px; margin-left: 6px; }
-.box-folder-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: #0061d5; background: rgba(0,97,213,0.06); padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--body);background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased}
+button,input{font-family:var(--body)}button{cursor:pointer}
+::selection{background:var(--ac);color:#fff}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--b3);border-radius:4px}::-webkit-scrollbar-track{background:transparent}
+.shell{display:flex;flex-direction:column;height:100vh}
+.shell *{transition:color .4s,background-color .4s,border-color .4s,box-shadow .4s}
+.shell.switching .app-wrap{opacity:0;transition:opacity .2s}
+.shell:not(.switching) .app-wrap{opacity:1;transition:opacity .3s .12s}
 
-/* ── Box Preview Modal ── */
-.box-preview-overlay {
-  position: fixed; inset: 0; z-index: 960;
-  background: rgba(0,0,0,0.75);
-  display: flex; align-items: center; justify-content: center;
-  animation: fadeIn 0.15s;
-}
-.box-preview-modal {
-  width: 85vw; height: 85vh; max-width: 1100px;
-  background: #fff; border-radius: 12px; overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
-  display: flex; flex-direction: column;
-}
-.box-preview-header {
-  background: #0061d5; padding: 0 20px; height: 52px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.box-preview-header-left {
-  display: flex; align-items: center; gap: 12px;
-}
-.box-preview-logo {
-  width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.15);
-  display: flex; align-items: center; justify-content: center;
-}
-.box-preview-logo svg { width: 18px; height: 18px; }
-.box-preview-filename {
-  font-family: var(--font); font-size: 14px; font-weight: 600; color: #fff;
-}
-.box-preview-meta-bar {
-  font-family: var(--font); font-size: 11px; color: rgba(255,255,255,0.6);
-}
-.box-preview-close {
-  background: rgba(255,255,255,0.12); border: none; color: #fff;
-  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
-  font-size: 18px; display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-}
-.box-preview-close:hover { background: rgba(255,255,255,0.25); }
-.box-preview-body {
-  flex: 1; overflow: hidden; position: relative; background: #f4f4f4;
-}
-.box-preview-footer {
-  background: #fafafa; border-top: 1px solid #e8e8e8;
-  padding: 8px 20px; display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.box-preview-footer-left { font-size: 11px; color: #666; display: flex; align-items: center; gap: 8px; }
-.box-preview-footer-right { font-size: 11px; color: #999; }
-.box-preview-powered {
-  display: flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 600; color: #0061d5; letter-spacing: 0.02em;
-}
+/* TOPBAR */
+.topbar{height:44px;background:var(--topbar);display:flex;align-items:center;padding:0 16px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px;padding-right:14px;border-right:1px solid var(--topbar-b);margin-right:10px}
+.brand-icon{width:20px;height:20px;border-radius:4px;background:var(--ac);display:flex;align-items:center;justify-content:center}
+.brand-icon svg{width:12px;height:12px;color:#fff}
+.brand-name{font-family:var(--display);font-size:var(--fs-brand);font-weight:700;color:#fff;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.topbar-r{display:flex;align-items:center;gap:4px;margin-left:auto}
+.tb{padding:4px 9px;font-size:var(--fs-micro);font-weight:500;border:1px solid var(--topbar-b);border-radius:var(--r);background:transparent;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:5px;transition:all .15s}
+.tb:hover{background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.2)}
+.tb svg{width:12px;height:12px}
+.tb .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}.tb .dot.off{background:var(--red)}
+.skin-sel{position:relative}
+.skin-dd{display:none;position:absolute;top:32px;right:0;background:var(--card);border:1px solid var(--b1);border-radius:var(--r);padding:4px;min-width:180px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.skin-dd.open{display:block}
+.skin-opt{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:4px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--body);transition:background .08s}
+.skin-opt:hover{background:var(--bg2)}.skin-opt.active{background:var(--ac-s)}
+.skin-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.skin-name{font-size:var(--fs-label);font-weight:500;color:var(--t1)}.skin-opt.active .skin-name{font-weight:600;color:var(--ac)}
+.avatar{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:var(--fs-micro);font-weight:600;color:#fff;margin-left:4px}
+.accent-bar{height:2px;background:linear-gradient(90deg,transparent 0%,var(--ac) 30%,var(--ac2) 70%,transparent 100%);flex-shrink:0;opacity:.4}
+
+/* CONNECT SCREEN */
+.connect-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+.connect-card{background:var(--card);border:1px solid var(--b1);border-radius:8px;padding:32px;width:380px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.connect-card h2{font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:4px;letter-spacing:.02em}
+.connect-card p{font-size:var(--fs-label);color:var(--t3);margin-bottom:16px}
+.connect-input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);font-size:var(--fs-label);color:var(--t1);outline:none;font-family:var(--mono);margin-bottom:8px}
+.connect-input:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-s)}
+.connect-input::placeholder{color:var(--t4)}
+.connect-btn{width:100%;padding:10px;background:var(--ac);color:#fff;border:none;border-radius:var(--r);font-size:var(--fs-label);font-weight:600;transition:all .15s}
+.connect-btn:hover{background:var(--ac2)}
+.connect-btn:disabled{background:var(--bg3);color:var(--t4);cursor:not-allowed}
+.connect-error{font-size:var(--fs-meta);color:var(--red);margin-top:8px;min-height:16px}
+.connect-user{font-size:var(--fs-meta);color:var(--green);margin-top:8px}
+
+/* APP */
+.app-wrap{flex:1;display:none;flex-direction:column;min-height:0;overflow:hidden}
+.app-wrap.active{display:flex}
+
+/* DOC STRIP */
+.doc-strip{display:flex;gap:6px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--b1);flex-shrink:0}
+.doc-card{flex:1;min-width:0;background:var(--card);border:1.5px dashed var(--b2);border-radius:var(--r);padding:9px 11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px;position:relative;overflow:hidden}
+.doc-card:hover{border-color:var(--ac);background:var(--ac-s)}
+.doc-card.loaded{border-style:solid;border-color:var(--b1);cursor:default}
+.doc-card.loaded:hover{border-color:var(--b2);background:var(--card)}
+.doc-card.anchor.loaded{border-color:var(--ac);border-left:3px solid var(--ac)}
+.doc-card.uploading{border-color:var(--ac);border-style:solid;opacity:.7}
+.doc-card.dragover{border-color:var(--ac);background:var(--ac-s);border-style:solid}
+.dc-icon{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc-icon svg{width:15px;height:15px}
+.dc-icon.empty{background:var(--bg3);color:var(--t4)}
+.dc-icon.expiring{background:var(--ac-s);color:var(--ac)}
+.dc-icon.renewal{background:rgba(22,163,74,0.08);color:var(--green)}
+.dc-icon.competitor{background:rgba(245,158,11,0.08);color:var(--amber)}
+.dc-icon.guidelines{background:rgba(67,56,202,0.08);color:#4338ca}
+.dc-info{flex:1;min-width:0}
+.dc-label{font-size:var(--fs-micro);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--t4);margin-bottom:1px}
+.dc-name{font-size:var(--fs-label);font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc-name.empty{color:var(--t4);font-weight:400;font-style:italic}
+.dc-meta{font-size:var(--fs-micro);color:var(--t4)}
+.dc-close{width:18px;height:18px;display:none;align-items:center;justify-content:center;border:none;background:transparent;border-radius:3px;color:var(--t4);font-size:var(--fs-label);flex-shrink:0}
+.doc-card.loaded:hover .dc-close{display:flex}.dc-close:hover{background:var(--bg3);color:var(--red)}
+input[type="file"].hidden-input{display:none}
+
+/* RUN BAR */
+.run-bar{display:flex;align-items:center;padding:6px 16px;background:var(--card);border-bottom:1px solid var(--b1);flex-shrink:0;gap:8px}
+.run-status{font-size:var(--fs-meta);color:var(--t3);flex:1}.run-status .ct{font-weight:600;color:var(--t2)}
+.sa{padding:4px 10px;font-size:var(--fs-micro);font-weight:500;border:1px solid var(--b1);border-radius:var(--r);background:var(--card);color:var(--t3);display:flex;align-items:center;gap:4px;transition:all .1s;font-family:var(--body)}
+.sa:hover{border-color:var(--b2);background:var(--bg2);color:var(--t2)}.sa svg{width:12px;height:12px}
+.sa:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.run-btn{padding:6px 20px;font-size:var(--fs-label);font-weight:600;border:none;border-radius:var(--r);font-family:var(--body);transition:all .15s;display:flex;align-items:center;gap:6px}
+.run-btn.off{background:var(--bg3);color:var(--t4);cursor:not-allowed}
+.run-btn.on{background:var(--ac);color:#fff;cursor:pointer;box-shadow:0 1px 8px var(--ac-b)}
+.run-btn.on:hover{background:var(--ac2);transform:translateY(-1px)}.run-btn.on:active{transform:translateY(0)}
+.run-btn.running{background:var(--ac);color:#fff;cursor:wait;opacity:.7}
+.run-btn svg{width:14px;height:14px}
+
+/* ANALYSIS */
+.analysis{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--card);overflow:hidden}
+.atabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0;padding:0 16px}
+.atab{padding:8px 14px;font-size:var(--fs-label);font-weight:500;color:var(--t4);border:none;background:none;border-bottom:2px solid transparent;transition:all .12s;font-family:var(--body);cursor:pointer}
+.atab:hover:not(.disabled){color:var(--t2);background:var(--bg2)}.atab.active{color:var(--ac);border-bottom-color:var(--ac);font-weight:600}
+.atab .adot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px}
+.atab.disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
+.ascroll{flex:1;overflow-y:auto;padding:16px 24px 32px}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;color:var(--t4)}
+.empty svg{width:28px;height:28px;color:var(--b3);margin-bottom:4px}
+
+/* ANALYSIS CONTENT */
+.ax{display:none}.ax.visible{display:block}
+.ax-label{font-family:var(--mono);font-size:var(--fs-micro);color:var(--t4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.ax-bl{font-size:var(--fs-body);line-height:1.65;color:var(--t1);padding:12px 16px;background:var(--ac-s);border-left:3px solid var(--ac);border-radius:0 var(--r) var(--r) 0;margin-bottom:20px}
+.ax-bl strong{color:var(--ac)}
+.ax-sec{margin-bottom:20px}
+.ax-sh{font-family:var(--display);font-size:var(--fs-label);font-weight:700;letter-spacing:.02em;margin-bottom:10px;color:var(--t1)}
+.ax-sc{font-weight:400;color:var(--t4);font-family:var(--body);font-size:var(--fs-meta);margin-left:4px}
+.mc{border:1px solid var(--b1);border-radius:var(--r);margin-bottom:6px;overflow:hidden;transition:border-color .15s}
+.mc:hover{border-color:var(--b2)}
+.mc-in{padding:10px 14px}
+.mc.critical{border-left:3px solid var(--red)}.mc.critical .mc-in{padding-left:11px}
+.mc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.mc-name{font-size:var(--fs-label);font-weight:600;color:var(--t1);flex:1}
+.mc.critical .mc-name{font-size:var(--fs-body)}
+.badge{font-size:var(--fs-micro);font-weight:600;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.badge.us{background:rgba(220,38,38,0.1);color:var(--red)}.badge.ds{background:rgba(22,163,74,0.1);color:var(--green)}.badge.uf{background:rgba(245,158,11,0.1);color:var(--amber)}.badge.n{background:var(--bg3);color:var(--t3)}
+.mr{display:flex;gap:6px;font-size:var(--fs-meta);line-height:1.55;margin-bottom:2px}
+.mr-l{color:var(--t4);flex-shrink:0;min-width:70px;font-weight:500}.mr-v{color:var(--t2)}
+.mc.critical .mr-v{color:var(--t1)}
+.cx{border-radius:var(--r);padding:8px 12px;margin-bottom:4px;display:flex;gap:10px;align-items:flex-start;font-size:var(--fs-label);line-height:1.45}
+.cx-i{flex-shrink:0;font-weight:700;font-size:var(--fs-body)}
+.cx.pass{background:var(--bg)}.cx.pass .cx-i{color:var(--green)}.cx.pass .cx-t{color:var(--t3)}
+.cx.fail{background:rgba(220,38,38,0.05);border:1px solid rgba(220,38,38,0.15)}.cx.fail .cx-i{color:var(--red)}.cx.fail .cx-t{color:var(--t1)}.cx.fail strong{color:var(--red)}
+.cx.warn{background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.12)}.cx.warn .cx-i{color:var(--amber)}.cx.warn .cx-t{color:var(--t2)}.cx.warn strong{color:var(--amber)}
+.ax-risk{font-size:var(--fs-body);line-height:1.7;color:var(--t2);padding:12px 16px;background:var(--bg);border-radius:var(--r);border:1px solid var(--b1)}
+.ax-raw{font-family:var(--mono);font-size:var(--fs-meta);line-height:1.7;color:var(--t2);white-space:pre-wrap;padding:12px 16px;background:var(--bg);border:1px solid var(--b1);border-radius:var(--r)}
+.ax-edit{width:100%;min-height:200px;font-family:var(--mono);font-size:var(--fs-meta);line-height:1.7;color:var(--t1);padding:12px 16px;background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);resize:vertical;outline:none}
+.ax-edit:focus{border-color:var(--ac)}
+
+/* STEP INDICATOR */
+.steps{height:36px;background:var(--card);border-top:1px solid var(--b1);display:flex;align-items:center;justify-content:center;gap:0;flex-shrink:0;padding:0 16px}
+.step{display:flex;align-items:center;gap:6px;padding:0 16px;position:relative}
+.step+.step::before{content:'';position:absolute;left:-12px;width:24px;height:1px;background:var(--b2)}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--b2);transition:all .3s;flex-shrink:0}
+.step.done .step-dot{background:var(--green)}
+.step.active .step-dot{background:var(--ac);box-shadow:0 0 8px var(--ac-b);animation:pulse 1.5s infinite}
+.step-label{font-size:var(--fs-micro);font-weight:500;color:var(--t4);transition:color .3s}
+.step.done .step-label{color:var(--t3)}.step.active .step-label{color:var(--ac);font-weight:600}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* STATUSBAR */
+.sbar{height:22px;background:var(--bg2);border-top:1px solid var(--b1);display:flex;align-items:center;padding:0 16px;flex-shrink:0;gap:10px}
+.sb{font-size:var(--fs-micro);color:var(--t4);display:flex;align-items:center;gap:3px}
+.sb-d{width:4px;height:4px;border-radius:50%}.sb-d.on{background:var(--green)}.sb-d.off{background:var(--t4)}
+
+/* SAVE MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--b1);border-radius:8px;width:420px;max-height:70vh;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.modal-head{padding:14px 20px;border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-family:var(--display);font-size:var(--fs-title);font-weight:700;letter-spacing:.02em}
+.modal-close{background:none;border:none;font-size:var(--fs-title);color:var(--t3);padding:0}.modal-close:hover{color:var(--t1)}
+.modal-body{padding:16px 20px;flex:1;overflow-y:auto}
+.modal-foot{padding:12px 20px;border-top:1px solid var(--b1);display:flex;gap:8px;justify-content:flex-end}
+.modal-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--b1);border-radius:var(--r);cursor:pointer;transition:all .12s;margin-bottom:6px}
+.modal-opt:hover{border-color:var(--ac);background:var(--ac-s)}
+.modal-opt.selected{border-color:var(--ac);background:var(--ac-s);box-shadow:0 0 0 1.5px var(--ac)}
+.modal-opt-icon{width:28px;height:28px;border-radius:5px;background:var(--bg2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-opt-icon svg{width:14px;height:14px;color:var(--t3)}
+.modal-opt-info{flex:1}.modal-opt-title{font-size:var(--fs-label);font-weight:600;color:var(--t1)}.modal-opt-desc{font-size:var(--fs-micro);color:var(--t3)}
+.mbtn{padding:7px 16px;font-size:var(--fs-label);font-weight:600;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--body);transition:all .12s}
+.mbtn.ghost{background:var(--bg);color:var(--t3);border:1px solid var(--b1)}.mbtn.ghost:hover{background:var(--bg2);color:var(--t2)}
+.mbtn.primary{background:var(--ac);color:#fff}.mbtn.primary:hover{background:var(--ac2)}
 </style>
 </head>
-<body class="hub-active">
+<body>
+<div class="shell" id="shell">
+<div class="topbar">
+  <div class="brand"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div class="brand-name" id="brand-name">Keystone · Commercial Liability</div></div>
+  <div class="topbar-r">
+    <button class="tb" id="box-btn" onclick="disconnect()"><span class="dot off" id="box-dot"></span><span id="box-label">Not connected</span></button>
+    <div class="skin-sel"><button class="tb" onclick="toggleSkinDD()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button><div class="skin-dd" id="skin-dd"></div></div>
+    <div class="avatar" id="avatar">—</div>
+  </div>
+</div>
+<div class="accent-bar"></div>
 
-<div id="hub-view">
-  <div class="hub-header">
-    <div class="flex" style="align-items:center;"><h1>Canada Life</h1><span class="hub-tag">Secure Document Exchange — POC</span></div>
+<!-- CONNECT -->
+<div class="connect-screen" id="connect-screen">
+  <div class="connect-card">
+    <h2>Connect to Box</h2>
+    <p>Enter your Box developer token to get started</p>
+    <input class="connect-input" id="token-input" type="text" placeholder="Paste developer token..." spellcheck="false">
+    <button class="connect-btn" id="connect-btn" onclick="connect()">Connect</button>
+    <div class="connect-error" id="connect-err"></div>
   </div>
-  <div class="box-bar" id="box-bar">
-    <label>Box Token</label>
-    <input type="text" id="box-token-input" placeholder="Paste developer token here..." spellcheck="false" autocomplete="off" />
-    <button class="box-connect-btn" id="box-connect-btn" onclick="testBoxConnection()">Connect</button>
-    <div class="box-status" id="box-status"><div class="box-status-dot" style="background:var(--ink-muted);"></div><span style="color:rgba(255,255,255,0.35);font-size:11px;">Not connected</span></div>
+</div>
+
+<!-- APP -->
+<div class="app-wrap" id="app-wrap">
+  <div class="doc-strip" id="doc-strip"></div>
+  <div class="run-bar">
+    <div class="run-status" id="run-status"></div>
+    <button class="sa" id="save-btn" disabled onclick="openSaveModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>Save</button>
+    <button class="sa" id="export-btn" disabled onclick="exportAnalysis()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+    <button class="run-btn off" id="run-btn" onclick="runAnalysis()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Analyze</button>
   </div>
-  <div class="hub-container">
-    <div class="hub-intro"><h2>Three workflows. One platform.</h2><p>Every use case follows the same pattern — someone needs a document, someone uploads it, someone reviews it, and the status tracks itself. Box is the engine.</p></div>
-    <div class="hub-grid">
-      <div class="hub-card disabled" data-uc="1"><div class="hub-card-num">1</div><div class="hub-card-title">Claims — Additional Documentation</div><div class="hub-card-desc">A claims examiner pauses a claim needing additional documents. The member uploads securely, the submission ties back to the original case.</div><div class="hub-card-parties"><span class="hub-party">Member</span><span class="hub-party">Claims Examiner</span><span class="hub-party">Appian</span></div><div class="hub-card-infra"><div class="hub-infra-item"><div class="hub-infra-dot"></div>Claim folder per case with metadata</div><div class="hub-infra-item"><div class="hub-infra-dot"></div>Relay → Appian webhook on upload</div><div class="hub-infra-item"><div class="hub-infra-dot"></div>Box AI extraction for medical docs</div></div><div class="hub-card-footer"><span class="hub-card-status hub-status-coming">Coming Soon</span><button class="hub-card-action coming">Same Pattern</button></div></div>
-      <div class="hub-card" data-uc="2" onclick="launchDemo()"><div class="hub-card-num">2</div><div class="hub-card-title">Advisor — Client Document Exchange</div><div class="hub-card-desc">Advisor collects docs from a client. Ops reviews, rejects with reasons, client re-uploads. DocuSign fires when needed. Status visible everywhere.</div><div class="hub-card-parties"><span class="hub-party">Advisor</span><span class="hub-party">Client</span><span class="hub-party">Operations</span><span class="hub-party">DocuSign</span></div><div class="hub-card-infra"><div class="hub-infra-item"><div class="hub-infra-dot"></div>Rejection → re-submission loop</div><div class="hub-infra-item"><div class="hub-infra-dot"></div>AI pre-check evaluates before ops reviews</div><div class="hub-infra-item"><div class="hub-infra-dot"></div>Prospect graduation to onboarding</div></div><div class="hub-card-footer"><span class="hub-card-status hub-status-live">● Live Demo</span><button class="hub-card-action">Launch Demo →</button></div></div>
-      <div class="hub-card disabled" data-uc="3"><div class="hub-card-num">3</div><div class="hub-card-title">Third-Party Secure Upload</div><div class="hub-card-desc">System sends a request to an external party — a doctor, lab, or legal firm. They upload securely without credentials. Access is scoped and auto-expires.</div><div class="hub-card-parties"><span class="hub-party">System</span><span class="hub-party">External Party</span><span class="hub-party">Reviewer</span></div><div class="hub-card-infra"><div class="hub-infra-item"><div class="hub-infra-dot"></div>Tiered auth: File Request → Collab → Scoped Token</div><div class="hub-infra-item"><div class="hub-infra-dot"></div>Auto-expiring access with audit trail</div><div class="hub-infra-item"><div class="hub-infra-dot"></div>Box AI auto-classifies incoming docs</div></div><div class="hub-card-footer"><span class="hub-card-status hub-status-coming">Coming Soon</span><button class="hub-card-action coming">Same Pattern</button></div></div>
+  <div class="analysis">
+    <div class="atabs" id="atabs">
+      <button class="atab active disabled" onclick="switchTab(0)"><span class="adot" style="background:var(--green)"></span>vs Renewal</button>
+      <button class="atab disabled" onclick="switchTab(1)"><span class="adot" style="background:var(--amber)"></span>vs Competitor</button>
     </div>
-    <div class="hub-footer"><p><strong>One architecture serves all three.</strong> Box folders are the data model. Metadata templates are the schema. Relay is the workflow engine. UI Elements are the frontend. The pattern is identical.</p></div>
+    <div class="ascroll" id="ascroll">
+      <div class="empty" id="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+        <div style="font-size:var(--fs-body);font-weight:500">No analysis yet</div>
+        <div style="font-size:var(--fs-meta)">Upload documents and click Analyze</div>
+      </div>
+      <div class="ax" id="ax-0"></div>
+      <div class="ax" id="ax-1"></div>
+    </div>
   </div>
 </div>
 
-<div id="demo-view">
-<header class="app-header">
-  <div class="flex" style="align-items:center;">
-    <button onclick="backToHub()" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;margin-right:12px;padding:4px;">←</button>
-    <h1>Document Exchange</h1><span class="subtitle">POC</span>
-    <span id="box-indicator" style="display:none;margin-left:14px;font-size:10px;font-weight:600;color:var(--success);background:var(--success-soft);padding:2px 8px;border-radius:4px;">● Box Connected</span>
-  </div>
-  <div class="role-switcher" id="role-switcher">
-    <button class="role-btn active" data-role="advisor" onclick="switchRole('advisor')">Advisor</button>
-    <button class="role-btn" data-role="client" onclick="switchRole('client')">Client</button>
-    <button class="role-btn" data-role="ops" onclick="switchRole('ops')">Operations</button>
-  </div>
-</header>
-<div class="main">
-  <div id="advisor-view" class="view active"><div id="advisor-list"></div><div id="advisor-detail" style="display:none;"></div></div>
-  <div id="client-view" class="view"><div id="client-content"></div></div>
-  <div id="ops-view" class="view"><div id="ops-list"></div><div id="ops-detail" style="display:none;"></div></div>
+<!-- STEP INDICATOR -->
+<div class="steps" id="steps">
+  <div class="step" id="step-0"><div class="step-dot"></div><div class="step-label">Upload</div></div>
+  <div class="step" id="step-1"><div class="step-dot"></div><div class="step-label">Extract</div></div>
+  <div class="step" id="step-2"><div class="step-dot"></div><div class="step-label">Analyze</div></div>
+  <div class="step" id="step-3"><div class="step-dot"></div><div class="step-label">Save</div></div>
+</div>
+
+<div class="sbar">
+  <span class="sb"><span class="sb-d off" id="sb-d"></span><span id="sb-box">Disconnected</span></span>
+  <span class="sb" id="sb-user"></span>
+  <span class="sb" id="sb-docs">0 documents</span>
+  <span class="sb" style="margin-left:auto">v0.1</span>
 </div>
 </div>
 
-<input type="file" id="box-file-input" style="display:none;" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected(this)" />
+<!-- SAVE MODAL -->
+<div class="modal-bg" id="save-modal" onclick="if(event.target===this)closeSaveModal()">
+  <div class="modal">
+    <div class="modal-head"><h3>Save Analysis</h3><button class="modal-close" onclick="closeSaveModal()">×</button></div>
+    <div class="modal-body">
+      <div class="modal-opt selected" onclick="selectSaveMode('raw')">
+        <div class="modal-opt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="modal-opt-info"><div class="modal-opt-title">Save raw to Box</div><div class="modal-opt-desc">Markdown analysis saved to the renewal folder</div></div>
+      </div>
+      <div class="modal-opt" onclick="selectSaveMode('edit')">
+        <div class="modal-opt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="modal-opt-info"><div class="modal-opt-title">Edit before saving</div><div class="modal-opt-desc">Review and modify the analysis, then save</div></div>
+      </div>
+      <div class="modal-opt" onclick="selectSaveMode('formatted')">
+        <div class="modal-opt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></div>
+        <div class="modal-opt-info"><div class="modal-opt-title">Formatted deliverable</div><div class="modal-opt-desc">HTML report formatted for sharing</div></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="mbtn ghost" onclick="closeSaveModal()">Cancel</button>
+      <button class="mbtn primary" onclick="executeSave()">Save</button>
+    </div>
+  </div>
+</div>
 
 <script>
-// ═══ BOX API LAYER ═══
-let boxToken = null, boxConnected = false, boxRootFolderId = null;
-const BOX_API = 'https://api.box.com/2.0';
-const BOX_UPLOAD = 'https://upload.box.com/api/2.0';
+// ═══════════════════════════════════════
+// BOX API CLIENT
+// ═══════════════════════════════════════
+const BOX = 'https://api.box.com/2.0';
+const BOX_UP = 'https://upload.box.com/api/2.0';
+let token = null;
 
-async function boxFetch(path, opts = {}) {
-  if (!boxToken) throw new Error('No Box token');
-  const h = { 'Authorization': 'Bearer ' + boxToken, ...opts.headers };
-  if (!opts.headers?.['Content-Type'] && opts.body && typeof opts.body === 'string') h['Content-Type'] = 'application/json';
-  const resp = await fetch(BOX_API + path, { ...opts, headers: h });
-  if (!resp.ok) { const e = await resp.json().catch(() => ({})); throw new Error(e.message || 'Box API ' + resp.status); }
-  return resp.json();
+async function boxGet(path) {
+  const r = await fetch(BOX + path, { headers: { 'Authorization': 'Bearer ' + token } });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
 }
-
-async function testBoxConnection() {
-  const input = document.getElementById('box-token-input');
-  const btn = document.getElementById('box-connect-btn');
-  const statusEl = document.getElementById('box-status');
-  const token = input.value.trim();
-  if (!token) { input.focus(); return; }
-  btn.disabled = true; btn.textContent = 'Testing...';
-  statusEl.innerHTML = '<span style="color:rgba(255,255,255,0.5);font-size:11px;">Connecting...</span>';
-  try {
-    boxToken = token;
-    const user = await boxFetch('/users/me');
-    boxConnected = true;
-    boxRootFolderId = await findOrCreateFolder('0', 'Advisor Document Exchanges');
-    statusEl.innerHTML = '<div class="box-status-dot" style="background:var(--success);"></div><span style="color:var(--success);font-size:11px;">' + user.name + ' · Folder ready</span>';
-    btn.textContent = 'Connected'; btn.classList.add('connected');
-    input.style.borderColor = 'var(--success)'; input.style.opacity = '0.5';
-    document.getElementById('box-indicator').style.display = 'inline-block';
-  } catch (e) {
-    boxToken = null; boxConnected = false;
-    statusEl.innerHTML = '<div class="box-status-dot" style="background:var(--danger);"></div><span style="color:var(--danger);font-size:11px;">Failed: ' + e.message + '</span>';
-    btn.textContent = 'Retry'; btn.classList.remove('connected');
-    input.style.borderColor = 'var(--danger)';
-  }
-  btn.disabled = false;
-}
-
-async function findOrCreateFolder(parentId, name) {
-  const items = await boxFetch('/folders/' + parentId + '/items?fields=name,id&limit=100');
-  const existing = items.entries.find(e => e.type === 'folder' && e.name === name);
-  if (existing) return existing.id;
-  const folder = await boxFetch('/folders', { method: 'POST', body: JSON.stringify({ name, parent: { id: parentId } }) });
-  return folder.id;
-}
-
-async function createBoxExchangeFolder(clientName, advisorName, processType, exchangeId) {
-  if (!boxConnected || !boxRootFolderId) return null;
-  try {
-    const advisorFolderId = await findOrCreateFolder(boxRootFolderId, 'Advisor: ' + advisorName);
-    const folderName = clientName + ' - ' + processType + ' ' + new Date().toISOString().slice(0, 7);
-    const folderId = await findOrCreateFolder(advisorFolderId, folderName);
-    try {
-      await boxFetch('/folders/' + folderId + '/metadata/global/properties', {
-        method: 'POST', body: JSON.stringify({ exchange_id: exchangeId, process_type: processType, client_name: clientName, status: 'documents_requested' })
-      });
-    } catch (me) { /* metadata may already exist */ }
-    return folderId;
-  } catch (e) { console.error('Box folder creation failed:', e); return null; }
-}
-
-// ═══ SERVICE LAYER ═══
-const DOCUMENT_TYPES = [
-  { key: 'government_id', label: 'Government ID' }, { key: 'proof_of_address', label: 'Proof of Address' },
-  { key: 'application_form', label: 'Application Form' }, { key: 'beneficiary_form', label: 'Beneficiary Form' },
-  { key: 'financial_statement', label: 'Financial Statement' }, { key: 'tax_form', label: 'Tax Form' },
-];
-const PROCESS_TYPES = [
-  { key: 'new_account', label: 'New Account Opening', desc: 'Full KYC — ID, financials, application, beneficiary', docs: ['government_id','proof_of_address','application_form','beneficiary_form','financial_statement','tax_form'] },
-  { key: 'beneficiary_change', label: 'Beneficiary Change', desc: 'Updated designation form with identity verification', docs: ['government_id','beneficiary_form'] },
-  { key: 'address_update', label: 'Address Update', desc: 'New proof of address and signed amendment', docs: ['proof_of_address','application_form'] },
-  { key: 'annual_review', label: 'Annual Compliance Review', desc: 'Updated financials and tax documents for suitability', docs: ['financial_statement','tax_form'] },
-  { key: 'rrsp_transfer', label: 'RRSP / TFSA Transfer-In', desc: 'Account application with current financial position', docs: ['government_id','application_form','financial_statement'] },
-  { key: 'custom', label: 'Custom', desc: 'Select documents manually', docs: [] },
-];
-const REJECTION_REASONS = [{ key: 'expired', label: 'Expired' }, { key: 'illegible', label: 'Illegible' }, { key: 'wrong_document', label: 'Wrong Document' }];
-const STATUS_FLOW = { initiated: { label: 'Initiated', badge: 'badge-initiated' }, documents_requested: { label: 'Documents Requested', badge: 'badge-requested' }, documents_received: { label: 'Documents Received', badge: 'badge-received' }, under_review: { label: 'Under Review', badge: 'badge-review' }, re_submission_required: { label: 'Re-submission Required', badge: 'badge-resubmit' }, complete: { label: 'Complete', badge: 'badge-complete' }, cancelled: { label: 'Cancelled', badge: 'badge-cancelled' } };
-const DOC_STATUS = { pending_review: { label: 'Pending Review', badge: 'badge-doc-pending' }, accepted: { label: 'Accepted', badge: 'badge-doc-accepted' }, rejected: { label: 'Rejected', badge: 'badge-doc-rejected' } };
-
-let state = { exchanges: [], nextId: 1, currentRole: 'advisor', advisorView: 'list', advisorDetailId: null, opsView: 'list', opsDetailId: null, auditLog: [] };
-
-function logEvent(type, exchangeId, detail) { state.auditLog.push({ type, exchangeId, detail, at: new Date().toISOString() }); }
-function addDocRequirement(eid, dk) { const ex = getExchange(eid); if (!ex || ex.documentsRequired.includes(dk)) return; ex.documentsRequired.push(dk); logEvent('doc-added', eid, DOCUMENT_TYPES.find(t=>t.key===dk)?.label||dk); recalculateStatus(ex); }
-function removeDocRequirement(eid, dk) { const ex = getExchange(eid); if (!ex) return; ex.documentsRequired = ex.documentsRequired.filter(k=>k!==dk); ex.documents = ex.documents.filter(d=>d.typeKey!==dk); logEvent('doc-removed', eid, DOCUMENT_TYPES.find(t=>t.key===dk)?.label||dk); recalculateStatus(ex); }
-function cancelExchange(eid) { const ex = getExchange(eid); if (!ex) return; ex.status = 'cancelled'; logEvent('cancelled', eid, ''); }
-function duplicateExchange(sid, cn) { const s = getExchange(sid); if (!s) return null; const ex = createExchange(cn||s.clientName+' (copy)', s.advisorName, [...s.documentsRequired], s.processType); logEvent('duplicated', ex.id, 'from '+sid); return ex; }
-function resendClientLink(eid) { logEvent('link-resent', eid, ''); }
-function getActivityLog(eid) { return state.auditLog.filter(e=>e.exchangeId===eid).sort((a,b)=>new Date(b.at)-new Date(a.at)); }
-function getOpsStats() { const ad = state.exchanges.flatMap(e=>e.documents); return { totalUploads: state.auditLog.filter(e=>e.type==='upload').length, accepted: ad.filter(d=>d.status==='accepted').length, rejected: state.auditLog.filter(e=>e.type==='reject').length, resubmissions: state.auditLog.filter(e=>e.type==='resubmit').length, pendingReview: ad.filter(d=>d.status==='pending_review').length }; }
-
-function createExchange(clientName, advisorName, requiredDocKeys, processType) {
-  const ex = { id: 'EX-'+String(state.nextId++).padStart(4,'0'), clientName, advisorName, processType: processType||'Custom', status: 'documents_requested', documentsRequired: requiredDocKeys, documents: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), boxFolderId: null };
-  state.exchanges.push(ex);
-  logEvent('created', ex.id, requiredDocKeys.length+' docs requested');
-  if (boxConnected) {
-    createBoxExchangeFolder(clientName, advisorName, processType||'Custom', ex.id).then(fid => {
-      if (fid) { ex.boxFolderId = fid; logEvent('box-folder', ex.id, 'Folder '+fid); render(); }
-    });
-  }
-  return ex;
-}
-function getExchange(id) { return state.exchanges.find(e=>e.id===id); }
-function uploadDocument(eid, dk, fn, boxFileId) {
-  const ex = getExchange(eid); if (!ex) return;
-  ex.documents = ex.documents.filter(d=>!(d.typeKey===dk && d.status==='rejected'));
-  ex.documents.push({ id: 'DOC-'+Math.random().toString(36).substr(2,6), typeKey: dk, typeName: DOCUMENT_TYPES.find(t=>t.key===dk)?.label||dk, fileName: fn, uploadedAt: new Date().toISOString(), status: 'pending_review', rejectionReason: null, boxFileId: boxFileId||null });
-  const wr = ex.status==='re_submission_required'; recalculateStatus(ex); logEvent(wr?'resubmit':'upload', eid, dk);
-}
-function reviewDocument(eid, did, acc, rk) {
-  const ex = getExchange(eid); if (!ex) return; const doc = ex.documents.find(d=>d.id===did); if (!doc) return;
-  if (acc) { doc.status='accepted'; doc.rejectionReason=null; logEvent('accept',eid,doc.typeKey); }
-  else { doc.status='rejected'; doc.rejectionReason=rk; logEvent('reject',eid,doc.typeKey+':'+rk); }
-  recalculateStatus(ex);
-}
-function recalculateStatus(ex) {
-  if (ex.status==='cancelled') return; ex.updatedAt=new Date().toISOString();
-  const req=new Set(ex.documentsRequired), acc=new Set(); let hasR=false, hasP=false;
-  for (const d of ex.documents) { if(d.status==='accepted')acc.add(d.typeKey); if(d.status==='rejected')hasR=true; if(d.status==='pending_review')hasP=true; }
-  if([...req].every(k=>acc.has(k))) ex.status='complete';
-  else if(hasR&&!hasP) ex.status='re_submission_required';
-  else if(hasP) ex.status='under_review';
-  else ex.status='documents_requested';
-}
-
-// ═══ RENDERING ═══
-function switchRole(r) { state.currentRole=r; document.querySelectorAll('.role-btn').forEach(b=>b.classList.toggle('active',b.dataset.role===r)); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(r+'-view').classList.add('active'); render(); }
-function render() { ({advisor:renderAdvisor,client:renderClient,ops:renderOps})[state.currentRole](); }
-function statusBadge(k) { const s=STATUS_FLOW[k]; return s?'<span class="badge '+s.badge+'">'+s.label+'</span>':''; }
-function docStatusBadge(k,rr) { const s=DOC_STATUS[k]; if(!s)return''; let x=''; if(k==='rejected'&&rr){const r=REJECTION_REASONS.find(v=>v.key===rr);x=' — '+(r?.label||rr);} return '<span class="badge '+s.badge+'">'+s.label+x+'</span>'; }
-function formatDate(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
-function progressTracker(st) { if(st==='cancelled')return''; const steps=['documents_requested','under_review','complete'],labels=['Submitted','Under Review','Complete'],resub=st==='re_submission_required'; let cur=steps.indexOf(st); if(st==='documents_received')cur=0; if(resub)cur=1; return '<div class="progress-tracker">'+steps.map((s,i)=>{let cls=i<cur?'done':(i===cur?'active':'');let lbl=labels[i];if(i===1&&resub)lbl='Action Required';return '<div class="progress-step '+cls+'"><div class="progress-dot"></div><div class="progress-label">'+lbl+'</div></div>';}).join('')+'</div>'; }
-function boxFolderTag(ex) { if(!ex.boxFolderId)return''; return '<span class="box-folder-tag">📁 Box '+ex.boxFolderId+'</span>'; }
-
-function renderAdvisor() {
-  if(state.advisorView==='detail'&&state.advisorDetailId){renderAdvisorDetail(state.advisorDetailId);return;}
-  const el=document.getElementById('advisor-list'); document.getElementById('advisor-detail').style.display='none'; el.style.display='block';
-  const exs=state.exchanges;
-  let h='<div class="card"><div class="card-header"><div><div class="card-title">Active Exchanges</div><div class="card-subtitle">'+exs.length+' exchange'+(exs.length!==1?'s':'')+'</div></div><button class="btn btn-primary" onclick="showNewExchangeForm()">+ New Exchange</button></div>';
-  if(!exs.length) h+='<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No exchanges yet.</div></div>';
-  for(const ex of exs){ const p=ex.documentsRequired.length-ex.documents.filter(d=>d.status==='accepted').length; const cl=ex.status==='complete'||ex.status==='cancelled'; const dim=cl?' style="opacity:0.55;"':''; const info=cl?ex.id+' · '+(ex.processType||'')+' · '+formatDate(ex.createdAt):ex.id+' · '+(ex.processType||'')+' · '+p+' remaining';
-    h+='<div class="exchange-row"'+dim+' onclick="openAdvisorDetail(\''+ex.id+'\')"><div class="exchange-meta"><div class="exchange-name">'+ex.clientName+boxFolderTag(ex)+'</div><div class="exchange-info">'+info+'</div></div><div class="exchange-right">'+statusBadge(ex.status)+'</div></div>'; }
-  h+='</div>'; el.innerHTML=h;
-}
-function openAdvisorDetail(id){state.advisorView='detail';state.advisorDetailId=id;render();}
-function backToAdvisorList(){state.advisorView='list';state.advisorDetailId=null;render();}
-function renderAdvisorDetail(id) {
-  const ex=getExchange(id); if(!ex)return; document.getElementById('advisor-list').style.display='none';
-  const el=document.getElementById('advisor-detail'); el.style.display='block';
-  const cl=ex.status==='complete'||ex.status==='cancelled';
-  let n='';
-  if(ex.status==='re_submission_required'){const rj=ex.documents.filter(d=>d.status==='rejected');n='<div class="notification notification-warning">⚠ Ops flagged '+rj.length+' doc'+(rj.length>1?'s':'')+' for re-submission: '+rj.map(d=>d.typeName).join(', ')+'</div>';}
-  if(ex.status==='complete')n='<div class="notification notification-success">✓ All documents accepted. Exchange complete.</div>';
-  if(ex.status==='cancelled')n='<div class="notification" style="background:var(--info-soft);color:var(--ink-muted);border:1px solid var(--border);">This exchange was cancelled.</div>';
-  const avail=DOCUMENT_TYPES.filter(t=>!ex.documentsRequired.includes(t.key));
-  let ab='';
-  if(!cl){ab='<div class="action-bar"><div style="position:relative;"><button class="btn btn-sm btn-primary" onclick="toggleAddDocDropdown(\''+ex.id+'\')">+ Add Document</button><div class="add-doc-dropdown" id="add-doc-dropdown" style="display:none;">'+(avail.length?avail.map(t=>'<button class="add-doc-option" onclick="doAddDoc(\''+ex.id+'\',\''+t.key+'\')">'+t.label+'</button>').join(''):'<div style="padding:8px 12px;font-size:12px;color:var(--ink-muted);">All assigned</div>')+'</div></div><button class="btn btn-sm btn-ghost" onclick="doResendLink(\''+ex.id+'\')">↗ Resend Link</button><button class="btn btn-sm btn-ghost" style="color:var(--danger);border-color:var(--danger-soft);" onclick="doCancelExchange(\''+ex.id+'\')">Cancel Exchange</button></div>';}
-  else{ab='<div class="action-bar"><button class="btn btn-sm btn-primary" onclick="doDuplicateExchange(\''+ex.id+'\')">⧉ New Exchange from Template</button></div>';}
-  let dr='';
-  for(const tk of ex.documentsRequired){const tn=DOCUMENT_TYPES.find(t=>t.key===tk)?.label||tk;const doc=ex.documents.filter(d=>d.typeKey===tk).pop();const isNew=state.auditLog.some(e=>e.exchangeId===id&&e.type==='doc-added'&&e.detail===tn);let fc,sc;if(doc){fc='<div class="text-sm">'+doc.fileName+'</div><div style="margin-top:3px;"><button class="ai-check-btn" onclick="event.stopPropagation();openPreview(\''+ex.id+'\',\''+doc.id+'\')">View</button></div>';sc=docStatusBadge(doc.status,doc.rejectionReason);}else{fc='<span class="text-muted text-sm">Awaiting upload</span>';sc='<span class="text-muted text-sm">—</span>';}
-  let ne=isNew?'<span class="new-tag">new</span>':'';let rb='';if(!cl&&doc?.status!=='accepted')rb='<button class="remove-doc-btn" onclick="doRemoveDoc(\''+ex.id+'\',\''+tk+'\')" title="Remove">✕</button>';
-  dr+='<tr><td><div class="font-medium">'+tn+ne+'</div>'+rb+'</td><td>'+fc+'</td><td>'+sc+'</td></tr>';}
-  if(!ex.documentsRequired.length)dr='<tr><td colspan="3" class="text-muted text-sm" style="text-align:center;padding:20px;">No documents required.</td></tr>';
-  const log=getActivityLog(id);let tl='';
-  if(log.length){const el2={upload:{dot:'upload',text:e=>'Client uploaded '+(DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail)},resubmit:{dot:'resubmit',text:e=>'Client re-uploaded '+(DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail)},accept:{dot:'accept',text:e=>'Ops accepted '+(DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail)},reject:{dot:'reject',text:e=>{const p=(e.detail||'').split(':');return 'Ops rejected '+(DOCUMENT_TYPES.find(t=>t.key===p[0])?.label||p[0])+' — '+(REJECTION_REASONS.find(r=>r.key===p[1])?.label||p[1])}},'doc-added':{dot:'system',text:e=>'Advisor added: '+e.detail},'doc-removed':{dot:'system',text:e=>'Advisor removed: '+e.detail},'link-resent':{dot:'system',text:()=>'Client link resent'},cancelled:{dot:'system',text:()=>'Exchange cancelled'},duplicated:{dot:'system',text:e=>'Exchange created '+e.detail},created:{dot:'system',text:e=>'Exchange created — '+e.detail},'box-folder':{dot:'system',text:e=>'Box folder created: '+e.detail},'box-upload':{dot:'upload',text:e=>'Uploaded to Box: '+e.detail}};
-  tl='<div class="card" style="margin-top:12px;"><div class="card-title" style="font-size:13px;margin-bottom:8px;">Activity</div><div class="timeline">'+log.slice(0,15).map(e=>{const c=el2[e.type]||{dot:'system',text:()=>e.type};return '<div class="timeline-item"><div class="timeline-dot timeline-dot-'+c.dot+'"></div><div class="timeline-time">'+new Date(e.at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+'</div><div class="timeline-text">'+c.text(e)+'</div></div>';}).join('')+'</div></div>';}
-  let vc='';if(ex.status==='complete')vc='<div class="value-callout"><span class="value-label">Why this matters</span>That entire loop — request, upload, rejection, targeted re-upload, acceptance — happened without a single email or phone call.</div>';
-  el.innerHTML='<div class="back-link" onclick="backToAdvisorList()">← Back to exchanges</div>'+n+ab+'<div class="card"><div class="card-header"><div><div class="card-title">'+ex.clientName+boxFolderTag(ex)+'</div><div class="card-subtitle">'+ex.id+' · '+(ex.processType||'Exchange')+' · Created '+formatDate(ex.createdAt)+'</div></div>'+statusBadge(ex.status)+'</div><table class="doc-table"><thead><tr><th>Required Document</th><th>File</th><th>Status</th></tr></thead><tbody>'+dr+'</tbody></table></div>'+tl+vc;
-}
-
-let addDocDropdownOpen=false;
-function toggleAddDocDropdown(){const dd=document.getElementById('add-doc-dropdown');if(!dd)return;addDocDropdownOpen=!addDocDropdownOpen;dd.style.display=addDocDropdownOpen?'block':'none';}
-function doAddDoc(eid,tk){addDocDropdownOpen=false;addDocRequirement(eid,tk);render();}
-function doRemoveDoc(eid,tk){const ex=getExchange(eid);const doc=ex?.documents.find(d=>d.typeKey===tk);if(doc&&doc.status==='pending_review')if(!confirm('This document is pending review. Remove it?'))return;removeDocRequirement(eid,tk);render();}
-function doResendLink(eid){resendClientLink(eid);render();const el=document.querySelector('.action-bar');if(el){const m=document.createElement('span');m.style.cssText='font-size:12px;color:var(--success);font-weight:600;margin-left:8px;';m.textContent='✓ Link resent';el.appendChild(m);setTimeout(()=>m.remove(),2000);}}
-function doCancelExchange(eid){if(!confirm('Cancel this exchange?'))return;cancelExchange(eid);render();}
-function doDuplicateExchange(sid){const n=prompt('Client name for new exchange:','');if(!n)return;const ex=duplicateExchange(sid,n);if(ex){state.advisorView='detail';state.advisorDetailId=ex.id;render();}}
-let selectedProcess=null;
-function showNewExchangeForm(){selectedProcess=null;renderNewExchangeForm(document.getElementById('advisor-list'));}
-function renderNewExchangeForm(el){
-  if(!el)el=document.getElementById('advisor-list');
-  const pg=PROCESS_TYPES.map(p=>'<div class="process-option '+(selectedProcess===p.key?'selected':'')+'" onclick="selectProcess(\''+p.key+'\')"><div class="process-option-label">'+p.label+'</div><div class="process-option-desc">'+p.desc+'</div></div>').join('');
-  const proc=PROCESS_TYPES.find(p=>p.key===selectedProcess);
-  const ch=DOCUMENT_TYPES.map(t=>{const ac=proc&&proc.docs.includes(t.key);return '<label class="check-item'+(ac?' checked':'')+'" onclick="this.classList.toggle(\'checked\')"><input type="checkbox" value="'+t.key+'"'+(ac?' checked':'')+'>'+t.label+'</label>';}).join('');
-  el.innerHTML='<div class="back-link" onclick="render()">← Cancel</div><div class="card" id="new-exchange-form"><div class="card-title" style="margin-bottom:14px;">New Document Exchange</div><div class="form-group"><label class="form-label">Client / Prospect Name</label><input id="new-client-name" class="form-input" value="Jane Whitfield" /></div><div class="form-group"><label class="form-label">Advisor Name</label><input id="new-advisor-name" class="form-input" value="John Smith" /></div><div class="form-group"><label class="form-label">Process Type</label><div class="process-grid">'+pg+'</div></div><div class="form-group"><label class="form-label">Required Documents'+(proc&&proc.key!=='custom'?' <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-muted);">— pre-selected for '+proc.label+'</span>':'')+'</label><div class="check-list" id="new-doc-checks">'+ch+'</div></div><div class="mt-24"><button class="btn btn-primary" onclick="submitNewExchange()">Create Exchange & Send to Client</button></div></div>';
-}
-function selectProcess(k){selectedProcess=k;const nv=document.getElementById('new-client-name')?.value||'Jane Whitfield';const av=document.getElementById('new-advisor-name')?.value||'John Smith';renderNewExchangeForm();document.getElementById('new-client-name').value=nv;document.getElementById('new-advisor-name').value=av;}
-function submitNewExchange(){const cn=document.getElementById('new-client-name').value.trim();const an=document.getElementById('new-advisor-name').value.trim();if(!cn)return;const cks=[...document.querySelectorAll('#new-doc-checks input:checked')].map(c=>c.value);if(!cks.length)return;const proc=PROCESS_TYPES.find(p=>p.key===selectedProcess);createExchange(cn,an,cks,proc?.label||'Custom');state.advisorView='list';render();}
-
-// ═══ CLIENT ═══
-function renderClient(){const el=document.getElementById('client-content');const active=state.exchanges.filter(e=>e.status!=='cancelled');if(!active.length){el.innerHTML='<div class="card"><div class="empty-state"><div class="empty-state-icon">📬</div><div class="empty-state-text">No document requests yet.</div></div></div>';return;}let h='';for(const ex of active)h+=renderClientExchange(ex);el.innerHTML=h;}
-function renderClientExchange(ex){
-  let n='';if(ex.status==='re_submission_required'){const rc=ex.documents.filter(d=>d.status==='rejected').length;n='<div class="notification notification-warning">⚠ '+rc+' document'+(rc>1?'s need':' needs')+' to be re-uploaded.</div>';}
-  if(ex.status==='complete')n='<div class="notification notification-success">✓ All documents accepted. Thank you!</div>';
-  const addedDocLabels=state.auditLog.filter(e=>e.exchangeId===ex.id&&e.type==='doc-added').map(e=>e.detail);
-  if(addedDocLabels.length&&ex.status!=='complete')n+='<div class="notification notification-info">Your advisor added '+addedDocLabels.length+' new document'+(addedDocLabels.length>1?'s':'')+' to this request.</div>';
-  const rejExplanations={'government_id:expired':'Your ID has expired. Please upload a current, valid government-issued photo ID.','government_id:illegible':'The image is not clear enough. Please upload a higher quality scan.','government_id:wrong_document':'Not an accepted form of government ID.','proof_of_address:expired':'This document is more than 90 days old.','proof_of_address:illegible':'The document is not legible.','proof_of_address:wrong_document':'Not an accepted proof of address.','beneficiary_form:expired':'This form needs to be updated and re-signed.','beneficiary_form:illegible':'Please update to designate a trustee for any beneficiary under 18.','beneficiary_form:wrong_document':'Please update to designate a trustee for any beneficiary under 18.','application_form:expired':'Needs to be re-signed with the current date.','application_form:illegible':'Parts are not legible.','application_form:wrong_document':'Wrong form submitted.','financial_statement:expired':'More than 6 months old.','financial_statement:illegible':'Not legible.','financial_statement:wrong_document':'Not a recognized financial statement.','tax_form:expired':'Not from the current or prior tax year.','tax_form:illegible':'Not legible.','tax_form:wrong_document':'Wrong form type.'};
-  let dr='';
-  for(const tk of ex.documentsRequired){const tn=DOCUMENT_TYPES.find(t=>t.key===tk)?.label||tk;const doc=ex.documents.filter(d=>d.typeKey===tk).pop();const rej=doc?.status==='rejected';const acc=doc?.status==='accepted';const pen=doc?.status==='pending_review';const need=!doc||rej;const isNew=addedDocLabels.includes(tn);const newTag=isNew?'<span class="new-tag">new</span>':'';
-  let sc='<span class="text-muted text-sm">Awaiting upload</span>';if(pen)sc=docStatusBadge('pending_review');if(acc)sc=docStatusBadge('accepted');if(rej)sc='<span class="text-sm" style="color:var(--warning);">Awaiting re-upload</span>';
-  let orn='';if(rej&&doc.rejectionReason){const exp=rejExplanations[doc.typeKey+':'+doc.rejectionReason];if(exp)orn='<div style="margin-top:3px;font-size:10.5px;color:var(--danger);line-height:1.3;">'+exp+'</div>';}
-  const scanKey=ex.id+':'+tk;const scan=scanState[scanKey];let actionCell='',verifyLine='',viewInline='';
-  if(scan==='scanning')verifyLine='<div style="margin-top:3px;"><span class="scan-inline"><span class="scan-dot"></span>Scanning</span></div>';
-  else if(scan==='passed')verifyLine='<div style="margin-top:3px;"><span class="scan-inline"><span class="scan-pass-icon">✓</span><span style="color:var(--success);">Verified</span></span></div>';
-  else if(scan&&scan.failed){verifyLine='<div style="margin-top:3px;">'+scan.findings.map(f=>'<div style="font-size:10.5px;color:var(--warning);line-height:1.4;margin-bottom:2px;">'+f+'</div>').join('')+'</div>';sc='<span class="text-sm" style="color:var(--warning);">Awaiting re-upload</span>';actionCell='<button class="btn btn-sm btn-primary" onclick="reuploadAfterScan(\''+ex.id+'\',\''+tk+'\',\''+scan.typeName+'\')">Re-upload</button>';}
-  else if(doc&&(pen||acc))verifyLine='<div style="margin-top:3px;"><span class="scan-inline"><span class="scan-pass-icon">✓</span><span style="color:var(--success);">Verified</span></span></div>';
-  if(doc&&!(scan&&scan.failed))viewInline=' <button class="ai-check-btn" onclick="event.stopPropagation();openPreview(\''+ex.id+'\',\''+doc.id+'\')" style="font-size:10px;padding:1px 6px;margin-left:6px;">View</button>';
-  if(!actionCell&&need&&!scan&&ex.status!=='complete')actionCell='<button class="btn btn-sm btn-ghost" onclick="simulateUpload(\''+ex.id+'\',\''+tk+'\',\''+tn+'\')">Upload</button>';
-  dr+='<tr><td><div class="font-medium">'+tn+newTag+viewInline+'</div>'+verifyLine+(!scan?orn:'')+'</td><td>'+sc+'</td><td style="text-align:right;">'+actionCell+'</td></tr>';}
-  return '<div class="card" style="margin-bottom:16px;">'+progressTracker(ex.status)+n+'<div class="card-header"><div><div class="card-title">Document Request from '+ex.advisorName+'</div><div class="card-subtitle">'+ex.id+' · '+(ex.processType||'Exchange')+' · '+ex.documentsRequired.length+' doc'+(ex.documentsRequired.length!==1?'s':'')+' requested</div></div></div><table class="doc-table"><thead><tr><th>Document</th><th>Status</th><th></th></tr></thead><tbody>'+dr+'</tbody></table></div>';
-}
-
-// Simulated agent responses — same shape as real Box AI will return
-// Three checks: date, name, completeness. One prompt handles any doc type.
-const QUICK_CHECKS={
-  government_id:{status:'pass',findings:[
-    {field:'date',status:'pass',value:'expires 2027-06-01',reason:null},
-    {field:'name',status:'pass',value:'Jane Elizabeth Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]},
-  proof_of_address:{status:'pass',findings:[
-    {field:'date',status:'pass',value:'Feb 14, 2026',reason:null},
-    {field:'name',status:'pass',value:'Jane E. Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]},
-  proof_of_address_expired:{status:'fail',findings:[
-    {field:'date',status:'fail',value:'Aug 12, 2025',reason:'This document is from August 2025. Upload one from the last 90 days.'},
-    {field:'name',status:'pass',value:'J. Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]},
-  application_form:{status:'pass',findings:[
-    {field:'date',status:'pass',value:'signed Feb 28, 2026',reason:null},
-    {field:'name',status:'pass',value:'Jane Elizabeth Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]},
-  beneficiary_form:{status:'pass',findings:[
-    {field:'date',status:'pass',value:'signed Feb 28, 2026',reason:null},
-    {field:'name',status:'pass',value:'Jane Elizabeth Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]},
-  financial_statement:{status:'pass',findings:[
-    {field:'date',status:'pass',value:'Jan 31, 2026',reason:null},
-    {field:'name',status:'pass',value:'Jane E. Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]},
-  tax_form:{status:'pass',findings:[
-    {field:'date',status:'pass',value:'tax year 2025',reason:null},
-    {field:'name',status:'pass',value:'Jane Elizabeth Whitfield',reason:null},
-    {field:'completeness',status:'pass',value:'complete document',reason:null}
-  ]}
-};
-let scanState={};
-let pendingUpload = null; // { eid, tk, tn, isReupload }
-
-async function uploadFileToBox(folderId, file) {
-  if (!boxToken || !folderId) return null;
-  const formData = new FormData();
-  formData.append('attributes', JSON.stringify({ name: file.name, parent: { id: folderId } }));
-  formData.append('file', file);
-  const resp = await fetch(BOX_UPLOAD + '/files/content', {
-    method: 'POST', headers: { 'Authorization': 'Bearer ' + boxToken }, body: formData
+async function boxPost(path, body, headers = {}) {
+  const r = await fetch(BOX + path, {
+    method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...headers },
+    body: JSON.stringify(body)
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    if (resp.status === 409) { /* name conflict — file already exists, version it */
-      const existingId = err?.context_info?.conflicts?.[0]?.id;
-      if (existingId) {
-        const vResp = await fetch(BOX_UPLOAD + '/files/' + existingId + '/content', {
-          method: 'POST', headers: { 'Authorization': 'Bearer ' + boxToken }, body: formData
-        });
-        if (vResp.ok) { const vData = await vResp.json(); return vData.entries[0]; }
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+async function boxPut(path, body) {
+  const r = await fetch(BOX + path, {
+    method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+async function boxUpload(folderId, file) {
+  const form = new FormData();
+  form.append('attributes', JSON.stringify({ name: file.name, parent: { id: folderId } }));
+  form.append('file', file);
+  const r = await fetch(BOX_UP + '/files/content', {
+    method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: form
+  });
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+  return r.json();
+}
+async function boxAiExtract(fileId) {
+  return boxPost('/ai/extract_structured', {
+    items: [{ id: fileId, type: 'file' }],
+    fields: [
+      { key: 'insured_name', type: 'string', description: 'Full name of the insured party or policyholder' },
+      { key: 'carrier', type: 'string', description: 'Name of the insurance carrier or company issuing the policy' },
+      { key: 'policy_type', type: 'string', description: 'Type of policy (e.g., CGL, D&O, E&O, Property, Professional Liability)' },
+      { key: 'effective_date', type: 'string', description: 'Policy effective/start date' },
+      { key: 'expiration_date', type: 'string', description: 'Policy expiration/end date' },
+      { key: 'policy_number', type: 'string', description: 'The policy number or identifier' }
+    ]
+  });
+}
+async function boxAiAsk(fileIds, prompt) {
+  return boxPost('/ai/ask', {
+    mode: fileIds.length === 1 ? 'single_item_qa' : 'multiple_item_qa',
+    prompt: prompt,
+    items: fileIds.map(id => ({ id, type: 'file' })),
+    ai_agent: {
+      type: 'ai_agent_ask',
+      long_text: {
+        system_message: SYSTEM_MSG
+      },
+      basic_text: {
+        system_message: SYSTEM_MSG
       }
     }
-    throw new Error('Upload failed: ' + (err.message || resp.status));
-  }
-  const data = await resp.json();
-  return data.entries[0];
+  });
+}
+async function findOrCreateFolder(parentId, name) {
+  const items = await boxGet(`/folders/${parentId}/items?fields=name,type&limit=200`);
+  const existing = items.entries.find(e => e.type === 'folder' && e.name === name);
+  if (existing) return existing;
+  return boxPost('/folders', { name, parent: { id: parentId } });
 }
 
-function simulateUpload(eid, tk, tn) {
-  if (boxConnected) {
-    pendingUpload = { eid, tk, tn, isReupload: false };
-    document.getElementById('box-file-input').click();
-  } else {
-    doSimulatedUpload(eid, tk, tn);
-  }
-}
+const SYSTEM_MSG = `You are an insurance policy renewal analyst. Your job: compare an expiring policy against a renewal or competitor, identify material changes, assess risk impact, and check compliance against underwriting guidelines.
 
-function reuploadAfterScan(eid, tk, tn) {
-  const sk = eid + ':' + tk;
-  delete scanState[sk];
-  if (boxConnected) {
-    pendingUpload = { eid, tk, tn, isReupload: true };
-    document.getElementById('box-file-input').click();
-  } else {
-    doSimulatedReupload(eid, tk, tn);
-  }
-}
+Methodology:
+1. Read endorsements first (they override everything), then declarations, insuring agreement, exclusions, conditions, definitions.
+2. For each difference, test materiality: does it alter WHO is covered, WHAT is covered, HOW MUCH, WHEN, WHERE, or HOW claims are handled? If not, ignore it.
+3. Map interactions between changes. Changes compound — assess net effect, not individual changes.
+4. Rate each material change for severity and frequency impact.
+5. Check each guideline requirement against specific policy language. Absence is non-compliance.
 
-function handleFileSelected(input) {
-  const file = input.files[0];
-  if (!file || !pendingUpload) { input.value = ''; return; }
-  const { eid, tk, tn, isReupload } = pendingUpload;
-  pendingUpload = null;
-  input.value = '';
-  const sk = eid + ':' + tk;
-  scanState[sk] = 'scanning';
-  render();
-  const ac = state.auditLog.filter(e => e.exchangeId === eid && (e.type === 'upload' || e.type === 'resubmit') && e.detail === tk).length;
-  let qk = tk;
-  if (tk === 'proof_of_address' && ac === 0 && !isReupload) qk = 'proof_of_address_expired';
-  const qc = QUICK_CHECKS[qk] || QUICK_CHECKS[tk];
-  setTimeout(() => {
-    if (!qc) { finishRealUpload(eid, tk, tn, sk, file); return; }
-    const f = (isReupload ? [] : qc.findings.filter(c => c.status === 'fail'));
-    if (f.length > 0) {
-      scanState[sk] = { failed: true, findings: f.map(x => x.reason), docType: tk, typeName: tn };
-      render();
-    } else {
-      scanState[sk] = 'passed';
-      render();
-      setTimeout(() => finishRealUpload(eid, tk, tn, sk, file), 800);
+Output JSON only. No markdown, no explanation outside the JSON. Use this exact structure:
+{
+  "label": "short header like 'Renewal Analysis · Insured · Policy Type · Date'",
+  "bottom_line": "2-3 sentences. Net assessment.",
+  "material_changes": [
+    {
+      "name": "short name",
+      "severity": "up_severity|down_severity|up_frequency|down_frequency|neutral",
+      "changed": "what changed, one sentence",
+      "impact": "business impact, one sentence",
+      "reference": "policy section or endorsement",
+      "interaction": "how it compounds with other changes, or 'None'"
     }
-  }, 1500 + Math.random() * 1000);
-}
+  ],
+  "compliance": [
+    { "status": "pass|fail|warn", "text": "description" }
+  ],
+  "risk_assessment": "one paragraph synthesis"
+}`;
 
-async function finishRealUpload(eid, tk, tn, sk, file) {
-  const ex = getExchange(eid);
-  let boxFileId = null;
-  if (ex && ex.boxFolderId && boxConnected) {
-    try {
-      const boxFile = await uploadFileToBox(ex.boxFolderId, file);
-      if (boxFile) { boxFileId = boxFile.id; logEvent('box-upload', eid, tk + ' -> ' + boxFile.id); }
-    } catch (e) { console.error('Box upload failed:', e); }
-  }
-  uploadDocument(eid, tk, file.name, boxFileId);
-  delete scanState[sk];
-  render();
-}
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let user = null;
+let rootFolderId = null;
+const SLOTS = [
+  { key: 'expiring', label: 'Expiring', ic: 'expiring' },
+  { key: 'renewal', label: 'Renewal', ic: 'renewal' },
+  { key: 'competitor', label: 'Competitor', ic: 'competitor' },
+  { key: 'guidelines', label: 'Guidelines', ic: 'guidelines' }
+];
+let docs = {}; // { key: { file, boxFile, extracted } }
+let analyses = [null, null]; // [renewal, competitor]
+let rawAnalyses = ['', ''];
+let activeTab = 0;
+let pipelineStep = -1; // -1=idle, 0=upload, 1=extract, 2=analyze, 3=save
+let saveMode = 'raw';
 
-// Fallback for when Box is not connected
-function doSimulatedUpload(eid, tk, tn) {
-  const sk = eid + ':' + tk;
-  scanState[sk] = 'scanning'; render();
-  const ac = state.auditLog.filter(e => e.exchangeId === eid && (e.type === 'upload' || e.type === 'resubmit') && e.detail === tk).length;
-  let qk = tk; if (tk === 'proof_of_address' && ac === 0) qk = 'proof_of_address_expired';
-  const qc = QUICK_CHECKS[qk] || QUICK_CHECKS[tk];
-  setTimeout(() => { if (!qc) { finishSimUpload(eid, tk, tn, sk); return; }
-    const f = qc.findings.filter(c => c.status === 'fail');
-    if (f.length > 0) { scanState[sk] = { failed: true, findings: f.map(x => x.reason), docType: tk, typeName: tn }; render(); }
-    else { scanState[sk] = 'passed'; render(); setTimeout(() => finishSimUpload(eid, tk, tn, sk), 800); }
-  }, 1500 + Math.random() * 1000);
+// ═══════════════════════════════════════
+// SKINS
+// ═══════════════════════════════════════
+const SKINS = [
+  { name: 'Keystone', brand: 'Keystone · Commercial Liability', dot: '#7c3aed', v: { '--display': "'Chakra Petch',sans-serif", '--body': "'Manrope',sans-serif", '--bg': '#f8f6f1', '--bg2': '#f0ede6', '--bg3': '#e8e4dc', '--card': '#ffffff', '--b1': '#e2ddd4', '--b2': '#d4cfc4', '--b3': '#c5bfb3', '--t1': '#1a1816', '--t2': '#4a4640', '--t3': '#8a857a', '--t4': '#b5b0a4', '--ac': '#7c3aed', '--ac2': '#6d28d9', '--ac-s': 'rgba(124,58,237,0.06)', '--ac-b': 'rgba(124,58,237,0.16)', '--topbar': '#1e1b2e' } },
+  { name: 'Meridian', brand: 'Meridian · Property', dot: '#0d9488', v: { '--display': "'Space Grotesk',sans-serif", '--body': "'DM Sans',sans-serif", '--bg': '#f4f5f7', '--bg2': '#ebedf0', '--bg3': '#dde0e4', '--card': '#ffffff', '--b1': '#dde0e4', '--b2': '#cdd1d6', '--b3': '#b8bcc4', '--t1': '#111827', '--t2': '#374151', '--t3': '#6b7280', '--t4': '#9ca3af', '--ac': '#0d9488', '--ac2': '#0f766e', '--ac-s': 'rgba(13,148,136,0.06)', '--ac-b': 'rgba(13,148,136,0.16)', '--topbar': '#134e4a' } },
+  { name: 'Sentinel', brand: 'Sentinel · Professional Liability', dot: '#f59e0b', v: { '--display': "'Chakra Petch',sans-serif", '--body': "'Outfit',sans-serif", '--bg': '#0f0f12', '--bg2': '#18181b', '--bg3': '#27272a', '--card': '#1c1c20', '--b1': '#2e2e33', '--b2': '#3f3f46', '--b3': '#52525b', '--t1': '#fafafa', '--t2': '#d4d4d8', '--t3': '#71717a', '--t4': '#52525b', '--ac': '#f59e0b', '--ac2': '#d97706', '--ac-s': 'rgba(245,158,11,0.08)', '--ac-b': 'rgba(245,158,11,0.18)', '--topbar': '#0a0a0c' } },
+  { name: 'Ledger', brand: 'Ledger · D&O', dot: '#4338ca', v: { '--display': "'Crimson Pro',serif", '--body': "'Manrope',sans-serif", '--bg': '#fafaf9', '--bg2': '#f5f5f4', '--bg3': '#e7e5e4', '--card': '#ffffff', '--b1': '#e7e5e4', '--b2': '#d6d3d1', '--b3': '#a8a29e', '--t1': '#1c1917', '--t2': '#44403c', '--t3': '#78716c', '--t4': '#a8a29e', '--ac': '#4338ca', '--ac2': '#3730a3', '--ac-s': 'rgba(67,56,202,0.06)', '--ac-b': 'rgba(67,56,202,0.16)', '--topbar': '#1e1b4b' } }
+];
+let cSkin = 0;
+function applySkin(i) {
+  const sh = document.getElementById('shell'); sh.classList.add('switching');
+  setTimeout(() => { cSkin = i; const s = SKINS[i]; Object.entries(s.v).forEach(([k, v]) => document.documentElement.style.setProperty(k, v)); document.getElementById('brand-name').textContent = s.brand; document.title = s.brand; renderSkinDD(); sh.classList.remove('switching'); }, 220);
 }
-function doSimulatedReupload(eid, tk, tn) {
-  const sk = eid + ':' + tk; scanState[sk] = 'scanning'; render();
-  setTimeout(() => { scanState[sk] = 'passed'; render(); setTimeout(() => finishSimUpload(eid, tk, tn, sk), 800); }, 1500 + Math.random() * 1000);
-}
-function finishSimUpload(eid, tk, tn, sk) {
-  const names = {government_id:'drivers_license_2026.pdf',proof_of_address:'utility_bill_feb2026.pdf',application_form:'application_signed.pdf',beneficiary_form:'beneficiary_designation.pdf',financial_statement:'bank_statement_q4.pdf',tax_form:'T4_2025.pdf'};
-  uploadDocument(eid, tk, names[tk] || tn.toLowerCase().replace(/\s+/g,'_') + '.pdf'); delete scanState[sk]; render();
-}
+function toggleSkinDD() { document.getElementById('skin-dd').classList.toggle('open'); renderSkinDD(); }
+function renderSkinDD() { document.getElementById('skin-dd').innerHTML = SKINS.map((s, i) => `<button class="skin-opt ${i === cSkin ? 'active' : ''}" onclick="applySkin(${i});toggleSkinDD()"><span class="skin-dot" style="background:${s.dot}"></span><span class="skin-name">${s.name}</span></button>`).join(''); }
 
-// ═══ OPS ═══
-function renderOps(){if(state.opsView==='detail'&&state.opsDetailId){renderOpsDetail(state.opsDetailId);return;}document.getElementById('ops-detail').style.display='none';const el=document.getElementById('ops-list');el.style.display='block';const rev=state.exchanges.filter(e=>['documents_received','under_review','re_submission_required'].includes(e.status));const done=state.exchanges.filter(e=>e.status==='complete');const stats=getOpsStats();let h='';
-if(stats.totalUploads>0)h+='<div class="stats-bar"><div class="stat-card"><div class="stat-value" style="color:var(--accent)">'+stats.totalUploads+'</div><div class="stat-label">Uploads</div></div><div class="stat-card"><div class="stat-value" style="color:var(--success)">'+stats.accepted+'</div><div class="stat-label">Accepted</div></div><div class="stat-card"><div class="stat-value" style="color:var(--danger)">'+stats.rejected+'</div><div class="stat-label">Rejected</div></div><div class="stat-card"><div class="stat-value" style="color:var(--warning)">'+stats.resubmissions+'</div><div class="stat-label">Re-uploads</div></div><div class="stat-card"><div class="stat-value" style="color:#7c5bbf">'+stats.pendingReview+'</div><div class="stat-label">Pending</div></div></div>';
-h+='<div class="card"><div class="card-header"><div><div class="card-title">Operations Queue</div><div class="card-subtitle">'+rev.length+' awaiting review</div></div></div>';
-if(!rev.length&&!done.length)h+='<div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">No exchanges in queue.</div></div>';
-for(const ex of rev){const p=ex.documents.filter(d=>d.status==='pending_review').length;h+='<div class="exchange-row" onclick="openOpsDetail(\''+ex.id+'\')"><div class="exchange-meta"><div class="exchange-name">'+ex.clientName+' <span class="text-muted text-sm">via '+ex.advisorName+'</span></div><div class="exchange-info">'+ex.id+' · '+p+' pending</div></div><div class="exchange-right">'+statusBadge(ex.status)+'</div></div>';}
-if(done.length){h+='<div class="divider"></div><div class="text-sm text-muted font-medium" style="margin-bottom:8px;">Completed</div>';for(const ex of done)h+='<div class="exchange-row" onclick="openOpsDetail(\''+ex.id+'\')" style="opacity:0.6;"><div class="exchange-meta"><div class="exchange-name">'+ex.clientName+'</div><div class="exchange-info">'+ex.id+'</div></div><div class="exchange-right">'+statusBadge(ex.status)+'</div></div>';}
-h+='</div>';el.innerHTML=h;}
-function openOpsDetail(id){state.opsView='detail';state.opsDetailId=id;render();}
-function backToOpsList(){state.opsView='list';state.opsDetailId=null;render();}
-
-const AI_EVALUATIONS={government_id:{label:'ID Verification — FINTRAC PCMLTFA',regulation:'PCMLTFA / FINTRAC Methods to Verify Identity of Persons',results:[{verdict:'pass',finding:'Government-issued photo ID (Ontario Driver\'s License) — meets FINTRAC requirement.'},{verdict:'pass',finding:'Expiry June 1, 2027 — valid and current.'},{verdict:'pass',finding:'Name, photograph, unique number (W4829-38571-80315) — all mandatory elements present.'},{verdict:'pass',finding:'Name matches application form.'},{verdict:'info',finding:'Address matches proof of address on file.'}]},proof_of_address:{label:'Address Verification — FINTRAC KYC',regulation:'FINTRAC Dual-Process / Independent Source Verification',results:[{verdict:'pass',finding:'Statement dated Feb 14, 2026 — within 90-day window.'},{verdict:'pass',finding:'Toronto Hydro — accepted independent source.'},{verdict:'pass',finding:'Address matches application and ID.'},{verdict:'pass',finding:'Name matches ID on file.'}]},application_form:{label:'Application Completeness — CIRO',regulation:'NI 31-103 / CIRO Rules 3200-3402',results:[{verdict:'pass',finding:'Account type (TFSA) selected.'},{verdict:'pass',finding:'KYC fields complete: income, employer, risk profile.'},{verdict:'pass',finding:'Client signature and date present (Feb 28, 2026).'},{verdict:'pass',finding:'Advisor certification signed.'},{verdict:'info',finding:'Risk profile consistent with income and account type.'}]},beneficiary_form:{label:'Beneficiary Validation — Ontario Insurance Act',regulation:'Ontario Insurance Act R.S.O. 1990, c. I.8, ss. 171, 190-196',results:[{verdict:'pass',finding:'Signed designation — meets s.171(1).'},{verdict:'pass',finding:'Primary: Michael R. Whitfield (Spouse).'},{verdict:'pass',finding:'Allocation 100% — no split issues.'},{verdict:'pass',finding:'Contingent: Sarah Whitfield (Daughter), age 7.'},{verdict:'warn',finding:'Minor beneficiary — s.220(1) requires named trustee. No trustee specified.'}]},beneficiary_form_fixed:{label:'Beneficiary Validation — Ontario Insurance Act',regulation:'Ontario Insurance Act R.S.O. 1990, c. I.8, ss. 171, 190-196',results:[{verdict:'pass',finding:'Signed designation — meets s.171(1).'},{verdict:'pass',finding:'Primary: Michael R. Whitfield (Spouse).'},{verdict:'pass',finding:'Allocation 100%.'},{verdict:'pass',finding:'Contingent: Sarah Whitfield, age 7.'},{verdict:'pass',finding:'Trustee designated: Michael R. Whitfield per s.220(1). Compliant.'}]},financial_statement:{label:'Financial Review — CIRO',regulation:'NI 31-103 s.13.2 / CIRO IDPC Rules',results:[{verdict:'pass',finding:'TD Canada Trust — recognized Schedule I bank.'},{verdict:'pass',finding:'Period Jan 1–31, 2026 — current.'},{verdict:'pass',finding:'Name matches ID and application.'},{verdict:'pass',finding:'Balance $28,881.88 — consistent with stated income.'},{verdict:'info',finding:'Account number partially redacted — acceptable.'}]},tax_form:{label:'Tax Document — CRA T4',regulation:'CRA RC4120 / Income Tax Act',results:[{verdict:'pass',finding:'Tax year 2025 — current prior year.'},{verdict:'pass',finding:'T4 form — correct for employment income.'},{verdict:'pass',finding:'SIN ending 482 — matches application.'},{verdict:'pass',finding:'Income $112,400 — within declared range.'},{verdict:'pass',finding:'CPP and EI deductions present.'}]}};
-const DOC_PREVIEWS={government_id:'DRIVER\'S LICENSE — Province of Ontario\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nName:      Jane Elizabeth Whitfield\nDOB:       1988-03-15\nAddress:   42 Maple Crescent, Toronto ON M5V 2T6\nLicense #: W4829-38571-80315\nExpires:   2027-06-01\n\n[PHOTO]  [SIGNATURE]',proof_of_address:'TORONTO HYDRO — Utility Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nService Address: 42 Maple Crescent, Toronto ON\nPeriod: Jan 15 – Feb 14, 2026\nAmount Due: $142.37\nCustomer: Jane E. Whitfield',application_form:'CANADA LIFE — New Account Application\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAccount Type: [x] TFSA\nApplicant: Jane Elizabeth Whitfield\nEmployer: Meridian Design Group\nIncome: $95,000 – $124,999\nRisk Profile: Balanced Growth\nSignature: [SIGNED]  Date: 2026-02-28\nAdvisor: John Smith #A-28471',beneficiary_form:'BENEFICIARY DESIGNATION FORM\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nPrimary: Michael R. Whitfield (Spouse) — 100%\nContingent: Sarah Whitfield (Daughter, age 7) — 100%\nSignature: [SIGNED]  Date: 2026-02-28',beneficiary_form_fixed:'BENEFICIARY DESIGNATION FORM (Amended)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nPrimary: Michael R. Whitfield (Spouse) — 100%\nContingent: Sarah Whitfield (Daughter, age 7) — 100%\n  Trustee: Michael R. Whitfield\nSignature: [SIGNED]  Date: 2026-03-12',financial_statement:'TD CANADA TRUST — Account Statement\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nHolder: Jane E. Whitfield\nPeriod: Jan 1–31, 2026\nClosing Balance: $28,881.88',tax_form:'T4 — Statement of Remuneration Paid\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nTax Year: 2025\nEmployee: Jane Elizabeth Whitfield\nEmployment Income (Box 14): $112,400.00\nCPP (Box 16): $3,867.50\nEI (Box 18): $952.74'};
-let previewOpen=null,aiCheckOpen={};
-function openPreview(eid,did){
-  const ex=getExchange(eid); const doc=ex?.documents.find(d=>d.id===did);
-  if(doc&&doc.boxFileId&&boxToken){
-    openBoxPreview(doc);
-  } else {
-    previewOpen={exchangeId:eid,docId:did};renderPreview();
-  }
-}
-async function openBoxPreview(doc) {
-  document.getElementById('preview-layer')?.remove();
-  const div = document.createElement('div');
-  div.id = 'preview-layer';
-  const boxLogo = '<svg viewBox="0 0 24 24" fill="white"><path d="M4.21 10.735l3.942 2.478 3.58-2.478-3.58-2.478zm11.58 0l-3.58 2.478 3.942 2.478 3.58-2.478zm-7.638 5.17l3.58 2.478 3.58-2.478-3.58-2.478zM7.79 5.565L4.21 8.043l3.58 2.478 3.58-2.478zm8.42 0l-3.58 2.478 3.58 2.478 3.58-2.478z"/></svg>';
-  const boxLogoBlue = boxLogo.replace('fill="white"','fill="#0061d5"');
-  div.innerHTML = `<div class="box-preview-overlay" onclick="if(event.target===this)closePreview()">
-    <div class="box-preview-modal">
-      <div class="box-preview-header">
-        <div class="box-preview-header-left">
-          <div class="box-preview-logo">${boxLogo}</div>
-          <div>
-            <div class="box-preview-filename">${doc.fileName}</div>
-            <div class="box-preview-meta-bar">${doc.typeName} · Uploaded ${formatDate(doc.uploadedAt)}</div>
-          </div>
-        </div>
-        <button class="box-preview-close" onclick="closePreview()">×</button>
-      </div>
-      <div class="box-preview-body" id="box-preview-container">
-        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:13px;gap:8px;">
-          <span class="scan-dot" style="border-color:#ccc;border-top-color:#0061d5;"></span> Loading preview...
-        </div>
-      </div>
-      <div class="box-preview-footer">
-        <div class="box-preview-footer-left">
-          <span class="box-preview-powered">${boxLogoBlue} Powered by Box</span>
-          <span>File ID: ${doc.boxFileId}</span>
-        </div>
-        <div class="box-preview-footer-right">Secure document preview</div>
-      </div>
-    </div>
-  </div>`;
-  document.body.appendChild(div);
-  // Fetch embed link from Box API
+// ═══════════════════════════════════════
+// CONNECTION
+// ═══════════════════════════════════════
+async function connect() {
+  const input = document.getElementById('token-input');
+  const err = document.getElementById('connect-err');
+  const btn = document.getElementById('connect-btn');
+  token = input.value.trim();
+  if (!token) { err.textContent = 'Enter a developer token'; return; }
+  btn.disabled = true; btn.textContent = 'Connecting...'; err.textContent = '';
   try {
-    const fileData = await boxFetch('/files/' + doc.boxFileId + '?fields=expiring_embed_link,name,size');
-    if (fileData.expiring_embed_link?.url) {
-      document.getElementById('box-preview-container').innerHTML =
-        '<iframe src="' + fileData.expiring_embed_link.url + '" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>';
-    } else {
-      throw new Error('No embed link returned');
+    user = await boxGet('/users/me');
+    const root = await findOrCreateFolder('0', 'Renewal Analyst');
+    rootFolderId = root.id;
+    const userFolder = await findOrCreateFolder(rootFolderId, user.name);
+    rootFolderId = userFolder.id; // L1 is now the working root
+    document.getElementById('connect-screen').style.display = 'none';
+    document.getElementById('app-wrap').classList.add('active');
+    document.getElementById('box-dot').classList.remove('off');
+    document.getElementById('box-label').textContent = 'Box';
+    document.getElementById('sb-d').classList.add('on'); document.getElementById('sb-d').classList.remove('off');
+    document.getElementById('sb-box').textContent = 'Box';
+    document.getElementById('sb-user').textContent = user.name;
+    document.getElementById('avatar').textContent = user.name.split(' ').map(w => w[0]).join('').slice(0, 2);
+    renderStrip();
+    syncState();
+  } catch (e) {
+    err.textContent = 'Connection failed: ' + e.message;
+    token = null; user = null;
+  }
+  btn.disabled = false; btn.textContent = 'Connect';
+}
+function disconnect() {
+  if (!token) return;
+  token = null; user = null; rootFolderId = null; docs = {}; analyses = [null, null]; rawAnalyses = ['', ''];
+  document.getElementById('connect-screen').style.display = 'flex';
+  document.getElementById('app-wrap').classList.remove('active');
+  document.getElementById('box-dot').classList.add('off');
+  document.getElementById('box-label').textContent = 'Not connected';
+  document.getElementById('sb-d').classList.remove('on'); document.getElementById('sb-d').classList.add('off');
+  document.getElementById('sb-box').textContent = 'Disconnected';
+  document.getElementById('sb-user').textContent = '';
+  setStep(-1);
+}
+
+// ═══════════════════════════════════════
+// DOCUMENT STRIP
+// ═══════════════════════════════════════
+function renderStrip() {
+  document.getElementById('doc-strip').innerHTML = SLOTS.map((s, i) => {
+    const d = docs[s.key]; const ok = !!d; const anc = s.key === 'expiring';
+    return `<div class="doc-card ${ok ? 'loaded' : ''} ${anc ? 'anchor' : ''}" id="dc-${s.key}"
+      onclick="${ok ? '' : `triggerUpload('${s.key}')`}"
+      ondragover="event.preventDefault();this.classList.add('dragover')"
+      ondragleave="this.classList.remove('dragover')"
+      ondrop="event.preventDefault();this.classList.remove('dragover');handleDrop(event,'${s.key}')">
+      <div class="dc-icon ${ok ? s.ic : 'empty'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="dc-info">
+        <div class="dc-label">${s.label}</div>
+        <div class="dc-name ${ok ? '' : 'empty'}">${ok ? d.boxFile.entries[0].name : 'Drop or click'}</div>
+        ${ok && d.extracted ? `<div class="dc-meta">${d.extracted.carrier || ''} · ${d.extracted.effective_date || ''}</div>` : ''}
+      </div>
+      ${ok ? `<button class="dc-close" onclick="event.stopPropagation();removeDoc('${s.key}')">×</button>` : ''}
+    </div>`;
+  }).join('');
+  // Hidden file inputs
+  SLOTS.forEach(s => {
+    if (!document.getElementById('fi-' + s.key)) {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf'; inp.className = 'hidden-input';
+      inp.id = 'fi-' + s.key; inp.onchange = e => handleFile(e.target.files[0], s.key);
+      document.body.appendChild(inp);
     }
-  } catch(e) {
-    console.error('Box embed failed:', e);
-    document.getElementById('box-preview-container').innerHTML =
-      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:#666;font-family:var(--font);">' +
-        '<div style="font-size:14px;">Preview unavailable</div>' +
-        '<a href="https://app.box.com/file/' + doc.boxFileId + '" target="_blank" style="color:#0061d5;font-size:13px;font-weight:600;text-decoration:none;">Open in Box →</a>' +
-      '</div>';
+  });
+}
+function triggerUpload(key) { document.getElementById('fi-' + key).click(); }
+function handleDrop(e, key) { if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0], key); }
+
+async function handleFile(file, key) {
+  if (!file || !token) return;
+  setStep(0);
+  const card = document.getElementById('dc-' + key);
+  card.classList.add('uploading');
+
+  try {
+    // Upload to Box (into user's root for now — we'll refile after extract)
+    const boxFile = await boxUpload(rootFolderId, file);
+    const fileId = boxFile.entries[0].id;
+    docs[key] = { file, boxFile, extracted: null };
+    setStep(1);
+    renderStrip(); syncState();
+
+    // Extract identity
+    try {
+      const ext = await boxAiExtract(fileId);
+      docs[key].extracted = ext;
+      renderStrip();
+
+      // Auto-file: find/create client folder (L2) and cycle folder (L3)
+      if (ext.insured_name) {
+        const clientFolder = await findOrCreateFolder(rootFolderId, ext.insured_name);
+        const cycleName = [ext.effective_date || 'undated', ext.policy_type || 'Policy'].join(' · ');
+        const cycleFolder = await findOrCreateFolder(clientFolder.id, cycleName);
+        // Move file to cycle folder
+        await boxPut(`/files/${fileId}`, { parent: { id: cycleFolder.id } });
+      }
+    } catch (extErr) {
+      console.warn('Extract failed, filing in root:', extErr);
+    }
+    setStep(-1);
+  } catch (err) {
+    console.error('Upload failed:', err);
+    alert('Upload failed: ' + err.message);
+    setStep(-1);
+  }
+  card.classList.remove('uploading');
+  syncState();
+}
+
+function removeDoc(key) { delete docs[key]; renderStrip(); syncState(); }
+
+// ═══════════════════════════════════════
+// STATE SYNC
+// ═══════════════════════════════════════
+function syncState() {
+  const n = Object.keys(docs).length;
+  const canRun = docs.expiring && (docs.renewal || docs.competitor);
+  const hasAnalysis = analyses[0] || analyses[1];
+  document.getElementById('sb-docs').textContent = n + ' document' + (n !== 1 ? 's' : '');
+  document.getElementById('run-btn').className = 'run-btn ' + (canRun ? 'on' : 'off');
+  document.getElementById('save-btn').disabled = !hasAnalysis;
+  document.getElementById('export-btn').disabled = !hasAnalysis;
+
+  const rs = document.getElementById('run-status');
+  if (canRun) { const p = []; if (docs.renewal) p.push('renewal'); if (docs.competitor) p.push('competitor'); rs.innerHTML = `<span class="ct">${n}</span> documents · Ready to analyze ${p.join(' + ')}`; }
+  else if (!n) rs.innerHTML = `<span class="ct">0</span> · Upload expiring + renewal to begin`;
+  else { const m = []; if (!docs.expiring) m.push('expiring'); if (!docs.renewal && !docs.competitor) m.push('renewal or competitor'); rs.innerHTML = `<span class="ct">${n}</span> documents · Need ${m.join(' and ')}`; }
+
+  const tabs = document.querySelectorAll('.atab');
+  tabs[0].classList.toggle('disabled', !docs.renewal);
+  tabs[1].classList.toggle('disabled', !docs.competitor);
+}
+
+// ═══════════════════════════════════════
+// ANALYSIS
+// ═══════════════════════════════════════
+async function runAnalysis() {
+  if (!docs.expiring || (!docs.renewal && !docs.competitor)) return;
+  const btn = document.getElementById('run-btn');
+  btn.className = 'run-btn running'; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Analyzing...';
+  setStep(2);
+
+  const expiringId = docs.expiring.boxFile.entries[0].id;
+
+  // Run renewal analysis
+  if (docs.renewal) {
+    try {
+      const renewalId = docs.renewal.boxFile.entries[0].id;
+      const fileIds = [expiringId, renewalId];
+      if (docs.guidelines) fileIds.push(docs.guidelines.boxFile.entries[0].id);
+      const prompt = 'Compare the expiring policy against the renewal policy. ' + (docs.guidelines ? 'Check compliance against the underwriting guidelines document. ' : '') + 'Identify material changes, assess risk impact, and produce the structured JSON analysis.';
+      const result = await boxAiAsk(fileIds, prompt);
+      rawAnalyses[0] = result.answer;
+      try { analyses[0] = JSON.parse(result.answer); } catch { analyses[0] = { raw: result.answer }; }
+    } catch (e) { console.error('Renewal analysis failed:', e); analyses[0] = { error: e.message }; }
+  }
+
+  // Run competitor analysis
+  if (docs.competitor) {
+    try {
+      const compId = docs.competitor.boxFile.entries[0].id;
+      const fileIds = [expiringId, compId];
+      if (docs.guidelines) fileIds.push(docs.guidelines.boxFile.entries[0].id);
+      const prompt = 'Compare the expiring policy against the competitor quote. ' + (docs.guidelines ? 'Check compliance against the underwriting guidelines document. ' : '') + 'Identify material changes, assess risk impact, and produce the structured JSON analysis.';
+      const result = await boxAiAsk(fileIds, prompt);
+      rawAnalyses[1] = result.answer;
+      try { analyses[1] = JSON.parse(result.answer); } catch { analyses[1] = { raw: result.answer }; }
+    } catch (e) { console.error('Competitor analysis failed:', e); analyses[1] = { error: e.message }; }
+  }
+
+  document.getElementById('empty-state').style.display = 'none';
+  renderAnalysis(0); renderAnalysis(1);
+  if (docs.renewal) switchTab(0); else switchTab(1);
+  btn.className = 'run-btn on'; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Analyze';
+  setStep(3);
+  syncState();
+}
+
+function renderAnalysis(idx) {
+  const ax = analyses[idx];
+  const el = document.getElementById('ax-' + idx);
+  if (!ax) { el.innerHTML = ''; return; }
+
+  if (ax.error) { el.innerHTML = `<div class="ax-raw">Analysis failed: ${ax.error}</div>`; return; }
+  if (ax.raw) { el.innerHTML = `<div class="ax-label">Raw Response</div><div class="ax-raw">${ax.raw}</div>`; return; }
+
+  const badgeClass = s => ({ up_severity: 'us', down_severity: 'ds', up_frequency: 'uf', down_frequency: 'ds', neutral: 'n' }[s] || 'n');
+  const badgeLabel = s => ({ up_severity: '↑ severity', down_severity: '↓ severity', up_frequency: '↑ frequency', down_frequency: '↓ frequency', neutral: 'neutral' }[s] || s);
+
+  let h = `<div class="ax-label">${ax.label || 'Analysis'}</div>`;
+  h += `<div class="ax-sec"><div class="ax-sh">Bottom Line</div><div class="ax-bl">${ax.bottom_line || ''}</div></div>`;
+
+  if (ax.material_changes?.length) {
+    h += `<div class="ax-sec"><div class="ax-sh">Material Changes<span class="ax-sc">${ax.material_changes.length} identified</span></div>`;
+    ax.material_changes.forEach((mc, i) => {
+      h += `<div class="mc ${i === 0 ? 'critical' : ''}"><div class="mc-in">
+        <div class="mc-top"><div class="mc-name">${mc.name}</div><div class="badge ${badgeClass(mc.severity)}">${badgeLabel(mc.severity)}</div></div>
+        <div class="mr"><span class="mr-l">Changed</span><span class="mr-v">${mc.changed}</span></div>
+        <div class="mr"><span class="mr-l">Impact</span><span class="mr-v">${mc.impact}</span></div>
+        ${mc.reference ? `<div class="mr"><span class="mr-l">Reference</span><span class="mr-v">${mc.reference}</span></div>` : ''}
+        ${mc.interaction && mc.interaction !== 'None' ? `<div class="mr"><span class="mr-l">Interaction</span><span class="mr-v">${mc.interaction}</span></div>` : ''}
+      </div></div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (ax.compliance?.length) {
+    h += `<div class="ax-sec"><div class="ax-sh">Compliance</div>`;
+    // Sort: fail first, then warn, then pass
+    const sorted = [...ax.compliance].sort((a, b) => { const o = { fail: 0, warn: 1, pass: 2 }; return (o[a.status] ?? 1) - (o[b.status] ?? 1); });
+    sorted.forEach(c => {
+      const icon = { pass: '✓', fail: '✗', warn: '⚠' }[c.status] || '•';
+      h += `<div class="cx ${c.status}"><span class="cx-i">${icon}</span><span class="cx-t">${c.text}</span></div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (ax.risk_assessment) {
+    h += `<div class="ax-sec"><div class="ax-sh">Net Risk Assessment</div><div class="ax-risk">${ax.risk_assessment}</div></div>`;
+  }
+  el.innerHTML = h;
+}
+
+function switchTab(i) {
+  const tabs = document.querySelectorAll('.atab');
+  if (tabs[i].classList.contains('disabled')) return;
+  activeTab = i;
+  tabs.forEach((t, j) => t.classList.toggle('active', j === i));
+  document.getElementById('ax-0').classList.toggle('visible', i === 0 && !!analyses[0]);
+  document.getElementById('ax-1').classList.toggle('visible', i === 1 && !!analyses[1]);
+}
+
+// ═══════════════════════════════════════
+// SAVE / EXPORT
+// ═══════════════════════════════════════
+function openSaveModal() { document.getElementById('save-modal').classList.add('open'); saveMode = 'raw'; renderSaveOpts(); }
+function closeSaveModal() { document.getElementById('save-modal').classList.remove('open'); }
+function selectSaveMode(m) { saveMode = m; renderSaveOpts(); }
+function renderSaveOpts() { document.querySelectorAll('.modal-opt').forEach(el => { el.classList.toggle('selected', el.onclick.toString().includes(`'${saveMode}'`)); }); }
+
+async function executeSave() {
+  const raw = rawAnalyses[activeTab];
+  if (!raw) { closeSaveModal(); return; }
+
+  if (saveMode === 'edit') {
+    closeSaveModal();
+    const el = document.getElementById('ax-' + activeTab);
+    el.innerHTML = `<div class="ax-label">Edit Analysis</div><textarea class="ax-edit" id="edit-area">${raw}</textarea>
+      <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end">
+        <button class="mbtn ghost" onclick="renderAnalysis(${activeTab});switchTab(${activeTab})">Cancel</button>
+        <button class="mbtn primary" onclick="saveEdited(${activeTab})">Save to Box</button>
+      </div>`;
+    el.classList.add('visible');
+    return;
+  }
+
+  closeSaveModal();
+  setStep(3);
+  try {
+    const content = saveMode === 'formatted' ? generateHTML(analyses[activeTab]) : raw;
+    const ext = saveMode === 'formatted' ? '.html' : '.md';
+    const name = `Analysis-${new Date().toISOString().slice(0, 10)}${ext}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const file = new File([blob], name);
+    await boxUpload(rootFolderId, file);
+    alert('Saved to Box: ' + name);
+  } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+async function saveEdited(idx) {
+  const text = document.getElementById('edit-area').value;
+  rawAnalyses[idx] = text;
+  try { analyses[idx] = JSON.parse(text); } catch { analyses[idx] = { raw: text }; }
+  renderAnalysis(idx); switchTab(idx);
+  setStep(3);
+  try {
+    const name = `Analysis-${new Date().toISOString().slice(0, 10)}.md`;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const file = new File([blob], name);
+    await boxUpload(rootFolderId, file);
+    alert('Saved to Box: ' + name);
+  } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+function exportAnalysis() {
+  const ax = analyses[activeTab];
+  if (!ax) return;
+  const content = generateHTML(ax);
+  const blob = new Blob([content], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `Renewal-Analysis-${new Date().toISOString().slice(0, 10)}.html`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function generateHTML(ax) {
+  if (!ax || ax.raw || ax.error) return rawAnalyses[activeTab] || '';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:40px auto;color:#1a1816;line-height:1.6}h1{font-size:18px;border-bottom:2px solid #7c3aed;padding-bottom:8px}h2{font-size:14px;margin-top:20px;color:#4a4640}.bl{padding:12px 16px;background:#f5f3ff;border-left:3px solid #7c3aed;margin:12px 0}.mc{border:1px solid #e2ddd4;padding:10px 14px;margin:6px 0;border-radius:6px}.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px}.us{background:#fef2f2;color:#dc2626}.uf{background:#fffbeb;color:#f59e0b}.ds{background:#f0fdf4;color:#16a34a}.cx{padding:6px 0;font-size:13px}.fail{color:#dc2626}.warn{color:#f59e0b}.pass{color:#16a34a}.risk{padding:12px;background:#f8f6f1;border-radius:6px;margin-top:12px}</style></head><body>
+  <h1>${ax.label || 'Renewal Analysis'}</h1>
+  <h2>Bottom Line</h2><div class="bl">${ax.bottom_line || ''}</div>
+  <h2>Material Changes</h2>${(ax.material_changes || []).map(mc => `<div class="mc"><strong>${mc.name}</strong> <span class="badge ${({ up_severity: 'us', up_frequency: 'uf', down_severity: 'ds' }[mc.severity]) || ''}">${mc.severity?.replace('_', ' ') || ''}</span><br><small><b>Changed:</b> ${mc.changed}<br><b>Impact:</b> ${mc.impact}${mc.reference ? '<br><b>Ref:</b> ' + mc.reference : ''}</small></div>`).join('')}
+  <h2>Compliance</h2>${(ax.compliance || []).map(c => `<div class="cx ${c.status}">${({ pass: '✓', fail: '✗', warn: '⚠' }[c.status]) || '•'} ${c.text}</div>`).join('')}
+  <h2>Net Risk Assessment</h2><div class="risk">${ax.risk_assessment || ''}</div>
+  </body></html>`;
+}
+
+// ═══════════════════════════════════════
+// STEP INDICATOR
+// ═══════════════════════════════════════
+function setStep(n) {
+  pipelineStep = n;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('step-' + i);
+    el.classList.remove('done', 'active');
+    if (n >= 0 && i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
   }
 }
-function closePreview(){previewOpen=null;document.getElementById('preview-layer')?.remove();}
-function renderPreview(){if(!previewOpen)return;const ex=getExchange(previewOpen.exchangeId);const doc=ex?.documents.find(d=>d.id===previewOpen.docId);if(!doc)return;const ac={};for(const e of state.auditLog){if(e.exchangeId===previewOpen.exchangeId&&(e.type==='upload'||e.type==='resubmit'))ac[e.detail]=(ac[e.detail]||0)+1;}const att=ac[doc.typeKey]||1;let ck=doc.typeKey;if(doc.typeKey==='beneficiary_form'&&att>1)ck='beneficiary_form_fixed';const content=DOC_PREVIEWS[ck]||DOC_PREVIEWS[doc.typeKey]||'Box Preview API would render here.';document.getElementById('preview-layer')?.remove();const div=document.createElement('div');div.id='preview-layer';div.innerHTML='<div class="preview-overlay" onclick="if(event.target===this)closePreview()"><div class="preview-card"><div class="preview-header"><div><div style="font-size:15px;font-weight:700;">'+doc.typeName+'</div><div style="font-size:12px;color:var(--ink-muted);margin-top:2px;">'+doc.fileName+'</div></div><button class="preview-close" onclick="closePreview()">×</button></div><div class="preview-meta"><div class="preview-meta-item"><strong>Uploaded:</strong> '+formatDate(doc.uploadedAt)+'</div><div class="preview-meta-item"><strong>Status:</strong> '+docStatusBadge(doc.status,doc.rejectionReason)+'</div></div><div class="preview-doc">'+content+'</div></div></div>';document.body.appendChild(div);}
-function toggleAiCheck(did){aiCheckOpen[did]=!aiCheckOpen[did];render();}
-function getExchangeStats(ex){const ad=ex.documents;const at=state.auditLog.filter(e=>e.exchangeId===ex.id&&(e.type==='upload'||e.type==='resubmit')).length;return{uploaded:at,accepted:ad.filter(d=>d.status==='accepted').length,rejected:state.auditLog.filter(e=>e.exchangeId===ex.id&&e.type==='reject').length,resubmissions:state.auditLog.filter(e=>e.exchangeId===ex.id&&e.type==='resubmit').length,pending:ad.filter(d=>d.status==='pending_review').length};}
 
-function renderOpsDetail(id){const ex=getExchange(id);if(!ex)return;document.getElementById('ops-list').style.display='none';const el=document.getElementById('ops-detail');el.style.display='block';const stats=getExchangeStats(ex);const ac={};for(const e of state.auditLog){if(e.exchangeId===id&&(e.type==='upload'||e.type==='resubmit'))ac[e.detail]=(ac[e.detail]||0)+1;}
-let sh='';if(ex.documents.length>0)sh='<div class="ex-stats"><div class="ex-stat"><span class="ex-stat-n">'+stats.uploaded+'</span> uploads</div><div class="ex-stat" style="background:var(--success-soft);color:var(--success)"><span class="ex-stat-n">'+stats.accepted+'</span> accepted</div>'+(stats.rejected>0?'<div class="ex-stat" style="background:var(--danger-soft);color:var(--danger)"><span class="ex-stat-n">'+stats.rejected+'</span> rejected</div>':'')+(stats.resubmissions>0?'<div class="ex-stat" style="background:var(--warning-soft);color:var(--warning)"><span class="ex-stat-n">'+stats.resubmissions+'</span> re-uploads</div>':'')+'<div class="ex-stat" style="background:#f0ebff;color:#7c5bbf"><span class="ex-stat-n">'+stats.pending+'</span> pending</div></div>';
-let dr='';
-for(const doc of ex.documents){const att=ac[doc.typeKey]||1;const atC=att>1?'var(--warning)':'var(--ink-muted)';const atB=att>1?'var(--warning-soft)':'var(--info-soft)';const atTag='<span style="font-size:10px;font-weight:600;color:'+atC+';background:'+atB+';padding:1px 6px;border-radius:99px;margin-left:6px;">Attempt '+att+'</span>';
-let ek=doc.typeKey;if(doc.typeKey==='beneficiary_form'&&att>1)ek='beneficiary_form_fixed';const ev=AI_EVALUATIONS[ek];
-let ap='';if(doc.status==='pending_review'&&ev&&aiCheckOpen[doc.id]){const fl=ev.results.filter(r=>r.verdict==='fail').length;const wl=ev.results.filter(r=>r.verdict==='warn').length;const sl=fl>0?'<div style="font-size:11px;font-weight:600;color:var(--danger);margin-bottom:6px;">⚠ '+fl+' issue'+(fl>1?'s':'')+' detected</div>':wl>0?'<div style="font-size:11px;font-weight:600;color:var(--warning);margin-bottom:6px;">Review recommended — '+wl+' item'+(wl>1?'s':'')+' flagged</div>':'<div style="font-size:11px;font-weight:600;color:var(--success);margin-bottom:6px;">✓ All checks passed</div>';
-ap='<tr><td colspan="4" style="padding:0 12px 10px 12px;border-bottom:1px solid var(--border-light);"><div class="ai-check" style="margin-top:0;"><div class="ai-check-header"><div class="ai-check-icon">✦</div><div class="ai-check-title">'+ev.label+'</div></div>'+(ev.regulation?'<div style="font-size:10px;color:var(--ink-muted);margin-bottom:6px;font-style:italic;">'+ev.regulation+'</div>':'')+sl+'<div class="ai-check-list">'+ev.results.map(r=>'<div class="ai-check-item"><span class="ai-verdict ai-verdict-'+r.verdict+'">'+r.verdict+'</span><div>'+r.finding+'</div></div>').join('')+'</div></div></td></tr>';}
-let aBtn='';if(doc.status==='pending_review'){const opts=REJECTION_REASONS.map(r=>'<option value="'+r.key+'">'+r.label+'</option>').join('');aBtn='<div class="reject-actions"><button class="btn btn-sm btn-success" onclick="doReview(\''+ex.id+'\',\''+doc.id+'\')">Accept</button><select id="reject-'+doc.id+'" class="reject-select"><option value="">Reject as…</option>'+opts+'</select><button class="btn btn-sm btn-danger" onclick="doReject(\''+ex.id+'\',\''+doc.id+'\')">Reject</button></div>';}
-let btns='<div style="display:flex;gap:6px;margin-top:4px;"><button class="ai-check-btn" onclick="event.stopPropagation();openPreview(\''+ex.id+'\',\''+doc.id+'\')">View</button>';
-if(doc.status==='pending_review'&&ev){const fl=ev.results.filter(r=>r.verdict==='fail').length;const wl=ev.results.filter(r=>r.verdict==='warn').length;const bs=fl>0?'color:var(--danger);border-color:var(--danger-soft);':wl>0?'color:var(--warning);border-color:var(--warning-soft);':'';const bl=fl>0?'✦ '+fl+' issue'+(fl>1?'s':''):wl>0?'✦ '+wl+' note'+(wl>1?'s':''):'✦ AI Check';btns+='<button class="ai-check-btn" style="'+bs+'" onclick="event.stopPropagation();toggleAiCheck(\''+doc.id+'\')">'+bl+'</button>';}
-btns+='</div>';
-dr+='<tr><td><div class="font-medium">'+doc.typeName+atTag+'</div><div style="font-size:11px;color:var(--ink-muted);margin-top:1px;">'+formatDate(doc.uploadedAt)+'</div></td><td><div class="text-sm">'+doc.fileName+'</div>'+btns+'</td><td>'+docStatusBadge(doc.status,doc.rejectionReason)+'</td><td style="text-align:right;">'+aBtn+'</td></tr>'+ap;}
-if(!ex.documents.length)dr='<tr><td colspan="4" class="text-muted text-sm" style="text-align:center;padding:24px;">No documents uploaded yet.</td></tr>';
-const ol=getActivityLog(id);let ot='';
-if(ol.length){const el2={upload:{dot:'upload',text:e=>'Client uploaded '+(DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail)},resubmit:{dot:'resubmit',text:e=>'Re-uploaded '+(DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail)},accept:{dot:'accept',text:e=>'Accepted '+(DOCUMENT_TYPES.find(t=>t.key===e.detail)?.label||e.detail)},reject:{dot:'reject',text:e=>{const p=(e.detail||'').split(':');return 'Rejected '+(DOCUMENT_TYPES.find(t=>t.key===p[0])?.label||p[0])+' — '+(REJECTION_REASONS.find(r=>r.key===p[1])?.label||p[1]);}},created:{dot:'system',text:()=>'Exchange created'},'box-folder':{dot:'system',text:e=>'Box folder: '+e.detail},'box-upload':{dot:'upload',text:e=>'Uploaded to Box: '+e.detail}};
-ot='<div class="card" style="margin-top:12px;"><div class="card-title" style="font-size:13px;margin-bottom:8px;">Activity</div><div class="timeline">'+ol.slice(0,15).map(e=>{const c=el2[e.type]||{dot:'system',text:()=>e.type};return '<div class="timeline-item"><div class="timeline-dot timeline-dot-'+c.dot+'"></div><div class="timeline-time">'+new Date(e.at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+'</div><div class="timeline-text">'+c.text(e)+'</div></div>';}).join('')+'</div></div>';}
-el.innerHTML='<div class="back-link" onclick="backToOpsList()">← Back to queue</div>'+sh+'<div class="card"><div class="card-header"><div><div class="card-title">'+ex.clientName+boxFolderTag(ex)+'</div><div class="card-subtitle">'+ex.id+' · '+(ex.processType||'')+' · Advisor: '+ex.advisorName+'</div></div>'+statusBadge(ex.status)+'</div><table class="doc-table"><thead><tr><th>Document</th><th>File</th><th>Status</th><th></th></tr></thead><tbody>'+dr+'</tbody></table></div>'+ot;}
-function doReview(eid,did){reviewDocument(eid,did,true,null);render();}
-function doReject(eid,did){const s=document.getElementById('reject-'+did);if(!s?.value){s?.focus();return;}reviewDocument(eid,did,false,s.value);render();}
-
-function launchDemo(){document.body.classList.remove('hub-active');document.body.classList.add('demo-active');render();}
-function backToHub(){document.body.classList.remove('demo-active');document.body.classList.add('hub-active');}
-render();
-document.addEventListener('click',e=>{if(addDocDropdownOpen&&!e.target.closest('.add-doc-dropdown')&&!e.target.closest('[onclick*="toggleAddDocDropdown"]')){addDocDropdownOpen=false;const dd=document.getElementById('add-doc-dropdown');if(dd)dd.style.display='none';}});
-document.getElementById('box-token-input').addEventListener('keydown',e=>{if(e.key==='Enter')testBoxConnection();});
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('click', e => { if (!e.target.closest('.skin-sel')) document.getElementById('skin-dd').classList.remove('open'); });
+document.getElementById('token-input').addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
+applySkin(0); renderSkinDD();
 </script>
 </body>
 </html>
